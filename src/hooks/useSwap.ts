@@ -3,7 +3,6 @@ import { MsgExecuteContract, WalletConnection } from "@delphi-labs/shuttle";
 import { useQuery } from "@tanstack/react-query";
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import BigNumber from "bignumber.js";
-
 import { objectToBase64 } from "@/utils/encoding";
 import { getTokenDecimals } from "@/config/tokens";
 import useWallet from "./useWallet";
@@ -20,21 +19,21 @@ type AssetInfo =
       };
     };
 
-type SimulateProps = {
+type GetSimulateResultProps = {
   amount: string;
   offerAssetAddress: string;
   returnAssetAddress: string;
   poolAddress: string;
-  wallet: WalletConnection | null;
+  wallet: WalletConnection;
 };
 
-function useSwapSimulate({
+function getSimulateResult({
   amount,
   offerAssetAddress,
   returnAssetAddress,
   poolAddress,
   wallet,
-}: SimulateProps) {
+}: GetSimulateResultProps) {
   return useQuery(
     [
       "swap-simulate",
@@ -137,7 +136,7 @@ function useSwapSimulate({
   );
 }
 
-type useSwapProps = {
+type UseSwapProps = {
   amount: string;
   exchangeRate: string;
   offerAssetAddress: string;
@@ -153,7 +152,7 @@ export const useSwap = ({
   returnAssetAddress,
   poolAddress,
   slippage = "0.005",
-}: useSwapProps) => {
+}: UseSwapProps) => {
   const wallet = useWallet();
   console.log("useSwap real");
   const msgs = useMemo(() => {
@@ -240,7 +239,7 @@ export const useSwap = ({
   }, [msgs]);
 };
 
-type useSimulateSwapProps = {
+type UseSimulateSwapProps = {
   amount: string;
   offerAssetAddress: string;
   returnAssetAddress: string;
@@ -252,18 +251,18 @@ export const useSimulateSwap = ({
   offerAssetAddress,
   returnAssetAddress,
   poolAddress,
-}: useSimulateSwapProps) => {
+}: UseSimulateSwapProps) => {
   const wallet = useWallet();
-  const simulate = useSwapSimulate({
+  const simulateResult = getSimulateResult({
     amount,
     offerAssetAddress,
     returnAssetAddress,
     poolAddress,
     wallet,
   });
-  console.log("useSwap simulate", simulate);
+  console.log("useSwap simulate", simulateResult);
 
   return useMemo(() => {
-    return { simulate };
-  }, [simulate]);
+    return { simulateResult };
+  }, [simulateResult]);
 };

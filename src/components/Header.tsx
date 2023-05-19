@@ -7,6 +7,7 @@ import { getNetworkByChainId, networks } from "@/config/networks";
 import { isAndroid, isIOS, isMobile } from "@/utils/device";
 import useWallet from "@/hooks/useWallet";
 import { useShuttlePortStore } from "@/config/store";
+import { Box, Button, Flex, Select } from "@chakra-ui/react";
 
 export default function Header() {
   const [currentNetworkId, switchNetwork] = useShuttlePortStore((state) => [
@@ -24,7 +25,7 @@ export default function Header() {
   const wallet = useWallet();
 
   return (
-    <>
+    <Flex align="center" justify="center">
       <Head>
         <title>WarpWorld</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,29 +34,29 @@ export default function Header() {
       <header>
         <hr />
         <div>
-          <label htmlFor="currentNetwork">Current network:</label>
-          <select
-            id="currentNetwork"
-            onChange={(e) => switchNetwork(e.target.value)}
-            value={currentNetworkId}
-          >
-            {networks.map((network) => (
-              <option key={network.chainId} value={network.chainId}>
-                {network.name}
-              </option>
-            ))}
-          </select>
+          <Flex>
+            <Box>current network</Box>
+            <Select
+              id="currentNetwork"
+              onChange={(e) => switchNetwork(e.target.value)}
+              value={currentNetworkId}
+            >
+              {networks.map((network) => (
+                <option key={network.chainId} value={network.chainId}>
+                  {network.name}
+                </option>
+              ))}
+            </Select>
+          </Flex>
         </div>
-
         <hr />
-
         {!wallet && (
           <div>
             {providers.map((provider) => {
               if (!provider.networks.has(currentNetworkId)) return;
 
               return (
-                <button
+                <Button
                   key={provider.id}
                   onClick={() =>
                     connect({
@@ -66,14 +67,14 @@ export default function Header() {
                   disabled={!provider.initialized}
                 >
                   {provider.name}
-                </button>
+                </Button>
               );
             })}
             {mobileProviders.map((mobileProvider) => {
               if (!mobileProvider.networks.has(currentNetworkId)) return;
 
               return (
-                <button
+                <Button
                   key={mobileProvider.id}
                   onClick={async () => {
                     const urls = await mobileConnect({
@@ -99,19 +100,17 @@ export default function Header() {
                   disabled={!mobileProvider.initialized}
                 >
                   {mobileProvider.name}
-                </button>
+                </Button>
               );
             })}
           </div>
         )}
-
         {wallet && (
-          <div>
+          <Flex>
             <p>Address: {wallet.account.address}</p>
-            <button onClick={() => disconnectWallet(wallet)}>Disconnect</button>
-          </div>
+            <Button onClick={() => disconnectWallet(wallet)}>Disconnect</Button>
+          </Flex>
         )}
-
         <hr />
       </header>
 
@@ -122,15 +121,13 @@ export default function Header() {
             onClick={() => setWalletconnectUrl("")}
           ></div>
           <div className="relative flex min-h-[408px] min-w-[384px] flex-col items-center rounded-lg bg-white py-10 px-14 shadow-md">
-            <button
+            <Button
               className="absolute top-3 right-3 rounded bg-black p-1.5 text-white"
               onClick={() => setWalletconnectUrl("")}
             >
               Close
-            </button>
-
+            </Button>
             <h2 className="mb-2 text-xl">Wallet Connect</h2>
-
             <div className="flex flex-col items-center">
               <p className="mb-4 text-center text-sm text-gray-600">
                 Scan this QR code with your mobile wallet
@@ -140,6 +137,6 @@ export default function Header() {
           </div>
         </div>
       )}
-    </>
+    </Flex>
   );
 }
