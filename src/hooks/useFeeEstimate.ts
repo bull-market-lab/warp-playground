@@ -10,7 +10,6 @@ type Props = {
 export default function useFeeEstimate({ messages }: Props) {
   const { simulate } = useShuttle();
   const wallet = useWallet();
-
   return useQuery(['fee-estimate', JSON.stringify(messages), wallet?.id], async () => {
     if (!messages || messages.length <= 0 || !wallet) {
       return null;
@@ -20,7 +19,6 @@ export default function useFeeEstimate({ messages }: Props) {
       messages,
       wallet,
     });
-
     return {
       fee: response.fee?.amount[0],
       gasLimit: response.fee?.gas,

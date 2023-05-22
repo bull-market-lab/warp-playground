@@ -2,16 +2,11 @@ import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import { useShuttle } from "@delphi-labs/shuttle";
 import { useShuttlePortStore } from "@/config/store";
-import {
-  DEFAULT_TOKEN_DECIMALS,
-  DENOM_TO_TOKEN_NAME,
-  TOKENS,
-} from "@/config/tokens";
+import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/config/tokens";
 import { TERRA_MAINNET, TERRA_TESTNET } from "@/config/networks";
 import { POOLS } from "@/config/pools";
 import { isMobile } from "@/utils/device";
 import useBalance from "@/hooks/useBalance";
-import { useSimulateSwap, useSwap } from "@/hooks/useSwap";
 import useFeeEstimate from "@/hooks/useFeeEstimate";
 import useWallet from "@/hooks/useWallet";
 import {
@@ -23,11 +18,12 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { WARP_CONTRACTS } from "@/config/warpContracts";
-import {
-  useWarpCreateAccount,
-  useWarpCreateAstroportLimitOrder,
-  useWarpGetAccount,
-} from "@/hooks/useWarp";
+import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
+import { useWarpCreateAccount } from "@/hooks/useWarpCreateAccount";
+import { useWarpCreateJobAstroportLimitSwap } from "@/hooks/useWarpCreateJobAstroportLimitSwap";
+import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
+import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
+import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
 
 export default function Home() {
   const { broadcast } = useShuttle();
@@ -35,21 +31,37 @@ export default function Home() {
   const currentNetworkId = useShuttlePortStore(
     (state) => state.currentNetworkId
   );
+
   const [warpControllerAddress, setWarpControllerAddress] = useState(
     WARP_CONTRACTS[currentNetworkId].warpController
   );
+  const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
+    useState("");
+
+  const [warpPendingJobs, setWarpPendingJobs] = useState([]);
+  const [warpPendingJobCount, setWarpPendingJobCount] = useState(0);
+
+  const [warpFinishedJobs, setWarpFinishedJobs] = useState([]);
+  const [warpFinishedJobCount, setWarpFinishedJobCount] = useState(0);
+
   const [warpAccountAddress, setWarpAccountAddress] = useState("");
+
   const [poolAddress, setPoolAddress] = useState(
     POOLS[currentNetworkId]?.axlusdcNative!
   );
-  const [tokenFrom, setTokenFrom] = useState(
+
+  const [tokenOffer, setTokenOffer] = useState(
     TOKENS[currentNetworkId]?.axlusdc!
   );
-  const [tokenTo, setTokenTo] = useState(TOKENS[currentNetworkId]?.native);
-  const [tokenFromAmount, setTokenFromAmount] = useState("0");
+  const [tokenReturn, setTokenReturn] = useState(
+    TOKENS[currentNetworkId]?.native
+  );
+  const [tokenOfferAmount, setTokenOfferAmount] = useState("0");
+  const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
+
   const [marketExchangeRate, setMarketExchangeRate] = useState("1");
   const [desiredExchangeRate, setDesiredExchangeRate] = useState("1");
-  const [tokenToAmount, setTokenToAmount] = useState("0");
+
   const [isCreatingWarpAccount, setIsCreatingWarpAccount] = useState(false);
   const [
     isCreatingWarpJobAstroportLimitSwap,
@@ -58,24 +70,24 @@ export default function Home() {
 
   useEffect(() => {
     if (currentNetworkId === TERRA_MAINNET.chainId) {
-      setTokenFrom(TOKENS[currentNetworkId]?.axlusdc!);
-      setTokenTo(TOKENS[currentNetworkId]?.native);
+      setTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
+      setTokenReturn(TOKENS[currentNetworkId]?.native);
       setPoolAddress(POOLS[currentNetworkId]?.axlusdcNative!);
     } else if (currentNetworkId === TERRA_TESTNET.chainId) {
-      setTokenFrom(TOKENS[currentNetworkId]?.astro);
-      setTokenTo(TOKENS[currentNetworkId]?.native);
+      setTokenOffer(TOKENS[currentNetworkId]?.astro);
+      setTokenReturn(TOKENS[currentNetworkId]?.native);
       setPoolAddress(POOLS[currentNetworkId].astroNative);
     }
     setWarpControllerAddress(WARP_CONTRACTS[currentNetworkId].warpController);
   }, [currentNetworkId]);
 
-  const tokenFromBalance = useBalance(tokenFrom);
-  const tokenToBalance = useBalance(tokenTo);
+  const tokenOfferBalance = useBalance(tokenOffer);
+  const tokenReturnBalance = useBalance(tokenReturn);
 
   const simulateResult = useSimulateSwap({
-    amount: tokenFromAmount,
-    offerAssetAddress: tokenFrom,
-    returnAssetAddress: tokenTo,
+    amount: tokenOfferAmount,
+    offerAssetAddress: tokenOffer,
+    returnAssetAddress: tokenReturn,
     poolAddress,
   }).simulateResult.data;
 
@@ -89,7 +101,11 @@ export default function Home() {
     if (desiredExchangeRate === "1") {
       setDesiredExchangeRate(simulateResult.beliefPrice);
     }
-    setTokenToAmount(simulateResult.amount);
+    setTokenReturnAmount(
+      BigNumber(simulateResult.amount)
+        .div(getTokenDecimals(wallet.network.defaultCurrency!.coinMinimalDenom))
+        .toString()
+    );
   }, [simulateResult]);
 
   const getWarpAccountAddressResult = useWarpGetAccount({
@@ -104,20 +120,54 @@ export default function Home() {
     setWarpAccountAddress(getWarpAccountAddressResult.account);
   }, [getWarpAccountAddressResult]);
 
+  const getWarpConfigResult = useWarpGetConfig({
+    warpControllerAddress,
+  }).configResult.data;
+
+  useEffect(() => {
+    if (!getWarpConfigResult) {
+      return;
+    }
+    console.log("warpConfigResult", getWarpConfigResult);
+    setWarpJobCreationFeePercentage(
+      getWarpConfigResult.config.creation_fee_percentage
+    );
+  }, [getWarpConfigResult]);
+
+  const getWarpPendingJobsResult = useWarpGetJobs({
+    warpControllerAddress,
+    isPending: true,
+  }).jobsResult.data;
+
+  useEffect(() => {
+    if (!getWarpPendingJobsResult) {
+      return;
+    }
+    console.log("warpPendingJobsResult", getWarpPendingJobsResult);
+    setWarpPendingJobCount(getWarpPendingJobsResult.totalCount);
+    setWarpPendingJobs(getWarpPendingJobsResult.jobs);
+  }, [getWarpPendingJobsResult]);
+
+  const getWarpFinishedJobsResult = useWarpGetJobs({
+    warpControllerAddress,
+    isPending: true,
+  }).jobsResult.data;
+
+  useEffect(() => {
+    if (!getWarpFinishedJobsResult) {
+      return;
+    }
+    console.log("warpFinishedJobsResult", getWarpFinishedJobsResult);
+    setWarpFinishedJobCount(getWarpFinishedJobsResult.totalCount);
+    setWarpFinishedJobs(getWarpFinishedJobsResult.jobs);
+  }, [getWarpFinishedJobsResult]);
+
   const createWarpAccount = useWarpCreateAccount({
     warpControllerAddress,
   });
 
   const { data: createWarpAccountFeeEstimate } = useFeeEstimate({
     messages: createWarpAccount.msgs,
-  });
-
-  const createWarpJobAstroportLimitSwap = useWarpCreateAstroportLimitOrder({
-    warpControllerAddress,
-  });
-
-  const { data: createWarpJobAstroportLimitSwapFeeEstimate } = useFeeEstimate({
-    messages: createWarpJobAstroportLimitSwap.msgs,
   });
 
   const onCreateWarpAccount = () => {
@@ -139,10 +189,25 @@ export default function Home() {
       .finally(() => {
         setIsCreatingWarpAccount(false);
         // refetch since creating warp account will cost LUNA so change balance
-        tokenFromBalance.refetch();
-        tokenToBalance.refetch();
+        tokenOfferBalance.refetch();
+        tokenReturnBalance.refetch();
       });
   };
+
+  const createWarpJobAstroportLimitSwap = useWarpCreateJobAstroportLimitSwap({
+    warpControllerAddress,
+    warpAccountAddress,
+    warpJobCreationFeePercentage,
+    poolAddress,
+    offerAmount: tokenOfferAmount,
+    minimumReturnAmount: tokenReturnAmount,
+    offerAssetAddress: tokenOffer,
+    returnAssetAddress: tokenReturn,
+  });
+
+  const { data: createWarpJobAstroportLimitSwapFeeEstimate } = useFeeEstimate({
+    messages: createWarpJobAstroportLimitSwap.msgs,
+  });
 
   const onLimitSwap = () => {
     setIsCreatingWarpJobAstroportLimitSwap(true);
@@ -161,40 +226,40 @@ export default function Home() {
       })
       .finally(() => {
         setIsCreatingWarpJobAstroportLimitSwap(false);
-        setTokenFromAmount("0");
-        tokenFromBalance.refetch();
-        tokenToBalance.refetch();
+        setTokenOfferAmount("0");
+        tokenOfferBalance.refetch();
+        tokenReturnBalance.refetch();
       });
   };
 
-  const handleSelectChange = (event) => {
+  const handleSelectChange = (event: any) => {
     const selectedOption = event.target.value;
     if (currentNetworkId === TERRA_MAINNET.chainId) {
       if (selectedOption === "option1") {
-        setTokenFrom(TOKENS[currentNetworkId]?.axlusdc!);
-        setTokenTo(TOKENS[currentNetworkId]?.native);
+        setTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
+        setTokenReturn(TOKENS[currentNetworkId]?.native);
         setPoolAddress(POOLS[currentNetworkId]?.axlusdcNative!);
       } else if (selectedOption === "option2") {
-        setTokenFrom(TOKENS[currentNetworkId]?.native);
-        setTokenTo(TOKENS[currentNetworkId]?.axlusdc!);
+        setTokenOffer(TOKENS[currentNetworkId]?.native);
+        setTokenReturn(TOKENS[currentNetworkId]?.axlusdc!);
         setPoolAddress(POOLS[currentNetworkId].axlusdcNative!);
       } else if (selectedOption === "option3") {
-        setTokenFrom(TOKENS[currentNetworkId]?.axlusdc!);
-        setTokenTo(TOKENS[currentNetworkId]?.astro);
+        setTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
+        setTokenReturn(TOKENS[currentNetworkId]?.astro);
         setPoolAddress(POOLS[currentNetworkId].axlusdcAstro!);
       } else if (selectedOption === "option4") {
-        setTokenFrom(TOKENS[currentNetworkId]?.astro);
-        setTokenTo(TOKENS[currentNetworkId]?.axlusdc!);
+        setTokenOffer(TOKENS[currentNetworkId]?.astro);
+        setTokenReturn(TOKENS[currentNetworkId]?.axlusdc!);
         setPoolAddress(POOLS[currentNetworkId].axlusdcAstro!);
       }
     } else if (currentNetworkId === TERRA_TESTNET.chainId) {
       if (selectedOption === "option1") {
-        setTokenFrom(TOKENS[currentNetworkId]?.astro);
-        setTokenTo(TOKENS[currentNetworkId]?.native);
+        setTokenOffer(TOKENS[currentNetworkId]?.astro);
+        setTokenReturn(TOKENS[currentNetworkId]?.native);
         setPoolAddress(POOLS[currentNetworkId].astroNative);
       } else if (selectedOption === "option2") {
-        setTokenFrom(TOKENS[currentNetworkId]?.native);
-        setTokenTo(TOKENS[currentNetworkId]?.astro);
+        setTokenOffer(TOKENS[currentNetworkId]?.native);
+        setTokenReturn(TOKENS[currentNetworkId]?.astro);
         setPoolAddress(POOLS[currentNetworkId].astroNative);
       }
     }
@@ -202,12 +267,12 @@ export default function Home() {
 
   const handleChangeDesiredExchangeRate = (newRate: string) => {
     setDesiredExchangeRate(newRate);
-    setTokenToAmount(BigNumber(tokenFromAmount).dividedBy(newRate).toString());
+    setTokenReturnAmount(BigNumber(tokenOfferAmount).div(newRate).toString());
   };
 
   const setDesiredExchangeRateWithMarketRate = () => {
     setDesiredExchangeRate(marketExchangeRate);
-    setTokenToAmount(simulateResult!.amount);
+    setTokenReturnAmount(simulateResult!.amount);
   };
 
   if (!wallet) {
@@ -220,99 +285,102 @@ export default function Home() {
     );
   }
 
-  if (!warpAccountAddress) {
-    return (
-      <main>
-        <Flex align="center" justify="center">
-          <Box>
-            <Button
-              colorScheme="blue"
-              onClick={onCreateWarpAccount}
-              isDisabled={
-                isCreatingWarpAccount ||
-                !(
-                  createWarpAccountFeeEstimate &&
-                  createWarpAccountFeeEstimate.fee
-                )
-              }
-            >
-              {isCreatingWarpAccount ? "processing..." : "create warp account"}
-            </Button>
-          </Box>
-        </Flex>
-      </main>
-    );
-  }
-
   return (
     <main>
       <Flex align="center" justify="center" direction="column">
-        <Box>warp account address {warpAccountAddress}</Box>
+        <Box>warp account address: {warpAccountAddress || 'not exist'}</Box>
         {/* <Swap/> */}
         {currentNetworkId === TERRA_MAINNET.chainId && (
           <Select
+            width="250px"
             placeholder=""
             onChange={handleSelectChange}
             defaultValue="option1"
           >
-            <option value="option1">buy LUNA with axlUSDC</option>
-            <option value="option2">sell LUNA to axlUSDC</option>
-            <option value="option3">buy ASTRO with axlUSDC</option>
-            <option value="option4">sell ASTRO to axlUSDC</option>
+            <option value="option1">swap axlUSDC to LUNA</option>
+            <option value="option2">swap LUNA to axlUSDC</option>
+            <option value="option3">swap axlUSDC to ASTRO</option>
+            <option value="option4">swap ASTRO to axlUSDC</option>
           </Select>
         )}
         {currentNetworkId === TERRA_TESTNET.chainId && (
           <Select
+            width="250px"
             placeholder=""
             onChange={handleSelectChange}
             defaultValue="option1"
           >
-            <option value="option1">buy LUNA with ASTRO</option>
-            <option value="option2">sell LUNA to ASTRO</option>
+            <option value="option1">swap ASTRO to LUNA </option>
+            <option value="option2">swap LUNA to ASTRO</option>
           </Select>
         )}
         {poolAddress && (
           <>
             {/* <Box>Pool address: {poolAddress}</Box> */}
             <Box>
-              {DENOM_TO_TOKEN_NAME[tokenFrom]} balance: {tokenFromBalance.data}
+              {DENOM_TO_TOKEN_NAME[tokenOffer]} balance:{" "}
+              {tokenOfferBalance.data}
             </Box>
             <Box>
-              {DENOM_TO_TOKEN_NAME[tokenTo]} balance: {tokenToBalance.data}
+              {DENOM_TO_TOKEN_NAME[tokenReturn]} balance:{" "}
+              {tokenReturnBalance.data}
             </Box>
+            <Flex>
+              <Box>
+                Note: limit swap will expire after a day, i'm working on making
+                it live longer
+              </Box>
+            </Flex>
             <Flex>
               <Box>swap</Box>
               <NumberInput
-                defaultValue={tokenFromBalance.data}
+                defaultValue={tokenOfferBalance.data}
                 min={0}
-                // max={tokenFromBalance.data}
-                onChange={setTokenFromAmount}
+                // max={tokenOfferBalance.data}
+                onChange={setTokenOfferAmount}
               >
                 <NumberInputField />
               </NumberInput>
-              <Box>{DENOM_TO_TOKEN_NAME[tokenFrom]} to</Box>
-              <NumberInput value={tokenToAmount}>
+              <Box>{DENOM_TO_TOKEN_NAME[tokenOffer]} to</Box>
+              <NumberInput value={tokenReturnAmount}>
                 <NumberInputField disabled={true} />
               </NumberInput>
-              <Box>{DENOM_TO_TOKEN_NAME[tokenTo]}</Box>
+              <Box>{DENOM_TO_TOKEN_NAME[tokenReturn]}</Box>
             </Flex>
             <Flex>
-              <Box>at desired rate 1 {DENOM_TO_TOKEN_NAME[tokenTo]} =</Box>
+              <Box>at desired rate 1 {DENOM_TO_TOKEN_NAME[tokenReturn]} =</Box>
               <NumberInput
                 value={desiredExchangeRate}
                 onChange={handleChangeDesiredExchangeRate}
               >
                 <NumberInputField />
               </NumberInput>
-              <Box>{DENOM_TO_TOKEN_NAME[tokenFrom]}</Box>
+              <Box>{DENOM_TO_TOKEN_NAME[tokenOffer]}</Box>
             </Flex>
             <Flex>
               <Box>
-                market rate 1 {DENOM_TO_TOKEN_NAME[tokenTo]} ={" "}
-                {marketExchangeRate} {DENOM_TO_TOKEN_NAME[tokenFrom]}
+                market rate 1 {DENOM_TO_TOKEN_NAME[tokenReturn]} ={" "}
+                {marketExchangeRate} {DENOM_TO_TOKEN_NAME[tokenOffer]}
               </Box>
             </Flex>
             <Flex>
+              {!warpAccountAddress && (
+                <Button
+                  colorScheme="blue"
+                  onClick={onCreateWarpAccount}
+                  isDisabled={
+                    isCreatingWarpAccount ||
+                    !(
+                      createWarpAccountFeeEstimate &&
+                      createWarpAccountFeeEstimate.fee
+                    )
+                  }
+                >
+                  {isCreatingWarpAccount
+                    ? "processing..."
+                    : "create warp account"}
+                </Button>
+              )}
               <Button
                 colorScheme="yellow"
                 onClick={setDesiredExchangeRateWithMarketRate}
@@ -328,8 +396,8 @@ export default function Home() {
                     createWarpJobAstroportLimitSwapFeeEstimate.fee
                   ) ||
                   isCreatingWarpJobAstroportLimitSwap ||
-                  tokenFromAmount === "0" ||
-                  parseInt(tokenFromAmount) > tokenFromBalance.data
+                  tokenOfferAmount === "0" ||
+                  parseInt(tokenOfferAmount) > tokenOfferBalance.data
                 }
               >
                 {isCreatingWarpJobAstroportLimitSwap
@@ -337,18 +405,42 @@ export default function Home() {
                   : "limit swap"}
               </Button>
             </Flex>
-            {createWarpJobAstroportLimitSwapFeeEstimate &&
-              createWarpJobAstroportLimitSwapFeeEstimate.fee && (
-                <Box>
-                  estimate tx fee:{" "}
-                  {BigNumber(
-                    createWarpJobAstroportLimitSwapFeeEstimate.fee.amount
-                  )
-                    .div(DEFAULT_TOKEN_DECIMALS || 1)
-                    .toString()}{" "}
-                  {createWarpJobAstroportLimitSwapFeeEstimate.fee.denom}
-                </Box>
-              )}
+            <Flex>
+              {createWarpAccountFeeEstimate &&
+                createWarpAccountFeeEstimate.fee && (
+                  <Box>
+                    estimate tx fee to create warp account:{" "}
+                    {BigNumber(createWarpAccountFeeEstimate.fee.amount)
+                      .div(
+                        getTokenDecimals(
+                          wallet.network.defaultCurrency!.coinMinimalDenom
+                        )
+                      )
+                      .toString()}{" "}
+                    {createWarpAccountFeeEstimate.fee.denom
+                      .substring(1)
+                      .toUpperCase()}
+                  </Box>
+                )}
+              {createWarpJobAstroportLimitSwapFeeEstimate &&
+                createWarpJobAstroportLimitSwapFeeEstimate.fee && (
+                  <Box>
+                    estimate tx fee to create limit swap:{" "}
+                    {BigNumber(
+                      createWarpJobAstroportLimitSwapFeeEstimate.fee.amount
+                    )
+                      .div(
+                        getTokenDecimals(
+                          wallet.network.defaultCurrency!.coinMinimalDenom
+                        )
+                      )
+                      .toString()}{" "}
+                    {createWarpJobAstroportLimitSwapFeeEstimate.fee.denom
+                      .substring(1)
+                      .toUpperCase()}
+                  </Box>
+                )}
+            </Flex>
           </>
         )}
       </Flex>
