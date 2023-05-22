@@ -288,8 +288,11 @@ export default function Home() {
   return (
     <main>
       <Flex align="center" justify="center" direction="column">
-        <Box>warp account address: {warpAccountAddress || 'not exist'}</Box>
-        {/* <Swap/> */}
+        <Box>
+          warp account address:{" "}
+          {warpAccountAddress ||
+            "not exist, please create a warp account first"}
+        </Box>
         {currentNetworkId === TERRA_MAINNET.chainId && (
           <Select
             width="250px"
@@ -327,7 +330,7 @@ export default function Home() {
             </Box>
             <Flex>
               <Box>
-                Note: limit swap will expire after a day, i'm working on making
+                Note: limit swap will expire after a day, im working on making
                 it live longer
               </Box>
             </Flex>

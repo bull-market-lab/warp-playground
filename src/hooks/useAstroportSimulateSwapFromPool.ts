@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { WalletConnection } from "@delphi-labs/shuttle";
 import { useQuery } from "@tanstack/react-query";
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import BigNumber from "bignumber.js";
@@ -18,22 +17,21 @@ type AssetInfo =
       };
     };
 
-type GetSimulateResultProps = {
+type UseSimulateSwapProps = {
   amount: string;
   offerAssetAddress: string;
   returnAssetAddress: string;
   poolAddress: string;
-  wallet: WalletConnection;
 };
 
-function getSimulateResult({
+export const useSimulateSwap = ({
   amount,
   offerAssetAddress,
   returnAssetAddress,
   poolAddress,
-  wallet,
-}: GetSimulateResultProps) {
-  return useQuery(
+}: UseSimulateSwapProps) => {
+  const wallet = useWallet();
+  const simulateResult = useQuery(
     [
       "swap-simulate",
       amount,
@@ -114,29 +112,7 @@ function getSimulateResult({
         !!wallet,
     }
   );
-}
 
-type UseSimulateSwapProps = {
-  amount: string;
-  offerAssetAddress: string;
-  returnAssetAddress: string;
-  poolAddress: string;
-};
-
-export const useSimulateSwap = ({
-  amount,
-  offerAssetAddress,
-  returnAssetAddress,
-  poolAddress,
-}: UseSimulateSwapProps) => {
-  const wallet = useWallet();
-  const simulateResult = getSimulateResult({
-    amount,
-    offerAssetAddress,
-    returnAssetAddress,
-    poolAddress,
-    wallet,
-  });
   console.log("useSwap simulate", simulateResult);
 
   return useMemo(() => {

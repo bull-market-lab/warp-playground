@@ -1,16 +1,17 @@
 import { useMemo } from "react";
-import { WalletConnection } from "@delphi-labs/shuttle";
 import { useQuery } from "@tanstack/react-query";
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import useWallet from "./useWallet";
 
-type GetConfigProps = {
-  wallet: WalletConnection;
+type UseWarpGetConfigProps = {
   warpControllerAddress: string;
 };
 
-function getConfig({ wallet, warpControllerAddress }: GetConfigProps) {
-  return useQuery(
+export const useWarpGetConfig = ({
+  warpControllerAddress,
+}: UseWarpGetConfigProps) => {
+  const wallet = useWallet();
+  const configResult = useQuery(
     ["get-config", wallet, warpControllerAddress],
     async () => {
       if (!wallet || !warpControllerAddress) {
@@ -35,17 +36,6 @@ function getConfig({ wallet, warpControllerAddress }: GetConfigProps) {
       enabled: !!warpControllerAddress && !!wallet,
     }
   );
-}
-
-type UseWarpGetConfigProps = {
-  warpControllerAddress: string;
-};
-
-export const useWarpGetConfig = ({
-  warpControllerAddress,
-}: UseWarpGetConfigProps) => {
-  const wallet = useWallet();
-  const configResult = getConfig({ wallet, warpControllerAddress });
   return useMemo(() => {
     return { configResult };
   }, [configResult]);

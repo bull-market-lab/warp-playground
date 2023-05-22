@@ -1,17 +1,19 @@
 import { useMemo } from "react";
-import { WalletConnection } from "@delphi-labs/shuttle";
 import { useQuery } from "@tanstack/react-query";
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import useWallet from "./useWallet";
 
-type GetJobsProps = {
-  wallet: WalletConnection;
+type UseWarpGetJobsProps = {
   warpControllerAddress: string;
   isPending: boolean;
 };
 
-function getJobs({ wallet, warpControllerAddress, isPending }: GetJobsProps) {
-  return useQuery(
+export const useWarpGetJobs = ({
+  warpControllerAddress,
+  isPending,
+}: UseWarpGetJobsProps) => {
+  const wallet = useWallet();
+  const jobsResult = useQuery(
     [
       `get-${isPending ? "pending" : "finished"}-jobs`,
       wallet,
@@ -47,19 +49,6 @@ function getJobs({ wallet, warpControllerAddress, isPending }: GetJobsProps) {
       enabled: !!warpControllerAddress && !!wallet,
     }
   );
-}
-
-type UseWarpGetJobsProps = {
-  warpControllerAddress: string;
-  isPending: boolean;
-};
-
-export const useWarpGetJobs = ({
-  warpControllerAddress,
-  isPending,
-}: UseWarpGetJobsProps) => {
-  const wallet = useWallet();
-  const jobsResult = getJobs({ wallet, warpControllerAddress, isPending });
   return useMemo(() => {
     return { jobsResult };
   }, [jobsResult]);

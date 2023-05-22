@@ -27,6 +27,7 @@ export const useSwap = ({
   const msgs = useMemo(() => {
     if (
       !amount ||
+      !exchangeRate ||
       !offerAssetAddress ||
       !returnAssetAddress ||
       !poolAddress ||
@@ -86,6 +87,7 @@ export const useSwap = ({
     ];
   }, [
     wallet,
+    exchangeRate,
     offerAssetAddress,
     returnAssetAddress,
     poolAddress,
