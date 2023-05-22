@@ -108,6 +108,15 @@ export default function Home() {
     );
   }, [simulateResult]);
 
+  useEffect(() => {
+    if (!desiredExchangeRate) {
+      return;
+    }
+    setTokenReturnAmount(
+      BigNumber(tokenOfferAmount).div(desiredExchangeRate).toString()
+    );
+  }, [desiredExchangeRate]);
+
   const getWarpAccountAddressResult = useWarpGetAccount({
     warpControllerAddress,
   }).accountResult.data;
@@ -267,12 +276,10 @@ export default function Home() {
 
   const handleChangeDesiredExchangeRate = (newRate: string) => {
     setDesiredExchangeRate(newRate);
-    setTokenReturnAmount(BigNumber(tokenOfferAmount).div(newRate).toString());
   };
 
   const setDesiredExchangeRateWithMarketRate = () => {
     setDesiredExchangeRate(marketExchangeRate);
-    setTokenReturnAmount(simulateResult!.amount);
   };
 
   if (!wallet) {
