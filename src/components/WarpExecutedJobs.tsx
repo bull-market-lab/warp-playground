@@ -45,7 +45,6 @@ export const WarpExecutedJobs = ({
       <Box>executed limit swap count {warpExecutedJobCount}</Box>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption>executed limit swaps</TableCaption>
           <Thead>
             <Tr>
               <Th>job id</Th>

@@ -47,7 +47,6 @@ export const WarpPendingJobs = ({
       <Box>pending limit swap count {warpPendingJobCount}</Box>
       <TableContainer>
         <Table variant="simple">
-          <TableCaption>pending limit swaps</TableCaption>
           <Thead>
             <Tr>
               <Th>job id</Th>

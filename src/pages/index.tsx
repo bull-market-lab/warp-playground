@@ -21,10 +21,8 @@ import { WarpAccount } from "@/components/WarpAccount";
 import { WarpCreateJobAstroportLimitSwap } from "@/components/WarpCreateJobAstroportLimitSwap";
 import { WarpAccountCreation } from "@/components/WarpAccountCreation";
 import { Swap } from "@/components/Swap";
-import { WarpPendingJobs } from "@/components/WarpPendingJobs";
-import { WarpExecutedJobs } from "@/components/WarpExecutedJobs";
-import { WarpClosedJobs } from "@/components/WarpClosedJobs";
 import { SelectPool } from "@/components/SelectPool";
+import { WarpJobs } from "@/components/WarpJobs";
 
 export default function Home() {
   const wallet = useWallet();
@@ -242,11 +240,7 @@ export default function Home() {
         )}
       </Flex>
       {warpAccountAddress && (
-        <Flex align="center" justify="center" direction="column">
-          <WarpPendingJobs warpControllerAddress={warpControllerAddress} />
-          <WarpExecutedJobs warpControllerAddress={warpControllerAddress} />
-          <WarpClosedJobs warpControllerAddress={warpControllerAddress} />
-        </Flex>
+        <WarpJobs warpControllerAddress={warpControllerAddress} />
       )}
     </main>
   );
