@@ -7,7 +7,6 @@ import { POOLS } from "@/config/pools";
 import useBalance from "@/hooks/useBalance";
 import useWallet from "@/hooks/useWallet";
 import {
-  Select,
   NumberInput,
   NumberInputField,
   Flex,
@@ -156,18 +155,13 @@ export default function Home() {
     setPoolAddress(updatedPoolAddress);
   };
 
-  if (!wallet) {
-    return (
-      <main>
+  return (
+    <main>
+      {!wallet && (
         <Flex align="center" justify="center">
           <Box>Please connect wallet</Box>
         </Flex>
-      </main>
-    );
-  }
-
-  return (
-    <main>
+      )}
       {warpAccountAddress ? (
         <WarpAccount warpAccountAddress={warpAccountAddress} />
       ) : (
