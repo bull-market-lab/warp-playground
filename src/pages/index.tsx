@@ -25,6 +25,7 @@ import { Swap } from "@/components/Swap";
 import { WarpPendingJobs } from "@/components/WarpPendingJobs";
 import { WarpExecutedJobs } from "@/components/WarpExecutedJobs";
 import { WarpClosedJobs } from "@/components/WarpClosedJobs";
+import { SelectPool } from "@/components/SelectPool";
 
 export default function Home() {
   const wallet = useWallet();
@@ -126,39 +127,6 @@ export default function Home() {
     );
   }, [getWarpConfigResult]);
 
-  const handleSelectChange = (event: any) => {
-    const selectedOption = event.target.value;
-    if (currentNetworkId === TERRA_MAINNET.chainId) {
-      if (selectedOption === "option1") {
-        setTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
-        setTokenReturn(TOKENS[currentNetworkId]?.native);
-        setPoolAddress(POOLS[currentNetworkId]?.axlusdcNative!);
-      } else if (selectedOption === "option2") {
-        setTokenOffer(TOKENS[currentNetworkId]?.native);
-        setTokenReturn(TOKENS[currentNetworkId]?.axlusdc!);
-        setPoolAddress(POOLS[currentNetworkId].axlusdcNative!);
-      } else if (selectedOption === "option3") {
-        setTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
-        setTokenReturn(TOKENS[currentNetworkId]?.astro);
-        setPoolAddress(POOLS[currentNetworkId].axlusdcAstro!);
-      } else if (selectedOption === "option4") {
-        setTokenOffer(TOKENS[currentNetworkId]?.astro);
-        setTokenReturn(TOKENS[currentNetworkId]?.axlusdc!);
-        setPoolAddress(POOLS[currentNetworkId].axlusdcAstro!);
-      }
-    } else if (currentNetworkId === TERRA_TESTNET.chainId) {
-      if (selectedOption === "option1") {
-        setTokenOffer(TOKENS[currentNetworkId]?.astro);
-        setTokenReturn(TOKENS[currentNetworkId]?.native);
-        setPoolAddress(POOLS[currentNetworkId].astroNative);
-      } else if (selectedOption === "option2") {
-        setTokenOffer(TOKENS[currentNetworkId]?.native);
-        setTokenReturn(TOKENS[currentNetworkId]?.astro);
-        setPoolAddress(POOLS[currentNetworkId].astroNative);
-      }
-    }
-  };
-
   const handleChangeDesiredExchangeRate = (newRate: string) => {
     setDesiredExchangeRate(newRate);
   };
@@ -174,6 +142,18 @@ export default function Home() {
 
   const resetOfferAmount = () => {
     setTokenOfferAmount("0");
+  };
+
+  const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
+    setTokenOffer(updatedTokenOfferAddress);
+  };
+
+  const onChangeTokenReturn = (updatedTokenReturnAddress: string) => {
+    setTokenReturn(updatedTokenReturnAddress);
+  };
+
+  const onChangePoolAddress = (updatedPoolAddress: string) => {
+    setPoolAddress(updatedPoolAddress);
   };
 
   if (!wallet) {
@@ -198,30 +178,12 @@ export default function Home() {
         />
       )}
       <Flex align="center" justify="center" direction="column">
-        {currentNetworkId === TERRA_MAINNET.chainId && (
-          <Select
-            width="250px"
-            placeholder=""
-            onChange={handleSelectChange}
-            defaultValue="option1"
-          >
-            <option value="option1">swap axlUSDC to LUNA</option>
-            <option value="option2">swap LUNA to axlUSDC</option>
-            <option value="option3">swap axlUSDC to ASTRO</option>
-            <option value="option4">swap ASTRO to axlUSDC</option>
-          </Select>
-        )}
-        {currentNetworkId === TERRA_TESTNET.chainId && (
-          <Select
-            width="250px"
-            placeholder=""
-            onChange={handleSelectChange}
-            defaultValue="option1"
-          >
-            <option value="option1">swap ASTRO to LUNA </option>
-            <option value="option2">swap LUNA to ASTRO</option>
-          </Select>
-        )}
+        <SelectPool
+          currentNetworkId={currentNetworkId}
+          onChangeTokenOffer={onChangeTokenOffer}
+          onChangeTokenReturn={onChangeTokenReturn}
+          onChangePoolAddress={onChangePoolAddress}
+        />
         {poolAddress && (
           <>
             {/* <Box>Pool address: {poolAddress}</Box> */}

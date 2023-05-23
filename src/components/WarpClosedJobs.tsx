@@ -25,7 +25,7 @@ export const WarpClosedJobs = ({
   const [warpCancelledJobs, setWarpCancelledJobs] = useState<Job[]>([]);
   const [warpCancelledJobCount, setWarpCancelledJobCount] = useState(0);
 
-  //Failed, Evicted, Cancelled
+  // TODO: cover all 3 status: Failed, Evicted, Cancelled
   const getWarpCancelledJobsResult = useWarpGetJobs({
     warpControllerAddress,
     status: "Cancelled",
