@@ -54,13 +54,6 @@ export const useSimulateSwap = ({
         return null;
       }
 
-      // console.log(
-      //   "swap-simulate",
-      //   amount,
-      //   offerAssetAddress,
-      //   returnAssetAddress,
-      //   poolAddress
-      // );
       const client = await CosmWasmClient.connect(wallet.network.rpc || "");
 
       let assetInfo: AssetInfo = {
@@ -69,15 +62,6 @@ export const useSimulateSwap = ({
       if (isNativeAsset(offerAssetAddress)) {
         assetInfo = { native_token: { denom: offerAssetAddress } };
       }
-
-      console.log("useSwapSimulate", poolAddress, {
-        simulation: {
-          offer_asset: {
-            amount: convertTokenDecimals(amount, offerAssetAddress),
-            info: assetInfo,
-          },
-        },
-      });
 
       const response = await client.queryContractSmart(poolAddress, {
         simulation: {
@@ -88,8 +72,6 @@ export const useSimulateSwap = ({
         },
       });
 
-      // console.log("amount", amount);
-      // console.log("response.return_amount", response.return_amount);
       return {
         // no need to convert decimals for amount, commission, spread
         amount: response.return_amount,
@@ -112,8 +94,6 @@ export const useSimulateSwap = ({
         !!wallet,
     }
   );
-
-  console.log("useSwap simulate", simulateResult);
 
   return useMemo(() => {
     return { simulateResult };

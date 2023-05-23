@@ -23,7 +23,6 @@ export const useSwap = ({
   slippage = "0.005",
 }: UseSwapProps) => {
   const wallet = useWallet();
-  console.log("useSwap real");
   const msgs = useMemo(() => {
     if (
       !amount ||

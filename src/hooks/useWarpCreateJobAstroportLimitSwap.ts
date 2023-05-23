@@ -30,9 +30,6 @@ export const useWarpCreateJobAstroportLimitSwap = ({
   offerAssetAddress,
   returnAssetAddress,
 }: UseWarpCreateJobAstroportLimitSwapProps) => {
-  console.log(
-    `useWarpCreateJobAstroportLimitOrder offerAmount ${offerAmount} minimumReturnAmount ${minimumReturnAmount}`
-  );
   const wallet = useWallet();
 
   const lunaJobReward = "1";

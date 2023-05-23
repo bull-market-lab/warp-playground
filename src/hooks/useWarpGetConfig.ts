@@ -21,13 +21,6 @@ export const useWarpGetConfig = ({
       const response = await client.queryContractSmart(warpControllerAddress, {
         query_config: {},
       });
-      console.log(
-        `${warpControllerAddress} getWarpConfig query_config response ${JSON.stringify(
-          response,
-          null,
-          2
-        )})}}`
-      );
       return {
         config: response.config,
       };

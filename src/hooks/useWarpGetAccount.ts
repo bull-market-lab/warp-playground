@@ -23,13 +23,6 @@ export const useWarpGetAccount = ({
           owner: wallet.account.address,
         },
       });
-      console.log(
-        `${warpControllerAddress} getWarpAccount query_account response ${JSON.stringify(
-          response,
-          null,
-          2
-        )})}}`
-      );
       return {
         account: response.account.account,
       };

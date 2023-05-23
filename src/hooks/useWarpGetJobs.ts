@@ -5,17 +5,18 @@ import useWallet from "./useWallet";
 
 type UseWarpGetJobsProps = {
   warpControllerAddress: string;
-  isPending: boolean;
+  status: string;
 };
 
 export const useWarpGetJobs = ({
   warpControllerAddress,
-  isPending,
+  status,
 }: UseWarpGetJobsProps) => {
   const wallet = useWallet();
   const jobsResult = useQuery(
     [
-      `get-${isPending ? "pending" : "finished"}-jobs`,
+      `get-jobs`,
+      status,
       wallet,
       warpControllerAddress,
     ],
@@ -27,19 +28,11 @@ export const useWarpGetJobs = ({
       const response = await client.queryContractSmart(warpControllerAddress, {
         query_jobs: {
           owner: wallet.account.address,
-          active: isPending,
-          limit: 50,
+          job_status: status,
           // TODO: support pagination
           //   start_after: { _0: "", _1: "" },
         },
       });
-      console.log(
-        `${warpControllerAddress} getWarpJobs query_jobs response ${JSON.stringify(
-          response,
-          null,
-          2
-        )})}}`
-      );
       return {
         jobs: response.jobs,
         totalCount: response.total_count,
