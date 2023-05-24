@@ -196,7 +196,10 @@ export const useWarpCreateJobAstroportLimitSwap = ({
             ref: `$warp.variable.${jobVarName}`,
           },
           right: {
-            simple: convertTokenDecimals(minimumReturnAmount, returnAssetAddress),
+            simple: convertTokenDecimals(
+              minimumReturnAmount,
+              returnAssetAddress
+            ),
           },
         },
       },
@@ -207,7 +210,12 @@ export const useWarpCreateJobAstroportLimitSwap = ({
       contract: warpControllerAddress,
       msg: {
         create_job: {
-          name: constructJobNameForAstroportLimitSwap(),
+          name: constructJobNameForAstroportLimitSwap(
+            offerAmount,
+            offerAssetAddress,
+            returnAssetAddress,
+            minimumReturnAmount
+          ),
           recurring: false,
           requeue_on_evict: false,
           reward: convertTokenDecimals(

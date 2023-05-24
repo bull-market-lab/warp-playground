@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "./WarpJobLink";
+import { WarpJobDetail } from "./WarpJobDetail";
 
 type WarpExecutedJobsProps = {
   warpControllerAddress: string;
@@ -49,7 +50,6 @@ export const WarpExecutedJobs = ({
             <Tr>
               <Th>job id</Th>
               <Th>detail</Th>
-              <Th>action</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -58,9 +58,8 @@ export const WarpExecutedJobs = ({
                 <Td>
                   <WarpJobLink jobId={job.id} />
                 </Td>
-                <Td>to be added</Td>
                 <Td>
-                  <Button onClick={onClick}>to be added</Button>
+                  <WarpJobDetail jobName={job.name} />
                 </Td>
               </Tr>
             ))}

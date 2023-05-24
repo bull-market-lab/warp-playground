@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "./WarpJobLink";
+import { WarpJobDetail } from "./WarpJobDetail";
 
 type WarpClosedJobsProps = {
   warpControllerAddress: string;
@@ -39,7 +40,7 @@ export const WarpClosedJobs = ({
     setWarpCancelledJobs(getWarpCancelledJobsResult.jobs);
   }, [getWarpCancelledJobsResult]);
 
-  const onClick = () => {};
+  const withdrawFund = () => {};
 
   return (
     <Flex align="center" justify="center" direction="column">
@@ -57,9 +58,11 @@ export const WarpClosedJobs = ({
             {warpCancelledJobs.map((job) => (
               <Tr key={job.id}>
                 <WarpJobLink jobId={job.id} />
-                <Td>to be added</Td>
                 <Td>
-                  <Button onClick={onClick}>to be added</Button>
+                  <WarpJobDetail jobName={job.name} />
+                </Td>
+                <Td>
+                  <Button onClick={withdrawFund}>withdraw fund</Button>
                 </Td>
               </Tr>
             ))}

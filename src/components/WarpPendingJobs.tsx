@@ -10,10 +10,11 @@ import {
   TableContainer,
   Button,
   Flex,
-  Box
+  Box,
 } from "@chakra-ui/react";
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "./WarpJobLink";
+import { WarpJobDetail } from "./WarpJobDetail";
 
 type WarpPendingJobsProps = {
   warpControllerAddress: string;
@@ -60,7 +61,9 @@ export const WarpPendingJobs = ({
                 <Td>
                   <WarpJobLink jobId={job.id} />
                 </Td>
-                <Td>to be added</Td>
+                <Td>
+                  <WarpJobDetail jobName={job.name} />
+                </Td>
                 <Td>
                   <Button onClick={cancelJob}>cancel</Button>
                 </Td>
