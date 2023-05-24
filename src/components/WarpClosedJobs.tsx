@@ -52,18 +52,22 @@ export const WarpClosedJobs = ({
               <Th>job id</Th>
               <Th>detail</Th>
               <Th>action</Th>
+              <Th>closed reason</Th>
             </Tr>
           </Thead>
           <Tbody>
             {warpCancelledJobs.map((job) => (
               <Tr key={job.id}>
-                <WarpJobLink jobId={job.id} />
+                <Td>
+                  <WarpJobLink jobId={job.id} />
+                </Td>
                 <Td>
                   <WarpJobDetail jobName={job.name} />
                 </Td>
                 <Td>
                   <Button onClick={withdrawFund}>withdraw fund</Button>
                 </Td>
+                <Td>{job.status === "Evicted" ? "Expired" : job.status}</Td>
               </Tr>
             ))}
           </Tbody>
