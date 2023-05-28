@@ -40,8 +40,6 @@ export const WarpClosedJobs = ({
     setWarpCancelledJobs(getWarpCancelledJobsResult.jobs);
   }, [getWarpCancelledJobsResult]);
 
-  const withdrawFund = () => {};
-
   return (
     <Flex align="center" justify="center" direction="column">
       <Box>closed limit swap count {warpCancelledJobCount}</Box>
@@ -51,7 +49,6 @@ export const WarpClosedJobs = ({
             <Tr>
               <Th>job id</Th>
               <Th>detail</Th>
-              <Th>action</Th>
               <Th>closed reason</Th>
             </Tr>
           </Thead>
@@ -63,9 +60,6 @@ export const WarpClosedJobs = ({
                 </Td>
                 <Td>
                   <WarpJobDetail jobName={job.name} />
-                </Td>
-                <Td>
-                  <Button onClick={withdrawFund}>withdraw fund</Button>
                 </Td>
                 <Td>{job.status === "Evicted" ? "Expired" : job.status}</Td>
               </Tr>

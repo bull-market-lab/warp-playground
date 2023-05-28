@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import BigNumber from "bignumber.js";
 import { WalletConnection, useShuttle } from "@delphi-labs/shuttle";
-import { getTokenDecimals } from "@/config/tokens";
 import { isMobile } from "@/utils/device";
 import useFeeEstimate from "@/hooks/useFeeEstimate";
-import { Flex, Box, Button } from "@chakra-ui/react";
+import { Flex, Button } from "@chakra-ui/react";
 import { useWarpCreateJobAstroportLimitSwap } from "@/hooks/useWarpCreateJobAstroportLimitSwap";
 import { Coin } from "@cosmjs/amino";
 
@@ -19,8 +17,6 @@ type WarpCreateJobAstroportLimitSwapProps = {
   returnAssetAddress: string;
   minimumReturnAmount: string;
   offerTokenBalance: number;
-  resetOfferAmount: () => void;
-  refetchTokenBalance: () => void;
 };
 
 export const WarpCreateJobAstroportLimitSwap = ({
@@ -34,13 +30,11 @@ export const WarpCreateJobAstroportLimitSwap = ({
   returnAssetAddress,
   minimumReturnAmount,
   offerTokenBalance,
-  resetOfferAmount,
-  refetchTokenBalance,
 }: WarpCreateJobAstroportLimitSwapProps) => {
   const { broadcast } = useShuttle();
   const [
-    isCreatingWarpJobAstroportLimitSwap,
-    setIsCreatingWarpJobAstroportLimitSwap,
+    isBroadcastingTx,
+    setIsBroadcastingTx,
   ] = useState(false);
   const [isEstimatingFee, setIsEstimatingFee] = useState(true);
   const [fee, setFee] = useState<Coin>();
@@ -75,7 +69,7 @@ export const WarpCreateJobAstroportLimitSwap = ({
   }, [feeEstimateResult]);
 
   const onLimitSwap = () => {
-    setIsCreatingWarpJobAstroportLimitSwap(true);
+    setIsBroadcastingTx(true);
     broadcast({
       wallet,
       messages: createWarpJobAstroportLimitSwap.msgs,
@@ -84,12 +78,12 @@ export const WarpCreateJobAstroportLimitSwap = ({
       mobile: isMobile(),
     })
       .catch((error) => {
+        alert(error.message);
         throw error;
       })
       .finally(() => {
-        setIsCreatingWarpJobAstroportLimitSwap(false);
-        resetOfferAmount();
-        refetchTokenBalance();
+        setIsBroadcastingTx(false);
+        window.location.reload()
       });
   };
 
@@ -100,24 +94,13 @@ export const WarpCreateJobAstroportLimitSwap = ({
         onClick={onLimitSwap}
         isDisabled={
           isEstimatingFee ||
-          isCreatingWarpJobAstroportLimitSwap ||
+          isBroadcastingTx ||
           offerAmount === "0" ||
           parseInt(offerAmount) > offerTokenBalance
         }
       >
-        {isCreatingWarpJobAstroportLimitSwap ? "processing..." : "limit swap"}
+        {isBroadcastingTx ? "processing..." : "limit swap"}
       </Button>
-      {!isEstimatingFee && (
-        <Box>
-          estimate tx fee to create limit swap:{" "}
-          {BigNumber(fee!.amount)
-            .div(
-              getTokenDecimals(wallet.network.defaultCurrency!.coinMinimalDenom)
-            )
-            .toString()}{" "}
-          {fee!.denom.substring(1).toUpperCase()}
-        </Box>
-      )}
     </Flex>
   );
 };

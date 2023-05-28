@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
-import BigNumber from "bignumber.js";
 import { WalletConnection, useShuttle } from "@delphi-labs/shuttle";
-import { getTokenDecimals } from "@/config/tokens";
 import { isMobile } from "@/utils/device";
 import useFeeEstimate from "@/hooks/useFeeEstimate";
 import { Flex, Box, Button } from "@chakra-ui/react";
 import { useWarpCreateAccount } from "@/hooks/useWarpCreateAccount";
 import { Coin } from "@cosmjs/amino";
 
-type WarpAccountCreationProps = {
+type WarpCreateAccountProps = {
   wallet: WalletConnection;
   warpControllerAddress: string;
-  refetchTokenBalance: () => void;
 };
 
-export const WarpAccountCreation = ({
+export const WarpCreateAccount = ({
   wallet,
   warpControllerAddress,
-  refetchTokenBalance,
-}: WarpAccountCreationProps) => {
+}: WarpCreateAccountProps) => {
   const { broadcast } = useShuttle();
-  const [isCreatingWarpAccount, setIsCreatingWarpAccount] = useState(false);
+  const [isBroadcastingTx, setIsBroadcastingTx] = useState(false);
   const [isEstimatingFee, setIsEstimatingFee] = useState(true);
   const [fee, setFee] = useState<Coin>();
   const [gasLimit, setGasLimit] = useState<string>();
@@ -47,7 +43,7 @@ export const WarpAccountCreation = ({
   }, [feeEstimateResult]);
 
   const onCreateWarpAccount = () => {
-    setIsCreatingWarpAccount(true);
+    setIsBroadcastingTx(true);
     broadcast({
       wallet,
       messages: createWarpAccount.msgs,
@@ -64,9 +60,8 @@ export const WarpAccountCreation = ({
         throw error;
       })
       .finally(() => {
-        setIsCreatingWarpAccount(false);
-        // refetch since creating warp account will cost LUNA so change balance
-        refetchTokenBalance();
+        setIsBroadcastingTx(false);
+        window.location.reload()
       });
   };
 
@@ -77,22 +72,11 @@ export const WarpAccountCreation = ({
         <Button
           colorScheme="blue"
           onClick={onCreateWarpAccount}
-          isDisabled={isCreatingWarpAccount || isEstimatingFee}
+          isDisabled={isBroadcastingTx || isEstimatingFee}
         >
-          {isCreatingWarpAccount ? "processing..." : "create warp account"}
+          {isBroadcastingTx ? "processing..." : "create warp account"}
         </Button>
       </Box>
-      {!isEstimatingFee && (
-        <Box>
-          estimate tx fee to create warp account:{" "}
-          {BigNumber(fee!.amount)
-            .div(
-              getTokenDecimals(wallet.network.defaultCurrency!.coinMinimalDenom)
-            )
-            .toString()}{" "}
-          {fee!.denom.substring(1).toUpperCase()}
-        </Box>
-      )}
     </Flex>
   );
 };

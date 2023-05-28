@@ -8,19 +8,22 @@ import {
   Th,
   Td,
   TableContainer,
-  Button,
   Flex,
   Box,
 } from "@chakra-ui/react";
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "./WarpJobLink";
 import { WarpJobDetail } from "./WarpJobDetail";
+import { WarpCancelJob } from "./WarpCancelJob";
+import { WalletConnection } from "@delphi-labs/shuttle";
 
 type WarpPendingJobsProps = {
+  wallet: WalletConnection;
   warpControllerAddress: string;
 };
 
 export const WarpPendingJobs = ({
+  wallet,
   warpControllerAddress,
 }: WarpPendingJobsProps) => {
   const [warpPendingJobs, setWarpPendingJobs] = useState<Job[]>([]);
@@ -38,10 +41,6 @@ export const WarpPendingJobs = ({
     setWarpPendingJobCount(getWarpPendingJobsResult.totalCount);
     setWarpPendingJobs(getWarpPendingJobsResult.jobs);
   }, [getWarpPendingJobsResult]);
-
-  const cancelJob = () => {
-    // TODO: cancel warp job
-  };
 
   return (
     <Flex align="center" justify="center" direction="column">
@@ -65,7 +64,11 @@ export const WarpPendingJobs = ({
                   <WarpJobDetail jobName={job.name} />
                 </Td>
                 <Td>
-                  <Button onClick={cancelJob}>cancel</Button>
+                  <WarpCancelJob
+                    wallet={wallet}
+                    jobId={job.id}
+                    warpControllerAddress={warpControllerAddress}
+                  />
                 </Td>
               </Tr>
             ))}

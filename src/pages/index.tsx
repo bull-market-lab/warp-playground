@@ -19,7 +19,7 @@ import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpAccount } from "@/components/WarpAccount";
 import { WarpCreateJobAstroportLimitSwap } from "@/components/WarpCreateJobAstroportLimitSwap";
-import { WarpAccountCreation } from "@/components/WarpAccountCreation";
+import { WarpCreateAccount } from "@/components/WarpCreateAccount";
 import { Swap } from "@/components/Swap";
 import { SelectPool } from "@/components/SelectPool";
 import { WarpJobs } from "@/components/WarpJobs";
@@ -132,15 +132,6 @@ export default function Home() {
     setDesiredExchangeRate(marketExchangeRate);
   };
 
-  const refetchTokenBalance = () => {
-    tokenOfferBalance.refetch();
-    tokenReturnBalance.refetch();
-  };
-
-  const resetOfferAmount = () => {
-    setTokenOfferAmount("0");
-  };
-
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);
   };
@@ -163,10 +154,9 @@ export default function Home() {
       {warpAccountAddress ? (
         <WarpAccount warpAccountAddress={warpAccountAddress} />
       ) : (
-        <WarpAccountCreation
+        <WarpCreateAccount
           wallet={wallet}
           warpControllerAddress={warpControllerAddress}
-          refetchTokenBalance={refetchTokenBalance}
         />
       )}
       <Flex align="center" justify="center" direction="column">
@@ -233,14 +223,15 @@ export default function Home() {
               returnAssetAddress={tokenReturn}
               minimumReturnAmount={tokenReturnAmount}
               offerTokenBalance={tokenOfferBalance.data}
-              resetOfferAmount={resetOfferAmount}
-              refetchTokenBalance={refetchTokenBalance}
             />
           </>
         )}
       </Flex>
       {warpAccountAddress && (
-        <WarpJobs warpControllerAddress={warpControllerAddress} />
+        <WarpJobs
+          wallet={wallet}
+          warpControllerAddress={warpControllerAddress}
+        />
       )}
     </main>
   );

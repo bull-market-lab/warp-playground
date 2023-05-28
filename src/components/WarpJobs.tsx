@@ -9,12 +9,14 @@ import {
 import { WarpClosedJobs } from "./WarpClosedJobs";
 import { WarpExecutedJobs } from "./WarpExecutedJobs";
 import { WarpPendingJobs } from "./WarpPendingJobs";
+import { WalletConnection } from "@delphi-labs/shuttle";
 
 type WarpJobsProps = {
+  wallet: WalletConnection;
   warpControllerAddress: string;
 };
 
-export const WarpJobs = ({ warpControllerAddress }: WarpJobsProps) => {
+export const WarpJobs = ({ wallet, warpControllerAddress }: WarpJobsProps) => {
   return (
     <Flex align="center" justify="center" direction="column">
       <Tabs>
@@ -25,7 +27,10 @@ export const WarpJobs = ({ warpControllerAddress }: WarpJobsProps) => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <WarpPendingJobs warpControllerAddress={warpControllerAddress} />
+            <WarpPendingJobs
+              wallet={wallet}
+              warpControllerAddress={warpControllerAddress}
+            />
           </TabPanel>
           <TabPanel>
             <WarpExecutedJobs warpControllerAddress={warpControllerAddress} />
