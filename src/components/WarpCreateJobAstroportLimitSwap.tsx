@@ -1,10 +1,7 @@
-import { useEffect, useState } from "react";
-import { WalletConnection, useShuttle } from "@delphi-labs/shuttle";
-import { isMobile } from "@/utils/device";
-import useFeeEstimate from "@/hooks/useFeeEstimate";
-import { Flex, Button } from "@chakra-ui/react";
+import { WalletConnection } from "@delphi-labs/shuttle";
+import { Flex } from "@chakra-ui/react";
 import { useWarpCreateJobAstroportLimitSwap } from "@/hooks/useWarpCreateJobAstroportLimitSwap";
-import { Coin } from "@cosmjs/amino";
+import { CreateAndBroadcastTxModal } from "./CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportLimitSwapProps = {
   wallet: WalletConnection;
@@ -31,15 +28,6 @@ export const WarpCreateJobAstroportLimitSwap = ({
   minimumReturnAmount,
   offerTokenBalance,
 }: WarpCreateJobAstroportLimitSwapProps) => {
-  const { broadcast } = useShuttle();
-  const [
-    isBroadcastingTx,
-    setIsBroadcastingTx,
-  ] = useState(false);
-  const [isEstimatingFee, setIsEstimatingFee] = useState(true);
-  const [fee, setFee] = useState<Coin>();
-  const [gasLimit, setGasLimit] = useState<string>();
-
   const createWarpJobAstroportLimitSwap = useWarpCreateJobAstroportLimitSwap({
     warpControllerAddress,
     warpAccountAddress,
@@ -51,56 +39,16 @@ export const WarpCreateJobAstroportLimitSwap = ({
     returnAssetAddress,
   });
 
-  const { data: feeEstimateResult } = useFeeEstimate({
-    messages: createWarpJobAstroportLimitSwap.msgs,
-  });
-
-  useEffect(() => {
-    if (
-      !feeEstimateResult ||
-      !feeEstimateResult.fee ||
-      !feeEstimateResult.gasLimit
-    ) {
-      return;
-    }
-    setFee(feeEstimateResult.fee);
-    setGasLimit(feeEstimateResult.gasLimit);
-    setIsEstimatingFee(false);
-  }, [feeEstimateResult]);
-
-  const onLimitSwap = () => {
-    setIsBroadcastingTx(true);
-    broadcast({
-      wallet,
-      messages: createWarpJobAstroportLimitSwap.msgs,
-      feeAmount: fee!.amount,
-      gasLimit: gasLimit!,
-      mobile: isMobile(),
-    })
-      .catch((error) => {
-        alert(error.message);
-        throw error;
-      })
-      .finally(() => {
-        setIsBroadcastingTx(false);
-        window.location.reload()
-      });
-  };
-
   return (
     <Flex>
-      <Button
-        colorScheme="blue"
-        onClick={onLimitSwap}
-        isDisabled={
-          isEstimatingFee ||
-          isBroadcastingTx ||
-          offerAmount === "0" ||
-          parseInt(offerAmount) > offerTokenBalance
+      <CreateAndBroadcastTxModal
+        wallet={wallet}
+        msgs={createWarpJobAstroportLimitSwap.msgs}
+        buttonText={"limit swap"}
+        disabled={
+          offerAmount === "0" || parseInt(offerAmount) > offerTokenBalance
         }
-      >
-        {isBroadcastingTx ? "processing..." : "limit swap"}
-      </Button>
+      />
     </Flex>
   );
 };

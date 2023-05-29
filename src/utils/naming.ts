@@ -6,7 +6,7 @@ export const constructJobVarNameForAstroportLimitSwap = (
   offerAssetAddress: string,
   returnAssetAddress: string
 ) =>
-  `swap-${BigNumber(offerAmount).toFixed(2)}-${
+  `swap-${BigNumber(offerAmount).toFixed(3)}-${
     DENOM_TO_TOKEN_NAME[offerAssetAddress]
   }-to-how-many-${DENOM_TO_TOKEN_NAME[returnAssetAddress]}`;
 
@@ -16,8 +16,8 @@ export const constructJobNameForAstroportLimitSwap = (
   returnAssetAddress: string,
   minimumReturnAmount: string
 ) =>
-  `swap-${BigNumber(offerAmount).toFixed(2)}-${
+  `swap-${BigNumber(offerAmount).toFixed(3)}-${
     DENOM_TO_TOKEN_NAME[offerAssetAddress]
-  }-to-${BigNumber(minimumReturnAmount).toFixed(2)}-${
+  }-to-${BigNumber(minimumReturnAmount).toFixed(3)}-${
     DENOM_TO_TOKEN_NAME[returnAssetAddress]
   }`;
