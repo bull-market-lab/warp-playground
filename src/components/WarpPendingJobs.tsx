@@ -44,7 +44,7 @@ export const WarpPendingJobs = ({
 
   return (
     <Flex align="center" justify="center" direction="column">
-      <Box>pending limit swap count {warpPendingJobCount}</Box>
+      <Box>pending order count {warpPendingJobCount}</Box>
       <TableContainer>
         <Table variant="simple">
           <Thead>

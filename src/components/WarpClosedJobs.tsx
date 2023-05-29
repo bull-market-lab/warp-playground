@@ -42,7 +42,7 @@ export const WarpClosedJobs = ({
 
   return (
     <Flex align="center" justify="center" direction="column">
-      <Box>closed limit swap count {warpCancelledJobCount}</Box>
+      <Box>closed order count {warpCancelledJobCount}</Box>
       <TableContainer>
         <Table variant="simple">
           <Thead>

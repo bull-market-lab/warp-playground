@@ -44,7 +44,7 @@ export const WarpCreateJobAstroportLimitSwap = ({
       <CreateAndBroadcastTxModal
         wallet={wallet}
         msgs={createWarpJobAstroportLimitSwap.msgs}
-        buttonText={"limit swap"}
+        buttonText={"create limit order"}
         disabled={
           offerAmount === "0" || parseInt(offerAmount) > offerTokenBalance
         }

@@ -39,11 +39,9 @@ export const WarpExecutedJobs = ({
     setWarpExecutedJobs(getWarpExecutedJobsResult.jobs);
   }, [getWarpExecutedJobsResult]);
 
-  const onClick = () => {};
-
   return (
     <Flex align="center" justify="center" direction="column">
-      <Box>executed limit swap count {warpExecutedJobCount}</Box>
+      <Box>executed order count {warpExecutedJobCount}</Box>
       <TableContainer>
         <Table variant="simple">
           <Thead>

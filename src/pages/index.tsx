@@ -23,6 +23,7 @@ import { WarpCreateAccount } from "@/components/WarpCreateAccount";
 import { Swap } from "@/components/Swap";
 import { SelectPool } from "@/components/SelectPool";
 import { WarpJobs } from "@/components/WarpJobs";
+import { UsageWarning } from "@/components/UsageWarning";
 
 export default function Home() {
   const wallet = useWallet();
@@ -178,10 +179,7 @@ export default function Home() {
               {tokenReturnBalance.data}
             </Box>
             <Flex>
-              <Box>
-                Note: limit swap will expire after a day, im working on making
-                it live longer
-              </Box>
+              <UsageWarning/>
             </Flex>
             <Swap
               offerAssetAddress={tokenOffer}
