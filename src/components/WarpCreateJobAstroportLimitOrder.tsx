@@ -1,9 +1,9 @@
 import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex } from "@chakra-ui/react";
-import { useWarpCreateJobAstroportLimitSwap } from "@/hooks/useWarpCreateJobAstroportLimitSwap";
+import { useWarpCreateJobAstroportLimitOrder } from "@/hooks/useWarpCreateJobAstroportLimitOrder";
 import { CreateAndBroadcastTxModal } from "./CreateAndBroadcastTxModal";
 
-type WarpCreateJobAstroportLimitSwapProps = {
+type WarpCreateJobAstroportLimitOrderProps = {
   wallet: WalletConnection;
   warpControllerAddress: string;
   warpAccountAddress: string;
@@ -16,7 +16,7 @@ type WarpCreateJobAstroportLimitSwapProps = {
   offerTokenBalance: number;
 };
 
-export const WarpCreateJobAstroportLimitSwap = ({
+export const WarpCreateJobAstroportLimitOrder = ({
   wallet,
   warpControllerAddress,
   warpAccountAddress,
@@ -27,8 +27,8 @@ export const WarpCreateJobAstroportLimitSwap = ({
   returnAssetAddress,
   minimumReturnAmount,
   offerTokenBalance,
-}: WarpCreateJobAstroportLimitSwapProps) => {
-  const createWarpJobAstroportLimitSwap = useWarpCreateJobAstroportLimitSwap({
+}: WarpCreateJobAstroportLimitOrderProps) => {
+  const createWarpJobAstroportLimitOrder = useWarpCreateJobAstroportLimitOrder({
     warpControllerAddress,
     warpAccountAddress,
     warpJobCreationFeePercentage,
@@ -43,7 +43,7 @@ export const WarpCreateJobAstroportLimitSwap = ({
     <Flex>
       <CreateAndBroadcastTxModal
         wallet={wallet}
-        msgs={createWarpJobAstroportLimitSwap.msgs}
+        msgs={createWarpJobAstroportLimitOrder.msgs}
         buttonText={"create limit order"}
         disabled={
           offerAmount === "0" || parseInt(offerAmount) > offerTokenBalance

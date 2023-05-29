@@ -18,7 +18,7 @@ import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpAccount } from "@/components/WarpAccount";
-import { WarpCreateJobAstroportLimitSwap } from "@/components/WarpCreateJobAstroportLimitSwap";
+import { WarpCreateJobAstroportLimitOrder } from "@/components/WarpCreateJobAstroportLimitOrder";
 import { WarpCreateAccount } from "@/components/WarpCreateAccount";
 import { Swap } from "@/components/Swap";
 import { SelectPool } from "@/components/SelectPool";
@@ -210,7 +210,7 @@ export default function Home() {
                 use market rate
               </Button>
             </Flex>
-            <WarpCreateJobAstroportLimitSwap
+            <WarpCreateJobAstroportLimitOrder
               wallet={wallet}
               warpControllerAddress={warpControllerAddress}
               warpAccountAddress={warpAccountAddress}

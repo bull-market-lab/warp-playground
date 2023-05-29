@@ -1,11 +1,11 @@
-export type Job = {
-  id: string;
-  name: string;
-  status: string;
-};
-
-export const constructJobUrl = (jobId: string) =>
-  `https://beta.warp.money/#/jobs/${jobId}`;
+import BigNumber from "bignumber.js";
+import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
+import {
+  MsgExecuteContract,
+  MsgSend,
+  WalletConnection,
+} from "@delphi-labs/shuttle";
+import { DEFAULT_JOB_REWARD_AMOUNT, EVICTION_FEE } from "./constants";
 
 /*
   job example
@@ -62,3 +62,83 @@ export const constructJobUrl = (jobId: string) =>
   }
 }
 */
+export type Job = {
+  id: string;
+  name: string;
+  status: string;
+};
+
+// TODO: url may change after warp comes out of beta
+export const constructJobUrl = (jobId: string) =>
+  `https://beta.warp.money/#/jobs/${jobId}`;
+
+type ConstructFundJobForFeeMsgProps = {
+  wallet: WalletConnection;
+  warpAccountAddress: string;
+  warpJobCreationFeePercentage: string;
+  // how many days we want to keep the job alive, e.g. 1 means job expire after 24 hours
+  daysLived: number;
+};
+
+// send job reward, job creation fee, potential eviction fee to warp account
+export const constructFundJobForFeeMsg = ({
+  wallet,
+  warpAccountAddress,
+  warpJobCreationFeePercentage,
+  daysLived,
+}: ConstructFundJobForFeeMsgProps) => {
+  const jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
+    .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
+    .plus(BigNumber(EVICTION_FEE).times(daysLived - 1))
+    .toString();
+
+  return new MsgSend({
+    fromAddress: wallet.account.address,
+    toAddress: warpAccountAddress,
+    amount: [
+      {
+        denom: wallet.network.defaultCurrency!.coinMinimalDenom,
+        amount: convertTokenDecimals(
+          jobFee,
+          wallet.network.defaultCurrency!.coinMinimalDenom
+        ),
+      },
+    ],
+  });
+};
+
+type ConstructFundJobForOfferedAssetMsgProps = {
+  wallet: WalletConnection;
+  warpAccountAddress: string;
+  offerAssetAddress: string;
+  offerAmount: string;
+};
+
+export const constructFundJobForOfferedAssetMsg = ({
+  wallet,
+  warpAccountAddress,
+  offerAssetAddress,
+  offerAmount,
+}: ConstructFundJobForOfferedAssetMsgProps) => {
+  return isNativeAsset(offerAssetAddress)
+    ? new MsgSend({
+        fromAddress: wallet.account.address,
+        toAddress: warpAccountAddress,
+        amount: [
+          {
+            denom: wallet.network.defaultCurrency!.coinMinimalDenom,
+            amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+          },
+        ],
+      })
+    : new MsgExecuteContract({
+        sender: wallet.account.address,
+        contract: offerAssetAddress,
+        msg: {
+          transfer: {
+            recipient: warpAccountAddress,
+            amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+          },
+        },
+      });
+};

@@ -1,15 +1,20 @@
 import { useMemo } from "react";
-import { MsgExecuteContract, MsgSend } from "@delphi-labs/shuttle";
+import { MsgExecuteContract } from "@delphi-labs/shuttle";
 import useWallet from "./useWallet";
 import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
 import { toBase64 } from "@/utils/encoding";
 import {
-  constructJobNameForAstroportLimitSwap,
-  constructJobVarNameForAstroportLimitSwap,
+  constructJobVarNameForAstroportLimitOrder,
+  constructJobNameForAstroportLimitOrder,
 } from "@/utils/naming";
+import { DEFAULT_JOB_REWARD_AMOUNT } from "@/utils/constants";
+import {
+  constructFundJobForOfferedAssetMsg,
+  constructFundJobForFeeMsg,
+} from "@/utils/warpHelpers";
 
-type UseWarpCreateJobAstroportLimitSwapProps = {
+type UseWarpCreateJobAstroportLimitOrderProps = {
   warpControllerAddress: string;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
@@ -20,7 +25,7 @@ type UseWarpCreateJobAstroportLimitSwapProps = {
   returnAssetAddress: string;
 };
 
-export const useWarpCreateJobAstroportLimitSwap = ({
+export const useWarpCreateJobAstroportLimitOrder = ({
   warpControllerAddress,
   warpAccountAddress,
   warpJobCreationFeePercentage,
@@ -29,13 +34,9 @@ export const useWarpCreateJobAstroportLimitSwap = ({
   minimumReturnAmount,
   offerAssetAddress,
   returnAssetAddress,
-}: UseWarpCreateJobAstroportLimitSwapProps) => {
+}: UseWarpCreateJobAstroportLimitOrderProps) => {
   const wallet = useWallet();
 
-  const lunaJobReward = "1";
-  const lunaJobRewardAndCreationFee = BigNumber(lunaJobReward)
-    .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
-    .toString();
   // this can be set arbitrarily large since condition guarantee we always get minimumReturnAmount
   // TODO: verify that's the case in production
   const maxSpread = "0.1";
@@ -55,41 +56,19 @@ export const useWarpCreateJobAstroportLimitSwap = ({
       return [];
     }
 
-    const fundWarpAccountForJobRewardAndCreationFee = new MsgSend({
-      fromAddress: wallet.account.address,
-      toAddress: warpAccountAddress,
-      amount: [
-        {
-          denom: wallet.network.defaultCurrency!.coinMinimalDenom,
-          amount: convertTokenDecimals(
-            lunaJobRewardAndCreationFee,
-            wallet.network.defaultCurrency!.coinMinimalDenom
-          ),
-        },
-      ],
+    const fundWarpAccountForFee = constructFundJobForFeeMsg({
+      wallet,
+      warpAccountAddress,
+      warpJobCreationFeePercentage,
+      daysLived: 1,
     });
 
-    const fundWarpAccountForOfferedAsset = isNativeAsset(offerAssetAddress)
-      ? new MsgSend({
-          fromAddress: wallet.account.address,
-          toAddress: warpAccountAddress,
-          amount: [
-            {
-              denom: wallet.network.defaultCurrency!.coinMinimalDenom,
-              amount: convertTokenDecimals(offerAmount, offerAssetAddress),
-            },
-          ],
-        })
-      : new MsgExecuteContract({
-          sender: wallet.account.address,
-          contract: offerAssetAddress,
-          msg: {
-            transfer: {
-              recipient: warpAccountAddress,
-              amount: convertTokenDecimals(offerAmount, offerAssetAddress),
-            },
-          },
-        });
+    const fundWarpAccountForOfferedAsset = constructFundJobForOfferedAssetMsg({
+      wallet,
+      warpAccountAddress,
+      offerAssetAddress,
+      offerAmount,
+    });
 
     const astroportSwapMsg = isNativeAsset(offerAssetAddress)
       ? {
@@ -164,7 +143,7 @@ export const useWarpCreateJobAstroportLimitSwap = ({
       },
     };
 
-    const jobVarName = constructJobVarNameForAstroportLimitSwap(
+    const jobVarName = constructJobVarNameForAstroportLimitOrder(
       offerAmount,
       offerAssetAddress,
       returnAssetAddress
@@ -210,7 +189,7 @@ export const useWarpCreateJobAstroportLimitSwap = ({
       contract: warpControllerAddress,
       msg: {
         create_job: {
-          name: constructJobNameForAstroportLimitSwap(
+          name: constructJobNameForAstroportLimitOrder(
             offerAmount,
             offerAssetAddress,
             returnAssetAddress,
@@ -219,7 +198,7 @@ export const useWarpCreateJobAstroportLimitSwap = ({
           recurring: false,
           requeue_on_evict: false,
           reward: convertTokenDecimals(
-            lunaJobReward,
+            DEFAULT_JOB_REWARD_AMOUNT,
             wallet.network.defaultCurrency!.coinMinimalDenom
           ),
           condition: condition,
@@ -229,11 +208,7 @@ export const useWarpCreateJobAstroportLimitSwap = ({
       },
     });
 
-    return [
-      fundWarpAccountForJobRewardAndCreationFee,
-      fundWarpAccountForOfferedAsset,
-      createJob,
-    ];
+    return [fundWarpAccountForFee, fundWarpAccountForOfferedAsset, createJob];
   }, [
     wallet,
     warpControllerAddress,

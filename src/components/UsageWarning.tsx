@@ -21,7 +21,7 @@ export const UsageWarning = () => {
           <Stack divider={<StackDivider />} spacing="4">
             <Text>
               Limit order will expire after a day, im working on making it live
-              longer. I'm working on supporting custom expiration time now.
+              longer. I am working on supporting custom expiration time now.
             </Text>
             <Text>
               Executed order will send the target token to your wallet
@@ -29,14 +29,15 @@ export const UsageWarning = () => {
               source token from your warp account manually, because when you
               create a limit order you first send the from token to your warp
               account. Be careful, because token used for limit order is not
-              locked in your warp account, it's recommended to only withdraw the
-              asset when you don't have pending jobs, otherwise those pending
-              jobs might fail. I'm working on a withdraw function on this UI so
-              you don't need to interact with warp account directly. Also warp
-              team is working on a fund locker so we don't accidentally withdraw
-              the fund used for any pending jobs.
+              locked in your warp account, it is recommended to only withdraw
+              the asset when you do not have pending jobs, otherwise those
+              pending jobs might fail. I am working on a withdraw function on
+              this UI so you do not need to interact with warp account directly.
+              Also warp team is working on a fund locker so we do not
+              accidentally withdraw the fund used for any pending jobs.
             </Text>
             <Link
+              // TODO: url may change after warp comes out of beta
               href={"https://beta.warp.money/#/balances"}
               color="blue.500"
               fontWeight="bold"
