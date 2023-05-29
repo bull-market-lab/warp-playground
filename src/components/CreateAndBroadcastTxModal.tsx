@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   MsgExecuteContract,
   MsgSend,
@@ -6,9 +6,7 @@ import {
   useShuttle,
 } from "@delphi-labs/shuttle";
 import { isMobile } from "@/utils/device";
-import useFeeEstimate from "@/hooks/useFeeEstimate";
 import { Button } from "@chakra-ui/react";
-import { Coin } from "@cosmjs/amino";
 
 type CreateAndBroadcastTxModalProps = {
   wallet: WalletConnection;
@@ -23,40 +21,32 @@ export const CreateAndBroadcastTxModal = ({
   buttonText,
   disabled,
 }: CreateAndBroadcastTxModalProps) => {
-  const { broadcast } = useShuttle();
-  const [isBroadcastingTx, setIsBroadcastingTx] = useState(false);
-  const [isEstimatingFee, setIsEstimatingFee] = useState(true);
-  const [fee, setFee] = useState<Coin>();
-  const [gasLimit, setGasLimit] = useState<string>();
+  const { broadcast, simulate } = useShuttle();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const { data: feeEstimateResult } = useFeeEstimate({
-    messages: msgs,
-  });
-
-  useEffect(() => {
-    if (
-      !feeEstimateResult ||
-      !feeEstimateResult.fee ||
-      !feeEstimateResult.gasLimit
-    ) {
-      return;
-    }
-    setFee(feeEstimateResult.fee);
-    setGasLimit(feeEstimateResult.gasLimit);
-    setIsEstimatingFee(false);
-  }, [feeEstimateResult]);
-
-  const onBroadcastTx = () => {
-    setIsBroadcastingTx(true);
-    broadcast({
-      wallet,
+  const onCreateAndBroadcastTx = () => {
+    setIsProcessing(true);
+    simulate({
       messages: msgs,
-      feeAmount: fee!.amount,
-      gasLimit: gasLimit!,
-      mobile: isMobile(),
+      wallet,
     })
       .then((result) => {
-        // TODO: maybe we should set the warp account address here instead of refetching
+        broadcast({
+          wallet,
+          messages: msgs,
+          feeAmount: result.fee!.amount[0].amount,
+          gasLimit: result.fee!.gas,
+          mobile: isMobile(),
+        });
+      })
+      .catch((error) => {
+        // TODO: think about how to handle error
+        alert(error.message);
+        throw error;
+      })
+      .then((result) => {
+        // TODO: think about what to do with result, maybe display it and update some state to avoid reload page
+        console.log(result)
       })
       .catch((error) => {
         // TODO: think about how to handle error
@@ -64,7 +54,7 @@ export const CreateAndBroadcastTxModal = ({
         throw error;
       })
       .finally(() => {
-        setIsBroadcastingTx(false);
+        setIsProcessing(false);
         window.location.reload();
       });
   };
@@ -72,10 +62,10 @@ export const CreateAndBroadcastTxModal = ({
   return (
     <Button
       colorScheme="blue"
-      onClick={onBroadcastTx}
-      isDisabled={disabled || isBroadcastingTx || isEstimatingFee}
+      onClick={onCreateAndBroadcastTx}
+      isDisabled={disabled || isProcessing}
     >
-      {isBroadcastingTx ? "broadcasting tx..." : buttonText}
+      {isProcessing ? "broadcasting tx..." : buttonText}
     </Button>
   );
 };
