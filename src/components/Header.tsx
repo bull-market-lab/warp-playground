@@ -107,7 +107,7 @@ export default function Header() {
         )}
         {wallet && (
           <Flex>
-            <p>wallet address: {wallet.account.address}</p>
+            <Box>wallet address: {wallet.account.address}</Box>
             <Button onClick={() => disconnectWallet(wallet)}>Disconnect</Button>
           </Flex>
         )}

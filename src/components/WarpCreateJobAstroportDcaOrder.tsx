@@ -18,7 +18,7 @@ type WarpCreateJobAstroportDcaOrderProps = {
   // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
   dcaInterval: number;
   // when to start the job, in unix timestamp
-  dcaStartTime: number;
+  dcaStartTimestamp: number;
   // max spread for astroport swap
   maxSpread: string;
 };
@@ -35,7 +35,7 @@ export const WarpCreateJobAstroportDcaOrder = ({
   offerTokenBalance,
   dcaCount,
   dcaInterval,
-  dcaStartTime,
+  dcaStartTimestamp,
   maxSpread,
 }: WarpCreateJobAstroportDcaOrderProps) => {
   const createWarpJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
@@ -48,7 +48,7 @@ export const WarpCreateJobAstroportDcaOrder = ({
     returnAssetAddress,
     dcaCount,
     dcaInterval,
-    dcaStartTime,
+    dcaStartTimestamp,
     maxSpread,
   });
 

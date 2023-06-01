@@ -1,32 +1,21 @@
 import { useEffect, useState } from "react";
-import BigNumber from "bignumber.js";
 import { useShuttlePortStore } from "@/config/store";
-import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/config/tokens";
+import { DENOM_TO_TOKEN_NAME, TOKENS } from "@/config/tokens";
 import { TERRA_MAINNET, TERRA_TESTNET } from "@/config/networks";
 import { POOLS } from "@/config/pools";
 import useBalance from "@/hooks/useBalance";
 import useWallet from "@/hooks/useWallet";
-import {
-  NumberInput,
-  NumberInputField,
-  Flex,
-  Box,
-  Button,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-} from "@chakra-ui/react";
+import { Flex, Box } from "@chakra-ui/react";
 import { WARP_CONTRACTS } from "@/config/warpContracts";
 import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
-import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpAccount } from "@/components/WarpAccount";
-import { WarpCreateJobAstroportLimitOrder } from "@/components/WarpCreateJobAstroportLimitOrder";
 import { WarpCreateAccount } from "@/components/WarpCreateAccount";
-import { Swap } from "@/components/Swap";
 import { SelectPool } from "@/components/SelectPool";
 import { WarpJobs } from "@/components/WarpJobs";
 import { UsageWarning } from "@/components/UsageWarning";
+import { LimitOrder } from "@/components/LimitOrder";
+import { DcaOrder } from "@/components/DcaOrder";
 
 export default function Home() {
   const wallet = useWallet();
@@ -50,13 +39,6 @@ export default function Home() {
   const [tokenReturn, setTokenReturn] = useState(
     TOKENS[currentNetworkId]?.native
   );
-  const [tokenOfferAmount, setTokenOfferAmount] = useState("0");
-  const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
-
-  const [marketExchangeRate, setMarketExchangeRate] = useState("1");
-  const [desiredExchangeRate, setDesiredExchangeRate] = useState("1");
-
-  const [expiredAfterDays, setExpiredAfterDays] = useState(1);
 
   useEffect(() => {
     if (currentNetworkId === TERRA_MAINNET.chainId) {
@@ -73,38 +55,6 @@ export default function Home() {
 
   const tokenOfferBalance = useBalance(tokenOffer);
   const tokenReturnBalance = useBalance(tokenReturn);
-
-  const simulateResult = useSimulateSwap({
-    amount: tokenOfferAmount,
-    offerAssetAddress: tokenOffer,
-    returnAssetAddress: tokenReturn,
-    poolAddress,
-  }).simulateResult.data;
-
-  useEffect(() => {
-    if (!simulateResult) {
-      return;
-    }
-    setMarketExchangeRate(simulateResult.beliefPrice);
-    // only set desired exchange rate if it's not set by user
-    if (desiredExchangeRate === "1") {
-      setDesiredExchangeRate(simulateResult.beliefPrice);
-    }
-    setTokenReturnAmount(
-      BigNumber(simulateResult.amount)
-        .div(getTokenDecimals(wallet.network.defaultCurrency!.coinMinimalDenom))
-        .toString()
-    );
-  }, [simulateResult]);
-
-  useEffect(() => {
-    if (!desiredExchangeRate) {
-      return;
-    }
-    setTokenReturnAmount(
-      BigNumber(tokenOfferAmount).div(desiredExchangeRate).toString()
-    );
-  }, [desiredExchangeRate]);
 
   const getWarpAccountAddressResult = useWarpGetAccount({
     warpControllerAddress,
@@ -130,14 +80,6 @@ export default function Home() {
     );
   }, [getWarpConfigResult]);
 
-  const handleChangeDesiredExchangeRate = (newRate: string) => {
-    setDesiredExchangeRate(newRate);
-  };
-
-  const setDesiredExchangeRateWithMarketRate = () => {
-    setDesiredExchangeRate(marketExchangeRate);
-  };
-
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);
   };
@@ -150,12 +92,11 @@ export default function Home() {
     setPoolAddress(updatedPoolAddress);
   };
 
-  const onChangeExpiredAfterDays = (updatedExpiredAfterDays: string) => {
-    setExpiredAfterDays(Number(updatedExpiredAfterDays));
-  };
-
   return (
     <main>
+      <Flex>
+        <UsageWarning />
+      </Flex>
       {!wallet && (
         <Flex align="center" justify="center">
           <Box>Please connect wallet</Box>
@@ -177,7 +118,7 @@ export default function Home() {
           onChangePoolAddress={onChangePoolAddress}
         />
         {poolAddress && (
-          <>
+          <Flex align="center" justify="center" direction="column">
             {/* <Box>Pool address: {poolAddress}</Box> */}
             <Box>
               {DENOM_TO_TOKEN_NAME[tokenOffer]} balance:{" "}
@@ -187,69 +128,27 @@ export default function Home() {
               {DENOM_TO_TOKEN_NAME[tokenReturn]} balance:{" "}
               {tokenReturnBalance.data}
             </Box>
-            <Flex>
-              <UsageWarning />
-            </Flex>
-            <Swap
-              offerAssetAddress={tokenOffer}
-              returnAssetAddress={tokenReturn}
-              returnAmount={tokenReturnAmount}
-              offerTokenBalance={tokenOfferBalance.data}
-              onChangeTokenOfferAmount={setTokenOfferAmount}
-            />
-            <Flex>
-              <Box>at desired rate 1 {DENOM_TO_TOKEN_NAME[tokenReturn]} =</Box>
-              <NumberInput
-                value={desiredExchangeRate}
-                onChange={handleChangeDesiredExchangeRate}
-              >
-                <NumberInputField />
-              </NumberInput>
-              <Box>{DENOM_TO_TOKEN_NAME[tokenOffer]}</Box>
-            </Flex>
-            <Flex>
-              <Box>
-                market rate 1 {DENOM_TO_TOKEN_NAME[tokenReturn]} ={" "}
-                {marketExchangeRate} {DENOM_TO_TOKEN_NAME[tokenOffer]}
-              </Box>
-              <Button
-                colorScheme="yellow"
-                onClick={setDesiredExchangeRateWithMarketRate}
-              >
-                use market rate
-              </Button>
-            </Flex>
-            <Flex>
-              <Box>expire after</Box>
-              <NumberInput
-                defaultValue={expiredAfterDays}
-                min={1}
-                onChange={onChangeExpiredAfterDays}
-                step={1}
-                precision={0}
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-              <Box>{expiredAfterDays > 1 ? "days" : "day"}</Box>
-            </Flex>
-            <WarpCreateJobAstroportLimitOrder
+            <LimitOrder
               wallet={wallet}
-              warpControllerAddress={warpControllerAddress}
-              warpAccountAddress={warpAccountAddress}
-              warpJobCreationFeePercentage={warpJobCreationFeePercentage}
               poolAddress={poolAddress}
-              offerAssetAddress={tokenOffer}
-              offerAmount={tokenOfferAmount}
-              returnAssetAddress={tokenReturn}
-              minimumReturnAmount={tokenReturnAmount}
-              offerTokenBalance={tokenOfferBalance.data}
-              expiredAfterDays={expiredAfterDays}
+              tokenOffer={tokenOffer}
+              tokenReturn={tokenReturn}
+              tokenOfferBalance={tokenOfferBalance.data}
+              warpAccountAddress={warpAccountAddress}
+              warpControllerAddress={warpControllerAddress}
+              warpJobCreationFeePercentage={warpJobCreationFeePercentage}
             />
-          </>
+            <DcaOrder
+              wallet={wallet}
+              poolAddress={poolAddress}
+              tokenOffer={tokenOffer}
+              tokenReturn={tokenReturn}
+              tokenOfferBalance={tokenOfferBalance.data}
+              warpAccountAddress={warpAccountAddress}
+              warpControllerAddress={warpControllerAddress}
+              warpJobCreationFeePercentage={warpJobCreationFeePercentage}
+            />
+          </Flex>
         )}
       </Flex>
       {warpAccountAddress && (

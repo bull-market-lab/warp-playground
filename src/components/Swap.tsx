@@ -10,6 +10,7 @@ type SwapProps = {
     valueAsString: string,
     valueAsNumber: number
   ) => void;
+  isDcaOrder?: boolean
 };
 
 export const Swap = ({
@@ -18,14 +19,15 @@ export const Swap = ({
   returnAmount,
   offerTokenBalance,
   onChangeTokenOfferAmount,
+  isDcaOrder = false
 }: SwapProps) => {
   return (
     <Flex>
-      <Box>swap</Box>
+      <Box>{isDcaOrder ? "total swap " : "swap"}</Box>
       <NumberInput
         defaultValue={offerTokenBalance}
         min={0}
-        // max={tokenOfferBalance.data}
+        // max={tokenOfferBalance.data} disable max so people can play around with empty balance
         onChange={onChangeTokenOfferAmount}
       >
         <NumberInputField />

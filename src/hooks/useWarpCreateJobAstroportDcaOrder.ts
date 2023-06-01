@@ -24,7 +24,7 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
   // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
   dcaInterval: number;
   // when to start the job, in unix timestamp
-  dcaStartTime: number;
+  dcaStartTimestamp: number;
   // max spread for astroport swap
   maxSpread: string;
 };
@@ -39,7 +39,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
   returnAssetAddress,
   dcaCount,
   dcaInterval,
-  dcaStartTime,
+  dcaStartTimestamp,
   maxSpread,
 }: UseWarpCreateJobAstroportDcaOrderProps) => {
   const wallet = useWallet();
@@ -59,7 +59,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       !returnAssetAddress ||
       !dcaCount ||
       !dcaInterval ||
-      !dcaStartTime ||
+      !dcaStartTimestamp ||
       !maxSpread ||
       !wallet
     ) {
@@ -72,7 +72,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       warpJobCreationFeePercentage,
       dcaCount,
       dcaInterval,
-      dcaStartTime,
+      dcaStartTimestamp,
     });
 
     const fundWarpAccountForOfferedAsset = constructFundJobForOfferedAssetMsg({
@@ -141,7 +141,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       static: {
         kind: "uint", // NOTE: it's better to use uint instead of timestamp to keep it consistent with condition
         name: jobVarNameNextExecution,
-        value: dcaStartTime,
+        value: dcaStartTimestamp.toString(),
         update_fn: {
           // update value to current timestamp + dcaInterval, i.e. make next execution 1 day later
           on_success: {
@@ -261,7 +261,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
     returnAssetAddress,
     dcaCount,
     dcaInterval,
-    dcaStartTime,
+    dcaStartTimestamp,
     maxSpread,
   ]);
 

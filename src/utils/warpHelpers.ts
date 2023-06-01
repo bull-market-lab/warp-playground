@@ -120,7 +120,7 @@ type ConstructFundDcaOrderJobForFeeMsgProps = {
   // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
   dcaInterval: number;
   // when to start the job, in unix timestamp
-  dcaStartTime: number;
+  dcaStartTimestamp: number;
 };
 
 // send job reward, job creation fee and eviction fee to warp account
@@ -130,10 +130,10 @@ export const constructFundDcaOrderJobForFeeMsg = ({
   warpJobCreationFeePercentage,
   dcaCount,
   dcaInterval,
-  dcaStartTime,
+  dcaStartTimestamp,
 }: ConstructFundDcaOrderJobForFeeMsgProps) => {
   const howManyDaysUntilStartTime = Math.ceil(
-    (dcaStartTime - Date.now() / 1000) / DAY_IN_SECONDS
+    (dcaStartTimestamp - Date.now() / 1000) / DAY_IN_SECONDS
   );
 
   // we might be overpaying eviction fee, but it's fine, as long as it's underpaid
