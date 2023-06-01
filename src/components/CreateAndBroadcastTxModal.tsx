@@ -43,16 +43,16 @@ export const CreateAndBroadcastTxModal = ({
       })
       .catch((error) => {
         // TODO: think about how to handle error
-        console.log('in simulate', error);
+        console.log("in simulate", error);
         alert(error.message);
         throw error;
       })
-    // broadcast({
-    //   wallet,
-    //   messages: msgs,
-    //   mobile: isMobile(),
-    //   // use automatic gas estimation, this is not working for some reason, TODO: fix it in shuttle
-    // })
+      // broadcast({
+      //   wallet,
+      //   messages: msgs,
+      //   mobile: isMobile(),
+      //   // use automatic gas estimation, this is not working for some reason, TODO: fix it in shuttle
+      // })
       .then((result) => {
         // TODO: think about what to do with result, maybe display it and update some state to avoid reload page
         console.log(result);

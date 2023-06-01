@@ -25,7 +25,7 @@ export const useWarpCancelJob = ({
         },
       }),
     ];
-  }, [wallet, warpControllerAddress]);
+  }, [wallet, warpControllerAddress, jobId]);
 
   return useMemo(() => {
     return { msgs };
