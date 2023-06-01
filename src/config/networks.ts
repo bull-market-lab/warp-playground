@@ -146,7 +146,9 @@ export const OSMOSIS_MAINNET: Network = {
 export const DEFAULT_MAINNET = TERRA_MAINNET;
 
 export const networks = [
-  TERRA_MAINNET,
+  // disable mainnet until warp supports terminate_fn so DCA can work
+  // maybe only disable for DCA? but enable for limit order
+  // TERRA_MAINNET,
   TERRA_TESTNET,
   // TERRA_LOCALTERRA,
   // INJECTIVE_MAINNET,

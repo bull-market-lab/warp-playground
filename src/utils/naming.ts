@@ -22,23 +22,11 @@ export const constructJobNameForAstroportLimitOrder = (
     DENOM_TO_TOKEN_NAME[returnAssetAddress]
   }`;
 
-export const constructJobVarNameForAstroportDcaOrder = (
+export const constructJobNameForAstroportDcaOrder = (
   offerAmount: string,
   offerAssetAddress: string,
   returnAssetAddress: string
 ) =>
-  `swap-${BigNumber(offerAmount).toFixed(3)}-${
+  `DCA-order-swap-${BigNumber(offerAmount).toFixed(3)}-${
     DENOM_TO_TOKEN_NAME[offerAssetAddress]
-  }-to-how-many-${DENOM_TO_TOKEN_NAME[returnAssetAddress]}`;
-
-export const constructJobNameForAstroportDcaOrder = (
-  offerAmount: string,
-  offerAssetAddress: string,
-  returnAssetAddress: string,
-  minimumReturnAmount: string
-) =>
-  `swap-${BigNumber(offerAmount).toFixed(3)}-${
-    DENOM_TO_TOKEN_NAME[offerAssetAddress]
-  }-to-${BigNumber(minimumReturnAmount).toFixed(3)}-${
-    DENOM_TO_TOKEN_NAME[returnAssetAddress]
-  }`;
+  }-to-${DENOM_TO_TOKEN_NAME[returnAssetAddress]}`;

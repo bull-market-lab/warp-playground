@@ -5,7 +5,11 @@ import {
   MsgSend,
   WalletConnection,
 } from "@delphi-labs/shuttle";
-import { DEFAULT_JOB_REWARD_AMOUNT, EVICTION_FEE } from "./constants";
+import {
+  DAY_IN_SECONDS,
+  DEFAULT_JOB_REWARD_AMOUNT,
+  EVICTION_FEE,
+} from "./constants";
 
 /*
   job example
@@ -72,24 +76,76 @@ export type Job = {
 export const constructJobUrl = (jobId: string) =>
   `https://beta.warp.money/#/jobs/${jobId}`;
 
-type ConstructFundJobForFeeMsgProps = {
+type ConstructFundLimitOrderJobForFeeMsgProps = {
   wallet: WalletConnection;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
-  // how many days we want to keep the job alive, e.g. 1 means job expire after 24 hours
-  daysLived: number;
+  expiredAfterDays: number;
 };
 
-// send job reward, job creation fee, potential eviction fee to warp account
-export const constructFundJobForFeeMsg = ({
+// send job reward, job creation fee and eviction fee to warp account
+export const constructFundLimitOrderJobForFeeMsg = ({
   wallet,
   warpAccountAddress,
   warpJobCreationFeePercentage,
-  daysLived,
-}: ConstructFundJobForFeeMsgProps) => {
-  const jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
+  expiredAfterDays,
+}: ConstructFundLimitOrderJobForFeeMsgProps) => {
+  let jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
     .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
-    .plus(BigNumber(EVICTION_FEE).times(daysLived - 1))
+    // if expire after 1 day, we don't need to pay eviction fee at all
+    .plus(BigNumber(EVICTION_FEE).multipliedBy(expiredAfterDays - 1))
+    .toString();
+
+  return new MsgSend({
+    fromAddress: wallet.account.address,
+    toAddress: warpAccountAddress,
+    amount: [
+      {
+        denom: wallet.network.defaultCurrency!.coinMinimalDenom,
+        amount: convertTokenDecimals(
+          jobFee,
+          wallet.network.defaultCurrency!.coinMinimalDenom
+        ),
+      },
+    ],
+  });
+};
+
+type ConstructFundDcaOrderJobForFeeMsgProps = {
+  wallet: WalletConnection;
+  warpAccountAddress: string;
+  warpJobCreationFeePercentage: string;
+  // how many times to repeat the job, e.g. 10 means the job will run 10 times
+  dcaCount: number;
+  // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
+  dcaInterval: number;
+  // when to start the job, in unix timestamp
+  dcaStartTime: number;
+};
+
+// send job reward, job creation fee and eviction fee to warp account
+export const constructFundDcaOrderJobForFeeMsg = ({
+  wallet,
+  warpAccountAddress,
+  warpJobCreationFeePercentage,
+  dcaCount,
+  dcaInterval,
+  dcaStartTime,
+}: ConstructFundDcaOrderJobForFeeMsgProps) => {
+  const howManyDaysUntilStartTime = Math.ceil(
+    (dcaStartTime - Date.now() / 1000) / DAY_IN_SECONDS
+  );
+
+  // we might be overpaying eviction fee, but it's fine, as long as it's underpaid
+  const jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
+    // creation fee + reward for a single job
+    .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
+    // pay eviction fee between each interval
+    .plus(BigNumber(EVICTION_FEE).times(dcaInterval))
+    // times how many times the job will run
+    .times(dcaCount)
+    // pay eviction fee between now and start time
+    .plus(BigNumber(EVICTION_FEE).times(howManyDaysUntilStartTime))
     .toString();
 
   return new MsgSend({

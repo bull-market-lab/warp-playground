@@ -3,14 +3,11 @@ import { MsgExecuteContract } from "@delphi-labs/shuttle";
 import useWallet from "./useWallet";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
 import { toBase64 } from "@/utils/encoding";
-import {
-  constructJobVarNameForAstroportDcaOrder,
-  constructJobNameForAstroportDcaOrder,
-} from "@/utils/naming";
+import { constructJobNameForAstroportDcaOrder } from "@/utils/naming";
 import { DEFAULT_JOB_REWARD_AMOUNT } from "@/utils/constants";
 import {
   constructFundJobForOfferedAssetMsg,
-  constructFundJobForFeeMsg,
+  constructFundDcaOrderJobForFeeMsg,
 } from "@/utils/warpHelpers";
 
 type UseWarpCreateJobAstroportDcaOrderProps = {
@@ -18,17 +15,18 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
   poolAddress: string;
+  // total offer amount, each order will be offerAmount / dcaCount
   offerAmount: string;
-  minimumReturnAmount: string;
   offerAssetAddress: string;
   returnAssetAddress: string;
   // how many times to repeat the job, e.g. 10 means the job will run 10 times
-  dcaNumber: string;
-  // how often to repeat the job
-  // e.g. 1d means the job will run every day, 2d means every 2 days, 1w means every week
-  dcaInterval: string;
-  // when to start the job, e.g. 2021-09-01T00:00:00Z means the job will start on 2021-09-01
-  dcaStartTime: string;
+  dcaCount: number;
+  // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
+  dcaInterval: number;
+  // when to start the job, in unix timestamp
+  dcaStartTime: number;
+  // max spread for astroport swap
+  maxSpread: string;
 };
 
 export const useWarpCreateJobAstroportDcaOrder = ({
@@ -37,15 +35,18 @@ export const useWarpCreateJobAstroportDcaOrder = ({
   warpJobCreationFeePercentage,
   poolAddress,
   offerAmount,
-  minimumReturnAmount,
   offerAssetAddress,
   returnAssetAddress,
+  dcaCount,
+  dcaInterval,
+  dcaStartTime,
+  maxSpread,
 }: UseWarpCreateJobAstroportDcaOrderProps) => {
   const wallet = useWallet();
 
   // we need to set max spread carefully as this is a market order
   // use default spread 1% for now
-  const maxSpread = "0.01";
+  // const maxSpread = "0.01";
 
   const msgs = useMemo(() => {
     if (
@@ -54,19 +55,24 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       !warpJobCreationFeePercentage ||
       !poolAddress ||
       !offerAmount ||
-      !minimumReturnAmount ||
       !offerAssetAddress ||
       !returnAssetAddress ||
+      !dcaCount ||
+      !dcaInterval ||
+      !dcaStartTime ||
+      !maxSpread ||
       !wallet
     ) {
       return [];
     }
 
-    const fundWarpAccountForFee = constructFundJobForFeeMsg({
+    const fundWarpAccountForFee = constructFundDcaOrderJobForFeeMsg({
       wallet,
       warpAccountAddress,
       warpJobCreationFeePercentage,
-      daysLived: 1,
+      dcaCount,
+      dcaInterval,
+      dcaStartTime,
     });
 
     const fundWarpAccountForOfferedAsset = constructFundJobForOfferedAssetMsg({
@@ -130,64 +136,94 @@ export const useWarpCreateJobAstroportDcaOrder = ({
     };
     const swapJsonString = JSON.stringify(swap);
 
-    const astroportSimulateSwapMsg = {
-      simulation: {
-        offer_asset: {
-          info: isNativeAsset(offerAssetAddress)
-            ? {
-                native_token: {
-                  denom: offerAssetAddress,
+    const jobVarNameNextExecution = "dca-execution";
+    const jobVarNextExecution = {
+      static: {
+        kind: "uint", // NOTE: it's better to use uint instead of timestamp to keep it consistent with condition
+        name: jobVarNameNextExecution,
+        value: dcaStartTime,
+        update_fn: {
+          // update value to current timestamp + dcaInterval, i.e. make next execution 1 day later
+          on_success: {
+            uint: {
+              expr: {
+                left: {
+                  simple: dcaInterval.toString(),
                 },
-              }
-            : {
-                token: {
-                  contract_addr: offerAssetAddress,
+                op: "add",
+                right: {
+                  env: "time",
                 },
               },
-          amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+            },
+          },
+          // TODO: high priority think about swap fail (e.g. max spread too low) and how to handle it
+          // on error, do nothing for now, this will stop creating new jobs
+          // on_error: {
+          // }
         },
       },
     };
 
-    const jobVarName = constructJobVarNameForAstroportDcaOrder(
-      offerAmount,
-      offerAssetAddress,
-      returnAssetAddress
-    );
-    const jobVar = {
-      query: {
-        kind: "amount",
-        name: jobVarName,
-        init_fn: {
-          query: {
-            wasm: {
-              smart: {
-                msg: toBase64(astroportSimulateSwapMsg),
-                contract_addr: poolAddress,
+    const jobVarNameAlreadyRunCounter = "dca-already-run-counter";
+    const jobVarAlreadyRunCounter = {
+      static: {
+        kind: "int",
+        name: jobVarNameAlreadyRunCounter,
+        value: (0).toString(), // initial counter value is 0
+        update_fn: {
+          // increment counter
+          on_success: {
+            int: {
+              expr: {
+                left: {
+                  ref: `$warp.variable.${jobVarNameAlreadyRunCounter}`,
+                },
+                op: "add",
+                right: {
+                  simple: (1).toString(),
+                },
               },
             },
           },
-          selector: "$.return_amount",
+          // on error, do nothing for now, this will stop creating new jobs
+          // on_error: {
+          // }
         },
-        reinitialize: false,
       },
     };
 
     const condition = {
-      expr: {
-        decimal: {
-          op: "gte",
-          left: {
-            ref: `$warp.variable.${jobVarName}`,
-          },
-          right: {
-            simple: convertTokenDecimals(
-              minimumReturnAmount,
-              returnAssetAddress
-            ),
+      and: [
+        {
+          expr: {
+            uint: {
+              // NOTE: we must use uint instead of timestamp here as timestamp can only compare current time with var
+              // there is no left side of expression
+              left: {
+                env: "time",
+              },
+              op: "gt",
+              right: {
+                ref: `$warp.variable.${jobVarNameNextExecution}`,
+              },
+            },
           },
         },
-      },
+        {
+          expr: {
+            int: {
+              left: {
+                ref: `$warp.variable.${jobVarNameAlreadyRunCounter}`,
+              },
+              op: "lt",
+              right: {
+                simple: dcaCount.toString(),
+              },
+            },
+          },
+        },
+      ],
     };
 
     const createJob = new MsgExecuteContract({
@@ -198,8 +234,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
           name: constructJobNameForAstroportDcaOrder(
             offerAmount,
             offerAssetAddress,
-            returnAssetAddress,
-            minimumReturnAmount
+            returnAssetAddress
           ),
           recurring: true,
           requeue_on_evict: false,
@@ -209,7 +244,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
           ),
           condition: condition,
           msgs: [swapJsonString],
-          vars: [jobVar],
+          vars: [jobVarAlreadyRunCounter, jobVarNextExecution],
         },
       },
     });
@@ -222,9 +257,12 @@ export const useWarpCreateJobAstroportDcaOrder = ({
     warpJobCreationFeePercentage,
     poolAddress,
     offerAmount,
-    minimumReturnAmount,
     offerAssetAddress,
     returnAssetAddress,
+    dcaCount,
+    dcaInterval,
+    dcaStartTime,
+    maxSpread,
   ]);
 
   return useMemo(() => {

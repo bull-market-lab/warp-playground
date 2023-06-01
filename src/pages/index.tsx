@@ -12,6 +12,9 @@ import {
   Flex,
   Box,
   Button,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { WARP_CONTRACTS } from "@/config/warpContracts";
 import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
@@ -52,6 +55,8 @@ export default function Home() {
 
   const [marketExchangeRate, setMarketExchangeRate] = useState("1");
   const [desiredExchangeRate, setDesiredExchangeRate] = useState("1");
+
+  const [expiredAfterDays, setExpiredAfterDays] = useState(1);
 
   useEffect(() => {
     if (currentNetworkId === TERRA_MAINNET.chainId) {
@@ -145,6 +150,10 @@ export default function Home() {
     setPoolAddress(updatedPoolAddress);
   };
 
+  const onChangeExpiredAfterDays = (updatedExpiredAfterDays: string) => {
+    setExpiredAfterDays(Number(updatedExpiredAfterDays));
+  };
+
   return (
     <main>
       {!wallet && (
@@ -179,7 +188,7 @@ export default function Home() {
               {tokenReturnBalance.data}
             </Box>
             <Flex>
-              <UsageWarning/>
+              <UsageWarning />
             </Flex>
             <Swap
               offerAssetAddress={tokenOffer}
@@ -210,6 +219,23 @@ export default function Home() {
                 use market rate
               </Button>
             </Flex>
+            <Flex>
+              <Box>expire after</Box>
+              <NumberInput
+                defaultValue={expiredAfterDays}
+                min={1}
+                onChange={onChangeExpiredAfterDays}
+                step={1}
+                precision={0}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <Box>{expiredAfterDays > 1 ? "days" : "day"}</Box>
+            </Flex>
             <WarpCreateJobAstroportLimitOrder
               wallet={wallet}
               warpControllerAddress={warpControllerAddress}
@@ -221,6 +247,7 @@ export default function Home() {
               returnAssetAddress={tokenReturn}
               minimumReturnAmount={tokenReturnAmount}
               offerTokenBalance={tokenOfferBalance.data}
+              expiredAfterDays={expiredAfterDays}
             />
           </>
         )}

@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { MsgExecuteContract } from "@delphi-labs/shuttle";
 import useWallet from "./useWallet";
-import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
 import { toBase64 } from "@/utils/encoding";
 import {
@@ -11,7 +10,7 @@ import {
 import { DEFAULT_JOB_REWARD_AMOUNT } from "@/utils/constants";
 import {
   constructFundJobForOfferedAssetMsg,
-  constructFundJobForFeeMsg,
+  constructFundLimitOrderJobForFeeMsg,
 } from "@/utils/warpHelpers";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
@@ -23,6 +22,7 @@ type UseWarpCreateJobAstroportLimitOrderProps = {
   minimumReturnAmount: string;
   offerAssetAddress: string;
   returnAssetAddress: string;
+  expiredAfterDays: number;
 };
 
 export const useWarpCreateJobAstroportLimitOrder = ({
@@ -34,6 +34,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
   minimumReturnAmount,
   offerAssetAddress,
   returnAssetAddress,
+  expiredAfterDays,
 }: UseWarpCreateJobAstroportLimitOrderProps) => {
   const wallet = useWallet();
 
@@ -51,16 +52,17 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       !minimumReturnAmount ||
       !offerAssetAddress ||
       !returnAssetAddress ||
+      !expiredAfterDays ||
       !wallet
     ) {
       return [];
     }
 
-    const fundWarpAccountForFee = constructFundJobForFeeMsg({
+    const fundWarpAccountForFee = constructFundLimitOrderJobForFeeMsg({
       wallet,
       warpAccountAddress,
       warpJobCreationFeePercentage,
-      daysLived: 1,
+      expiredAfterDays,
     });
 
     const fundWarpAccountForOfferedAsset = constructFundJobForOfferedAssetMsg({
@@ -196,7 +198,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
             minimumReturnAmount
           ),
           recurring: false,
-          requeue_on_evict: false,
+          requeue_on_evict: expiredAfterDays > 1,
           reward: convertTokenDecimals(
             DEFAULT_JOB_REWARD_AMOUNT,
             wallet.network.defaultCurrency!.coinMinimalDenom
@@ -218,6 +220,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     offerAmount,
     minimumReturnAmount,
     offerAssetAddress,
+    expiredAfterDays,
     returnAssetAddress,
   ]);
 

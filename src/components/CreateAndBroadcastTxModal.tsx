@@ -26,29 +26,39 @@ export const CreateAndBroadcastTxModal = ({
 
   const onCreateAndBroadcastTx = () => {
     setIsProcessing(true);
+
     simulate({
       messages: msgs,
-      wallet,
+      wallet: wallet,
     })
       .then((result) => {
-        broadcast({
+        return broadcast({
           wallet,
           messages: msgs,
+          mobile: isMobile(),
+          // use automatic gas estimation
           feeAmount: result.fee!.amount[0].amount,
           gasLimit: result.fee!.gas,
-          mobile: isMobile(),
         });
       })
       .catch((error) => {
         // TODO: think about how to handle error
+        console.log('in simulate', error);
         alert(error.message);
         throw error;
       })
+    // broadcast({
+    //   wallet,
+    //   messages: msgs,
+    //   mobile: isMobile(),
+    //   // use automatic gas estimation, this is not working for some reason, TODO: fix it in shuttle
+    // })
       .then((result) => {
         // TODO: think about what to do with result, maybe display it and update some state to avoid reload page
-        console.log(result)
+        console.log(result);
       })
       .catch((error) => {
+        console.log("in broadcast", error);
         // TODO: think about how to handle error
         alert(error.message);
         throw error;

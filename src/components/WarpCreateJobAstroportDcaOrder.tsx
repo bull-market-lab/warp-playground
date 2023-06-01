@@ -1,9 +1,9 @@
 import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex } from "@chakra-ui/react";
-import { useWarpCreateJobAstroportLimitOrder } from "@/hooks/useWarpCreateJobAstroportLimitOrder";
+import { useWarpCreateJobAstroportDcaOrder } from "@/hooks/useWarpCreateJobAstroportDcaOrder";
 import { CreateAndBroadcastTxModal } from "./CreateAndBroadcastTxModal";
 
-type WarpCreateJobAstroportLimitOrderProps = {
+type WarpCreateJobAstroportDcaOrderProps = {
   wallet: WalletConnection;
   warpControllerAddress: string;
   warpAccountAddress: string;
@@ -12,12 +12,18 @@ type WarpCreateJobAstroportLimitOrderProps = {
   offerAssetAddress: string;
   offerAmount: string;
   returnAssetAddress: string;
-  minimumReturnAmount: string;
   offerTokenBalance: number;
-  expiredAfterDays: number;
+  // how many times to repeat the job, e.g. 10 means the job will run 10 times
+  dcaCount: number;
+  // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
+  dcaInterval: number;
+  // when to start the job, in unix timestamp
+  dcaStartTime: number;
+  // max spread for astroport swap
+  maxSpread: string;
 };
 
-export const WarpCreateJobAstroportLimitOrder = ({
+export const WarpCreateJobAstroportDcaOrder = ({
   wallet,
   warpControllerAddress,
   warpAccountAddress,
@@ -26,28 +32,32 @@ export const WarpCreateJobAstroportLimitOrder = ({
   offerAssetAddress,
   offerAmount,
   returnAssetAddress,
-  minimumReturnAmount,
   offerTokenBalance,
-  expiredAfterDays,
-}: WarpCreateJobAstroportLimitOrderProps) => {
-  const createWarpJobAstroportLimitOrder = useWarpCreateJobAstroportLimitOrder({
+  dcaCount,
+  dcaInterval,
+  dcaStartTime,
+  maxSpread,
+}: WarpCreateJobAstroportDcaOrderProps) => {
+  const createWarpJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
     warpControllerAddress,
     warpAccountAddress,
     warpJobCreationFeePercentage,
     poolAddress,
     offerAmount,
-    minimumReturnAmount,
     offerAssetAddress,
     returnAssetAddress,
-    expiredAfterDays
+    dcaCount,
+    dcaInterval,
+    dcaStartTime,
+    maxSpread,
   });
 
   return (
     <Flex>
       <CreateAndBroadcastTxModal
         wallet={wallet}
-        msgs={createWarpJobAstroportLimitOrder.msgs}
-        buttonText={"create limit order"}
+        msgs={createWarpJobAstroportDcaOrder.msgs}
+        buttonText={"create DCA order"}
         disabled={
           offerAmount === "0" || parseInt(offerAmount) > offerTokenBalance
         }

@@ -20,10 +20,6 @@ export const UsageWarning = () => {
         <CardBody>
           <Stack divider={<StackDivider />} spacing="4">
             <Text>
-              Limit order will expire after a day, I am working on supporting
-              custom expiration time now.
-            </Text>
-            <Text>
               Executed order will send the target token to your wallet
               automatically, but for closed order, you need to withdraw the
               source token from your warp account manually, because when you
