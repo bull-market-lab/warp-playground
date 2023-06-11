@@ -1,7 +1,7 @@
 import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex, Box } from "@chakra-ui/react";
 import { useWarpCreateAccount } from "@/hooks/useWarpCreateAccount";
-import { CreateAndBroadcastTxModal } from "./CreateAndBroadcastTxModal";
+import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
 
 type WarpCreateAccountProps = {
   wallet: WalletConnection;

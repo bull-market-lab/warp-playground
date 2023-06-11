@@ -14,7 +14,6 @@ import {
   XDefiProvider,
 } from "@delphi-labs/shuttle";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
 import {
   OSMOSIS_MAINNET,
   MARS_MAINNET,
@@ -24,10 +23,16 @@ import {
   INJECTIVE_TESTNET,
   TERRA_LOCALTERRA,
 } from "@/config/networks";
-import Header from "@/components/Header";
-
+// import Header from "@/components/common/Header";
 import "@/styles/globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
+import Layout from "@/components/common/Layout";
+import {
+  WalletProvider,
+} from "@terra-money/wallet-kit";
+import theme from "@/theme/theme";
+import { NETWORKS } from "@/utils/network";
+import { useEffect, useState } from "react";
 
 const providers = [
   new XDefiProvider({
@@ -103,20 +108,59 @@ const mobileProviders = [
 ];
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [isClient, setIsClient] = useState(false);
+
   const queryClient = new QueryClient();
 
-  return (
-    <ChakraProvider>
-      <ShuttleProvider
-        mobileProviders={mobileProviders}
-        providers={providers}
-        persistent
-      >
-        <QueryClientProvider client={queryClient}>
-          <Header />
+  const main = (
+    <ChakraProvider theme={theme}>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
           <Component {...pageProps} />
-        </QueryClientProvider>
-      </ShuttleProvider>
+        </Layout>
+      </QueryClientProvider>
     </ChakraProvider>
   );
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // if (typeof window === "undefined") {
+  //   return null
+  // }
+  // const defaultMain = (
+  //   <ChakraProvider>
+  //     <ShuttleProvider
+  //       mobileProviders={mobileProviders}
+  //       providers={providers}
+  //       persistent
+  //     >
+  //       <QueryClientProvider client={queryClient}>
+  //         <Layout>
+  //           <Header />
+  //           <Component {...pageProps} />
+  //         </Layout>
+  //       </QueryClientProvider>
+  //     </ShuttleProvider>
+  //   </ChakraProvider>
+  // );
+  return isClient ? (
+    <WalletProvider defaultNetworks={NETWORKS}>{main}</WalletProvider>
+  ) : null;
+  // return typeof window !== "undefined" ? (
+  //   <WalletProvider defaultNetworks={NETWORKS}>{main}</WalletProvider>
+  // ) : (
+  //   <StaticWalletProvider>{main}</StaticWalletProvider>
+  // );
 }
+
+// App.getInitialProps = async () => {
+//   console.log("get initial props");
+//   const defaultNetworks = await getInitialConfig();
+//   console.log("default networks", defaultNetworks);
+
+//   return {
+//     ...defaultNetworks,
+//   };
+// };

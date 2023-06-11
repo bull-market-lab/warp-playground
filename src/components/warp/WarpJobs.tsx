@@ -6,9 +6,9 @@ import {
   TabPanels,
   TabPanel,
 } from "@chakra-ui/react";
-import { WarpClosedJobs } from "./WarpClosedJobs";
-import { WarpExecutedJobs } from "./WarpExecutedJobs";
-import { WarpPendingJobs } from "./WarpPendingJobs";
+import { WarpClosedJobs } from "@/components/warp/WarpClosedJobs";
+import { WarpExecutedJobs } from "@/components/warp/WarpExecutedJobs";
+import { WarpPendingJobs } from "@/components/warp/WarpPendingJobs";
 import { WalletConnection } from "@delphi-labs/shuttle";
 
 type WarpJobsProps = {

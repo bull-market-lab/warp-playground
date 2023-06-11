@@ -12,8 +12,8 @@ import {
     NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
-import { WarpCreateJobAstroportLimitOrder } from "@/components/WarpCreateJobAstroportLimitOrder";
-import { Swap } from "@/components/Swap";
+import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJobAstroportLimitOrder";
+import { Swap } from "@/components/warp/Swap";
 import { WalletConnection } from "@delphi-labs/shuttle";
 
 type LimitOrderProps = {

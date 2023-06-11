@@ -8,13 +8,12 @@ import {
   Th,
   Td,
   TableContainer,
-  Button,
   Flex,
   Box,
 } from "@chakra-ui/react";
 import { Job } from "@/utils/warpHelpers";
-import { WarpJobLink } from "./WarpJobLink";
-import { WarpJobDetail } from "./WarpJobDetail";
+import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
+import { WarpJobLink } from "@/components/warp/WarpJobLink";
 
 type WarpClosedJobsProps = {
   warpControllerAddress: string;

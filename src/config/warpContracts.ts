@@ -1,5 +1,4 @@
 import {
-    INJECTIVE_MAINNET,
     TERRA_LOCALTERRA,
     TERRA_MAINNET,
     TERRA_TESTNET,
@@ -16,10 +15,7 @@ import {
     },
     [TERRA_LOCALTERRA.chainId]: {
       warpController:
-        "dummy",
-    },
-    [INJECTIVE_MAINNET.chainId]: {
-      warpController: "dummy",
+        "terra156fwsk56dgldh4l6dpvm2p3mheugm408lac9au4pc8gn4gqn0kfsy44rqr",
     },
   };
   

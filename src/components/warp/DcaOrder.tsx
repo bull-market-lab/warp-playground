@@ -11,8 +11,8 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
-import { WarpCreateJobAstroportDcaOrder } from "@/components/WarpCreateJobAstroportDcaOrder";
-import { Swap } from "@/components/Swap";
+import { WarpCreateJobAstroportDcaOrder } from "@/components/warp/WarpCreateJobAstroportDcaOrder";
+import { Swap } from "@/components/warp/Swap";
 import { WalletConnection } from "@delphi-labs/shuttle";
 
 type DcaOrderProps = {

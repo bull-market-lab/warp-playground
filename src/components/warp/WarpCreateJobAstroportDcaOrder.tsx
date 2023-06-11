@@ -1,7 +1,7 @@
 import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex } from "@chakra-ui/react";
 import { useWarpCreateJobAstroportDcaOrder } from "@/hooks/useWarpCreateJobAstroportDcaOrder";
-import { CreateAndBroadcastTxModal } from "./CreateAndBroadcastTxModal";
+import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportDcaOrderProps = {
   wallet: WalletConnection;
