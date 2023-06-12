@@ -1,29 +1,25 @@
 import { useMemo } from "react";
-import { MsgExecuteContract } from "@delphi-labs/shuttle";
-import useWallet from "./useWallet";
+import { MsgExecuteContract } from "@terra-money/feather.js";
 
 type UseWarpCreateAccountProps = {
-  warpControllerAddress: string;
+  senderAddress?: string;
+  warpControllerAddress?: string;
 };
 
 export const useWarpCreateAccount = ({
+  senderAddress,
   warpControllerAddress,
 }: UseWarpCreateAccountProps) => {
-  const wallet = useWallet();
   const msgs = useMemo(() => {
-    if (!warpControllerAddress || !wallet) {
+    if (!warpControllerAddress || !senderAddress) {
       return [];
     }
     return [
-      new MsgExecuteContract({
-        sender: wallet.account.address,
-        contract: warpControllerAddress,
-        msg: {
-          create_account: {},
-        },
+      new MsgExecuteContract(senderAddress, warpControllerAddress, {
+        create_account: {},
       }),
     ];
-  }, [wallet, warpControllerAddress]);
+  }, [senderAddress, warpControllerAddress]);
 
   return useMemo(() => {
     return { msgs };

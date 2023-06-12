@@ -1,6 +1,10 @@
 # Warp World
 
-UI for everyone to harness the power of [warp](https://warp.money/).
+UI for everyone to harness the power of [warp protocol](https://warp.money/).
+
+## Credit
+
+Lots of styling and layout is copied from [steak](https://liquidstaking.app/).
 
 ---
 

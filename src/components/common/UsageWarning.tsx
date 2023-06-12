@@ -2,21 +2,18 @@ import {
   Link,
   Flex,
   CardBody,
-  Text,
-  CardHeader,
-  Heading,
-  Card,
+  Text, Card,
   Stack,
-  StackDivider,
+  StackDivider
 } from "@chakra-ui/react";
+import Header from "./Header";
 
 export const UsageWarning = () => {
   return (
+    <>
+    <Header text="Risk" />
     <Flex align="center" justify="center" direction="column">
       <Card align="center" justify="center" direction="column">
-        <CardHeader>
-          <Heading size="md">Please Read</Heading>
-        </CardHeader>
         <CardBody>
           <Stack divider={<StackDivider />} spacing="4">
             <Text>
@@ -48,5 +45,7 @@ export const UsageWarning = () => {
         </CardBody>
       </Card>
     </Flex>
+    </>
+
   );
 };

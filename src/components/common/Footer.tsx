@@ -3,27 +3,15 @@ import { FC } from "react";
 
 const Footer: FC = () => {
   return (
-    <Box w="100%" color="white" bg="brand.darkBrown">
+    <Box w="100%" color="white" bg="brand.black">
       <Container maxW="900px" py="12" px="6">
         <Box>
           <p style={{ marginBottom: "1rem", fontWeight: 800 }}>About</p>
           <p style={{ marginBottom: "1rem" }}>
-            <Link variant="footer" isExternal={true} href="https://github.com/PFC-developer/steak-webapp">
+            <Link variant="footer" isExternal={true} href="https://github.com/llllllluc/warp-world">
               GitHub
             </Link>
           </p>
-          <p style={{ marginBottom: "1rem" }}>
-            <Link variant="footer" isExternal={true} href="https://twitter.com/LiquidSteaking">
-              Twitter
-            </Link>
-          </p>
-          <p style={{ marginBottom: "1rem" }}>
-            <Link variant="footer" isExternal={true} href="https://t.me/+PadO-WwMDxNjMGEx">
-              Telegram
-            </Link>
-          </p>
-          <p>This site is being maintained by <Link variant="footer" isExternal={true} href="https://twitter.com/PFC_Validator">PFC</Link>. There is no relationship with <Link
-          variant="footer" isExternal={true} href="https://twitter.com/Larry0x">@Larry0x</Link></p>
         </Box>
       </Container>
     </Box>

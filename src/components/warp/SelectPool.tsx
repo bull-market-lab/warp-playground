@@ -1,57 +1,57 @@
 import { TOKENS } from "@/config/tokens";
-import { TERRA_MAINNET, TERRA_TESTNET } from "@/config/networks";
 import { POOLS } from "@/config/pools";
 import { Select, Flex } from "@chakra-ui/react";
+import { CHAIN_ID_PHOENIX_1, CHAIN_ID_PISCO_1 } from "@/utils/network";
 
 type SelectPoolProps = {
-  currentNetworkId: string;
+  chainID: string;
   onChangeTokenOffer: (updatedTokenOfferAddress: string) => void;
   onChangeTokenReturn: (updatedTokenReturnAddress: string) => void;
   onChangePoolAddress: (updatedPoolAddress: string) => void;
 };
 
 export const SelectPool = ({
-  currentNetworkId,
+  chainID,
   onChangeTokenOffer,
   onChangeTokenReturn,
   onChangePoolAddress,
 }: SelectPoolProps) => {
   const handleSelectChange = (event: any) => {
     const selectedOption = event.target.value;
-    if (currentNetworkId === TERRA_MAINNET.chainId) {
+    if (chainID === CHAIN_ID_PHOENIX_1) {
       if (selectedOption === "option1") {
-        onChangeTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
-        onChangeTokenReturn(TOKENS[currentNetworkId]?.native);
-        onChangePoolAddress(POOLS[currentNetworkId]?.axlusdcNative!);
+        onChangeTokenOffer(TOKENS[chainID]?.axlusdc!);
+        onChangeTokenReturn(TOKENS[chainID]?.native);
+        onChangePoolAddress(POOLS[chainID]?.axlusdcNative!);
       } else if (selectedOption === "option2") {
-        onChangeTokenOffer(TOKENS[currentNetworkId]?.native);
-        onChangeTokenReturn(TOKENS[currentNetworkId]?.axlusdc!);
-        onChangePoolAddress(POOLS[currentNetworkId].axlusdcNative!);
+        onChangeTokenOffer(TOKENS[chainID]?.native);
+        onChangeTokenReturn(TOKENS[chainID]?.axlusdc!);
+        onChangePoolAddress(POOLS[chainID].axlusdcNative!);
       } else if (selectedOption === "option3") {
-        onChangeTokenOffer(TOKENS[currentNetworkId]?.axlusdc!);
-        onChangeTokenReturn(TOKENS[currentNetworkId]?.astro);
-        onChangePoolAddress(POOLS[currentNetworkId].axlusdcAstro!);
+        onChangeTokenOffer(TOKENS[chainID]?.axlusdc!);
+        onChangeTokenReturn(TOKENS[chainID]?.astro);
+        onChangePoolAddress(POOLS[chainID].axlusdcAstro!);
       } else if (selectedOption === "option4") {
-        onChangeTokenOffer(TOKENS[currentNetworkId]?.astro);
-        onChangeTokenReturn(TOKENS[currentNetworkId]?.axlusdc!);
-        onChangePoolAddress(POOLS[currentNetworkId].axlusdcAstro!);
+        onChangeTokenOffer(TOKENS[chainID]?.astro);
+        onChangeTokenReturn(TOKENS[chainID]?.axlusdc!);
+        onChangePoolAddress(POOLS[chainID].axlusdcAstro!);
       }
-    } else if (currentNetworkId === TERRA_TESTNET.chainId) {
+    } else if (chainID === CHAIN_ID_PISCO_1) {
       if (selectedOption === "option1") {
-        onChangeTokenOffer(TOKENS[currentNetworkId]?.astro);
-        onChangeTokenReturn(TOKENS[currentNetworkId]?.native);
-        onChangePoolAddress(POOLS[currentNetworkId].astroNative);
+        onChangeTokenOffer(TOKENS[chainID]?.astro);
+        onChangeTokenReturn(TOKENS[chainID]?.native);
+        onChangePoolAddress(POOLS[chainID].astroNative);
       } else if (selectedOption === "option2") {
-        onChangeTokenOffer(TOKENS[currentNetworkId]?.native);
-        onChangeTokenReturn(TOKENS[currentNetworkId]?.astro);
-        onChangePoolAddress(POOLS[currentNetworkId].astroNative);
+        onChangeTokenOffer(TOKENS[chainID]?.native);
+        onChangeTokenReturn(TOKENS[chainID]?.astro);
+        onChangePoolAddress(POOLS[chainID].astroNative);
       }
     }
   };
 
   return (
     <Flex align="center" justify="center" direction="column">
-      {currentNetworkId === TERRA_MAINNET.chainId && (
+      {chainID === CHAIN_ID_PHOENIX_1 ? (
         <Select
           width="250px"
           placeholder=""
@@ -63,8 +63,7 @@ export const SelectPool = ({
           <option value="option3">swap axlUSDC to ASTRO</option>
           <option value="option4">swap ASTRO to axlUSDC</option>
         </Select>
-      )}
-      {currentNetworkId === TERRA_TESTNET.chainId && (
+      ) : (
         <Select
           width="250px"
           placeholder=""

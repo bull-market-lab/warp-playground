@@ -1,25 +1,23 @@
 import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
 import { useEffect, useState } from "react";
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Flex,
-  Box,
-} from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
+import { LCDClient } from "@terra-money/feather.js";
+
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
 
 type WarpClosedJobsProps = {
+  lcd: LCDClient;
+  chainID: string;
+  ownerAddress?: string;
   warpControllerAddress: string;
 };
 
 export const WarpClosedJobs = ({
+  lcd,
+  chainID,
+  ownerAddress,
   warpControllerAddress,
 }: WarpClosedJobsProps) => {
   const [warpCancelledJobs, setWarpCancelledJobs] = useState<Job[]>([]);
@@ -27,6 +25,9 @@ export const WarpClosedJobs = ({
 
   // TODO: cover all 3 status: Failed, Evicted, Cancelled
   const getWarpCancelledJobsResult = useWarpGetJobs({
+    lcd,
+    chainID,
+    ownerAddress,
     warpControllerAddress,
     status: "Cancelled",
   }).jobsResult.data;
@@ -39,33 +40,76 @@ export const WarpClosedJobs = ({
     setWarpCancelledJobs(getWarpCancelledJobsResult.jobs);
   }, [getWarpCancelledJobsResult]);
 
+  const warpCancelledJobItems =
+    warpCancelledJobs.length > 0 ? (
+      warpCancelledJobs.map((job) => (
+        <Tr
+          key={job.id}
+          transition="0.25s all"
+          bg="white"
+          mb="2"
+          _hover={{ bg: "gray.100" }}
+        >
+          <Td borderBottom="none" py="6" borderLeftRadius="2xl">
+            <WarpJobLink jobId={job.id} />
+          </Td>
+          <Td borderBottom="none" py="6" minW="230px" borderRightRadius="2xl">
+            <WarpJobDetail jobName={job.name} />
+          </Td>
+        </Tr>
+      ))
+    ) : (
+      <Tr bg="white" mb="2">
+        <Td
+          colSpan={4}
+          py="6"
+          textAlign="center"
+          borderBottom="none"
+          borderRadius="2xl"
+        >
+          No Cancelled orders
+        </Td>
+      </Tr>
+    );
+
   return (
-    <Flex align="center" justify="center" direction="column">
-      <Box>closed order count {warpCancelledJobCount}</Box>
-      <TableContainer>
-        <Table variant="simple">
+    <>
+      <Box>cancelled order count {warpCancelledJobCount}</Box>
+      {warpCancelledJobCount > 50 ? (
+        <Box>
+          WARNING! currently UI only shows up to recent 50 jobs, you need to go
+          to official Warp UI to see all jobs
+        </Box>
+      ) : (
+        <></>
+      )}
+      <Box overflowX="auto">
+        <Table
+          style={{ borderCollapse: "separate", borderSpacing: "0 0.6rem" }}
+        >
           <Thead>
             <Tr>
-              <Th>job id</Th>
-              <Th>detail</Th>
-              <Th>closed reason</Th>
+              <Th
+                borderBottom="none"
+                bg="brand.darkBrown"
+                color="white"
+                borderLeftRadius="2xl"
+              >
+                job id
+              </Th>
+              <Th
+                borderBottom="none"
+                bg="brand.darkBrown"
+                color="white"
+                borderRightRadius="2xl"
+              >
+                detail
+              </Th>
             </Tr>
           </Thead>
-          <Tbody>
-            {warpCancelledJobs.map((job) => (
-              <Tr key={job.id}>
-                <Td>
-                  <WarpJobLink jobId={job.id} />
-                </Td>
-                <Td>
-                  <WarpJobDetail jobName={job.name} />
-                </Td>
-                <Td>{job.status === "Evicted" ? "Expired" : job.status}</Td>
-              </Tr>
-            ))}
-          </Tbody>
+          <Tbody>{warpCancelledJobItems}</Tbody>
         </Table>
-      </TableContainer>
-    </Flex>
+      </Box>
+    </>
   );
 };

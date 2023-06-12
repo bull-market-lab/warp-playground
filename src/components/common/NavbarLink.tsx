@@ -1,5 +1,5 @@
-import { chakra } from "@chakra-ui/react";
-import NextLink  from "next/link";
+import { Box, chakra, Text } from "@chakra-ui/react";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { FC, MouseEventHandler } from "react";
 import * as csstype from "csstype";
@@ -11,7 +11,12 @@ type Props = {
   underConstruction?: boolean;
 };
 
-const NavbarLink: FC<Props> = ({ text, href, onClick, underConstruction = false }) => {
+const NavbarLink: FC<Props> = ({
+  text,
+  href,
+  onClick,
+  underConstruction = false,
+}) => {
   const { asPath } = useRouter();
 
   const defaultStyle = {
@@ -39,18 +44,17 @@ const NavbarLink: FC<Props> = ({ text, href, onClick, underConstruction = false 
       };
 
   return (
-    <NextLink href={href} passHref>
-      <chakra.a
+    <NextLink href={href} passHref onClick={onClick}>
+      <Text
         transition="0.2s all"
         p="2"
         whiteSpace="nowrap"
-        onClick={onClick}
         {...defaultStyle}
         {...wrapperStyle}
       >
         {text}
         {underConstruction ? <sup>(soon)</sup> : null}
-      </chakra.a>
+      </Text>
     </NextLink>
   );
 };

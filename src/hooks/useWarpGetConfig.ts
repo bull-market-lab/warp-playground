@@ -1,32 +1,54 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import useWallet from "./useWallet";
+import { LCDClient } from "@terra-money/feather.js";
+
+type GetWarpConfigResponse = {
+  config: {
+    owner: string;
+    fee_collector: string;
+    warp_account_code_id: string;
+    minimum_reward: string;
+    creation_fee_percentage: string;
+    cancellation_fee_percentage: string;
+    template_fee: string;
+    t_max: string;
+    t_min: string;
+    a_max: string;
+    a_min: string;
+    q_max: string;
+  };
+};
 
 type UseWarpGetConfigProps = {
+  lcd: LCDClient;
+  chainID: string;
   warpControllerAddress: string;
 };
 
 export const useWarpGetConfig = ({
+  lcd,
+  chainID,
   warpControllerAddress,
 }: UseWarpGetConfigProps) => {
-  const wallet = useWallet();
   const configResult = useQuery(
-    ["get-config", wallet, warpControllerAddress],
+    ["get-config", chainID, warpControllerAddress],
     async () => {
-      if (!wallet || !warpControllerAddress) {
+      if (!chainID || !warpControllerAddress) {
         return null;
       }
-      const client = await CosmWasmClient.connect(wallet.network.rpc || "");
-      const response = await client.queryContractSmart(warpControllerAddress, {
-        query_config: {},
-      });
+
+      const response: GetWarpConfigResponse = await lcd.wasm.contractQuery(
+        warpControllerAddress,
+        {
+          query_config: {},
+        }
+      );
       return {
         config: response.config,
       };
     },
     {
-      enabled: !!warpControllerAddress && !!wallet,
+      enabled: !!warpControllerAddress && !!chainID,
     }
   );
   return useMemo(() => {

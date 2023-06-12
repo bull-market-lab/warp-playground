@@ -1,6 +1,4 @@
 import { useMemo } from "react";
-import { MsgExecuteContract } from "@delphi-labs/shuttle";
-import useWallet from "./useWallet";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
 import { toBase64 } from "@/utils/encoding";
 import {
@@ -8,12 +6,14 @@ import {
   constructJobNameForAstroportLimitOrder,
 } from "@/utils/naming";
 import { DEFAULT_JOB_REWARD_AMOUNT } from "@/utils/constants";
-import {
-  constructFundJobForOfferedAssetMsg,
-  constructFundLimitOrderJobForFeeMsg,
-} from "@/utils/warpHelpers";
+import { constructFundLimitOrderJobForFeeMsg } from "@/utils/warpHelpers";
+import { MsgExecuteContract } from "@terra-money/feather.js";
+import { constructSendTokenMsg } from "@/utils/token";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
+  senderAddress?: string;
+  // token denom used to pay for warp fee, now is always uluna
+  warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
@@ -26,6 +26,8 @@ type UseWarpCreateJobAstroportLimitOrderProps = {
 };
 
 export const useWarpCreateJobAstroportLimitOrder = ({
+  senderAddress,
+  warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
   warpJobCreationFeePercentage,
@@ -36,8 +38,6 @@ export const useWarpCreateJobAstroportLimitOrder = ({
   returnAssetAddress,
   expiredAfterDays,
 }: UseWarpCreateJobAstroportLimitOrderProps) => {
-  const wallet = useWallet();
-
   // this can be set arbitrarily large since condition guarantee we always get minimumReturnAmount
   // TODO: verify that's the case in production
   const maxSpread = "0.1";
@@ -53,23 +53,24 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       !offerAssetAddress ||
       !returnAssetAddress ||
       !expiredAfterDays ||
-      !wallet
+      !senderAddress
     ) {
       return [];
     }
 
     const fundWarpAccountForFee = constructFundLimitOrderJobForFeeMsg({
-      wallet,
+      senderAddress,
+      warpFeeTokenAddress,
       warpAccountAddress,
       warpJobCreationFeePercentage,
       expiredAfterDays,
     });
 
-    const fundWarpAccountForOfferedAsset = constructFundJobForOfferedAssetMsg({
-      wallet,
-      warpAccountAddress,
-      offerAssetAddress,
-      offerAmount,
+    const fundWarpAccountForOfferedAsset = constructSendTokenMsg({
+      tokenAddress: offerAssetAddress,
+      senderAddress: senderAddress,
+      receiverAddress: warpAccountAddress,
+      humanAmount: offerAmount,
     });
 
     const astroportSwapMsg = isNativeAsset(offerAssetAddress)
@@ -84,7 +85,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
               amount: convertTokenDecimals(offerAmount, offerAssetAddress),
             },
             max_spread: maxSpread,
-            to: wallet.account.address,
+            to: senderAddress,
           },
         }
       : {
@@ -101,7 +102,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
                 // offer_asset
                 // "belief_price": beliefPrice,
                 max_spread: maxSpread,
-                to: wallet.account.address,
+                to: senderAddress,
               },
             }),
           },
@@ -186,10 +187,10 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       },
     };
 
-    const createJob = new MsgExecuteContract({
-      sender: wallet.account.address,
-      contract: warpControllerAddress,
-      msg: {
+    const createJob = new MsgExecuteContract(
+      senderAddress,
+      warpControllerAddress,
+      {
         create_job: {
           name: constructJobNameForAstroportLimitOrder(
             offerAmount,
@@ -201,18 +202,19 @@ export const useWarpCreateJobAstroportLimitOrder = ({
           requeue_on_evict: expiredAfterDays > 1,
           reward: convertTokenDecimals(
             DEFAULT_JOB_REWARD_AMOUNT,
-            wallet.network.defaultCurrency!.coinMinimalDenom
+            warpFeeTokenAddress
           ),
           condition: condition,
           msgs: [swapJsonString],
           vars: [jobVar],
         },
-      },
-    });
+      }
+    );
 
     return [fundWarpAccountForFee, fundWarpAccountForOfferedAsset, createJob];
   }, [
-    wallet,
+    senderAddress,
+    warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
     warpJobCreationFeePercentage,

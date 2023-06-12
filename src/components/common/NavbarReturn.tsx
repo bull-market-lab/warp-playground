@@ -11,7 +11,8 @@ type Props = {
 const NavbarReturn: FC<Props> = ({ onClick }) => {
   return (
     <NextLink href="/" passHref>
-      <chakra.a
+      <chakra.div
+        as="a"
         color="brand.darkerBrown"
         fill="brand.darkerBrown"
         _hover={{
@@ -28,7 +29,7 @@ const NavbarReturn: FC<Props> = ({ onClick }) => {
             Back
           </Text>
         </HStack>
-      </chakra.a>
+      </chakra.div>
     </NextLink>
   );
 };

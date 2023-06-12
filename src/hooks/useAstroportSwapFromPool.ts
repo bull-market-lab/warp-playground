@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { MsgExecuteContract } from "@delphi-labs/shuttle";
 import BigNumber from "bignumber.js";
 import { toBase64 } from "@/utils/encoding";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
-import useWallet from "./useWallet";
+import { Coins, MsgExecuteContract } from "@terra-money/feather.js";
 
 type UseSwapProps = {
+  senderAddress: string;
   amount: string;
   exchangeRate: string;
   offerAssetAddress: string;
@@ -15,6 +15,7 @@ type UseSwapProps = {
 };
 
 export const useSwap = ({
+  senderAddress,
   amount,
   exchangeRate,
   offerAssetAddress,
@@ -22,7 +23,6 @@ export const useSwap = ({
   poolAddress,
   slippage = "0.005",
 }: UseSwapProps) => {
-  const wallet = useWallet();
   const msgs = useMemo(() => {
     if (
       !amount ||
@@ -30,7 +30,7 @@ export const useSwap = ({
       !offerAssetAddress ||
       !returnAssetAddress ||
       !poolAddress ||
-      !wallet
+      !senderAddress
     ) {
       return [];
     }
@@ -41,10 +41,10 @@ export const useSwap = ({
 
     if (isNativeAsset(offerAssetAddress)) {
       return [
-        new MsgExecuteContract({
-          sender: wallet.account.address,
-          contract: poolAddress,
-          msg: {
+        new MsgExecuteContract(
+          senderAddress,
+          poolAddress,
+          {
             swap: {
               offer_asset: {
                 amount: convertTokenDecimals(amount, offerAssetAddress),
@@ -55,37 +55,33 @@ export const useSwap = ({
               belief_price: BigNumber(exchangeRate).toFixed(18).toString(),
             },
           },
-          funds: [
-            {
-              denom: offerAssetAddress,
-              amount: convertTokenDecimals(amount, offerAssetAddress),
-            },
-          ],
-        }),
+          new Coins({
+            [offerAssetAddress]: convertTokenDecimals(
+              amount,
+              offerAssetAddress
+            ),
+          })
+        ),
       ];
     }
 
     return [
-      new MsgExecuteContract({
-        sender: wallet.account.address,
-        contract: offerAssetAddress,
-        msg: {
-          send: {
-            amount: convertTokenDecimals(amount, offerAssetAddress),
-            contract: poolAddress,
-            msg: toBase64({
-              swap: {
-                max_spread: slippage,
-                // belief_price: BigNumber(simulate.data?.beliefPrice || "1").toFixed(18).toString(),
-                belief_price: BigNumber(exchangeRate).toFixed(18).toString(),
-              },
-            }),
-          },
+      new MsgExecuteContract(senderAddress, offerAssetAddress, {
+        send: {
+          amount: convertTokenDecimals(amount, offerAssetAddress),
+          contract: poolAddress,
+          msg: toBase64({
+            swap: {
+              max_spread: slippage,
+              // belief_price: BigNumber(simulate.data?.beliefPrice || "1").toFixed(18).toString(),
+              belief_price: BigNumber(exchangeRate).toFixed(18).toString(),
+            },
+          }),
         },
       }),
     ];
   }, [
-    wallet,
+    senderAddress,
     exchangeRate,
     offerAssetAddress,
     returnAssetAddress,

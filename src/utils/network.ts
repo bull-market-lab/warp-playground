@@ -1,31 +1,39 @@
-// export const NETWORKS = {
-//   mainnet: {
-//     name: "mainnet",
-//     chainID: "phoenix-1",
-//     lcd: "https://phoenix-lcd.terra.dev",
-//     isClassic: false,
-//     walletconnectID: 1,
-//     api: "https://phoenix-api.terra.dev",
-//   },
-//   testnet: {
-//     name: "testnet",
-//     chainID: "pisco-1",
-//     lcd: "https://pisco-lcd.terra.dev",
-//     isClassic: false,
-//     walletconnectID: 0,
-//     api: "https://pisco-api.terra.dev",
-//   },
-// };
-
 export const GAS_OPTIONS = {
   gas: undefined, // leave undefined so it is estimated when signing
   gasPrices: "0.15uluna",
-  gasAdjustment: 1.2,
+  gasAdjustment: 1.75,
+};
+
+export const CHAIN_ID_PHOENIX_1 = "phoenix-1";
+export const CHAIN_ID_PISCO_1 = "pisco-1";
+export const CHAIN_ID_LOCALTERRA = "localterra";
+
+export const NETWORK_MAINNET = "mainnet";
+export const NETWORK_TESTNET = "testnet";
+// TODO: this might be changed to localnet after terrain supports other chains
+export const NETWORK_LOCALNET = "localterra";
+
+export const AVAILABLE_NETWORKS = [
+  NETWORK_MAINNET,
+  NETWORK_TESTNET,
+  NETWORK_LOCALNET,
+];
+
+export const AVAILABLE_CHAIN_IDS = [
+  CHAIN_ID_PHOENIX_1,
+  CHAIN_ID_PISCO_1,
+  CHAIN_ID_LOCALTERRA,
+];
+
+export const NETWORK_TO_CHAIN_ID = {
+  mainnet: CHAIN_ID_PHOENIX_1,
+  testnet: CHAIN_ID_PISCO_1,
+  localterra: CHAIN_ID_LOCALTERRA,
 };
 
 export const NETWORKS = {
-  "phoenix-1": {
-    chainID: "phoenix-1",
+  CHAIN_ID_PHOENIX_1: {
+    chainID: CHAIN_ID_PHOENIX_1,
     lcd: "https://phoenix-lcd.terra.dev",
     gasAdjustment: 1.75,
     gasPrices: { uluna: 0.015 },
@@ -42,8 +50,8 @@ export const NETWORKS = {
       block: "https://terrasco.pe/mainnet/block/{}",
     },
   },
-  "pisco-1": {
-    chainID: "pisco-1",
+  CHAIN_ID_PISCO_1: {
+    chainID: CHAIN_ID_PISCO_1,
     lcd: "https://pisco-lcd.terra.dev",
     gasAdjustment: 1.75,
     gasPrices: { uluna: 0.015 },
@@ -60,8 +68,8 @@ export const NETWORKS = {
       block: "https://terrasco.pe/testnet/block/{}",
     },
   },
-  "localterra": {
-    chainID: "localterra",
+  CHAIN_ID_LOCALTERRA: {
+    chainID: CHAIN_ID_LOCALTERRA,
     lcd: "http://localhost:1317",
     gasAdjustment: 1.75,
     gasPrices: { uluna: 0.015 },
@@ -78,4 +86,12 @@ export const NETWORKS = {
       block: "https://finder.terra.money/localterra/blocks/{}",
     },
   },
+};
+
+export const getChainIDByNetwork = (network?: string): string => {
+  // default to mainnet
+  if (!network) {
+    return CHAIN_ID_PHOENIX_1;
+  }
+  return NETWORK_TO_CHAIN_ID[network as keyof typeof NETWORK_TO_CHAIN_ID];
 };

@@ -1,9 +1,8 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
-import useWallet from "./useWallet";
+import { LCDClient } from "@terra-money/feather.js";
 
 type AssetInfo =
   | {
@@ -17,7 +16,15 @@ type AssetInfo =
       };
     };
 
+type SimulateSwapResponse = {
+  return_amount: string;
+  commission_amount: string;
+  spread_amount: string;
+};
+
 type UseSimulateSwapProps = {
+  lcd: LCDClient;
+  chainID: string;
   amount: string;
   offerAssetAddress: string;
   returnAssetAddress: string;
@@ -25,12 +32,13 @@ type UseSimulateSwapProps = {
 };
 
 export const useSimulateSwap = ({
+  lcd,
+  chainID,
   amount,
   offerAssetAddress,
   returnAssetAddress,
   poolAddress,
 }: UseSimulateSwapProps) => {
-  const wallet = useWallet();
   const simulateResult = useQuery(
     [
       "swap-simulate",
@@ -41,11 +49,11 @@ export const useSimulateSwap = ({
     ],
     async () => {
       if (
+        !chainID ||
         !amount ||
         !offerAssetAddress ||
         !returnAssetAddress ||
-        !poolAddress ||
-        !wallet
+        !poolAddress
       ) {
         return null;
       }
@@ -54,8 +62,6 @@ export const useSimulateSwap = ({
         return null;
       }
 
-      const client = await CosmWasmClient.connect(wallet.network.rpc || "");
-
       let assetInfo: AssetInfo = {
         token: { contract_addr: offerAssetAddress },
       };
@@ -63,14 +69,17 @@ export const useSimulateSwap = ({
         assetInfo = { native_token: { denom: offerAssetAddress } };
       }
 
-      const response = await client.queryContractSmart(poolAddress, {
-        simulation: {
-          offer_asset: {
-            amount: convertTokenDecimals(amount, offerAssetAddress),
-            info: assetInfo,
+      const response: SimulateSwapResponse = await lcd.wasm.contractQuery(
+        poolAddress,
+        {
+          simulation: {
+            offer_asset: {
+              amount: convertTokenDecimals(amount, offerAssetAddress),
+              info: assetInfo,
+            },
           },
-        },
-      });
+        }
+      );
 
       return {
         // no need to convert decimals for amount, commission, spread
@@ -87,11 +96,11 @@ export const useSimulateSwap = ({
     },
     {
       enabled:
+        !!chainID &&
         !!amount &&
         !!offerAssetAddress &&
         !!returnAssetAddress &&
-        !!poolAddress &&
-        !!wallet,
+        !!poolAddress,
     }
   );
 

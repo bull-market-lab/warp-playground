@@ -1,8 +1,8 @@
 import Head from "next/head";
-import { DcaOrderPage } from "@/components/page/DcaOrder";
+import { LimitOrderPage } from "@/components/page/LimitOrder";
 import { useWallet } from "@terra-money/wallet-kit";
 
-export default function DCA() {
+export default function LimitOrder() {
   const wallet = useWallet();
   // TODO: support dummy data when wallet is not connected
   // currently LCD client is not available when wallet is not connected
@@ -10,9 +10,9 @@ export default function DCA() {
   return (
     <>
       <Head>
-        <title>Warp World | DCA Order</title>
+        <title>Warp World | Limit Order</title>
       </Head>
-      {wallet.status !== "CONNECTED" ? <></> : <DcaOrderPage />}
+      {wallet.status !== "CONNECTED" ? <></> : <LimitOrderPage />}
     </>
   );
 }

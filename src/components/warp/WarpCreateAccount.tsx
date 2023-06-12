@@ -1,18 +1,18 @@
-import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex, Box } from "@chakra-ui/react";
 import { useWarpCreateAccount } from "@/hooks/useWarpCreateAccount";
 import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
 
 type WarpCreateAccountProps = {
-  wallet: WalletConnection;
-  warpControllerAddress: string;
+  senderAddress?: string;
+  warpControllerAddress?: string;
 };
 
 export const WarpCreateAccount = ({
-  wallet,
+  senderAddress,
   warpControllerAddress,
 }: WarpCreateAccountProps) => {
   const createWarpAccount = useWarpCreateAccount({
+    senderAddress,
     warpControllerAddress,
   });
 
@@ -21,7 +21,6 @@ export const WarpCreateAccount = ({
       <Box>
         warp account not exist
         <CreateAndBroadcastTxModal
-          wallet={wallet}
           msgs={createWarpAccount.msgs}
           buttonText={"create warp account"}
           disabled={false}

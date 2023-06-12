@@ -1,16 +1,16 @@
 import { useMemo } from "react";
-import { MsgExecuteContract } from "@delphi-labs/shuttle";
-import useWallet from "./useWallet";
 import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
 import { toBase64 } from "@/utils/encoding";
 import { constructJobNameForAstroportDcaOrder } from "@/utils/naming";
 import { DEFAULT_JOB_REWARD_AMOUNT } from "@/utils/constants";
-import {
-  constructFundJobForOfferedAssetMsg,
-  constructFundDcaOrderJobForFeeMsg,
-} from "@/utils/warpHelpers";
+import { constructFundDcaOrderJobForFeeMsg } from "@/utils/warpHelpers";
+import { constructSendTokenMsg } from "@/utils/token";
+import { MsgExecuteContract } from "@terra-money/feather.js";
 
 type UseWarpCreateJobAstroportDcaOrderProps = {
+  senderAddress?: string;
+  // token denom used to pay for warp fee, now is always uluna
+  warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
@@ -30,6 +30,8 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
 };
 
 export const useWarpCreateJobAstroportDcaOrder = ({
+  senderAddress,
+  warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
   warpJobCreationFeePercentage,
@@ -42,14 +44,14 @@ export const useWarpCreateJobAstroportDcaOrder = ({
   dcaStartTimestamp,
   maxSpread,
 }: UseWarpCreateJobAstroportDcaOrderProps) => {
-  const wallet = useWallet();
-
   // we need to set max spread carefully as this is a market order
   // use default spread 1% for now
   // const maxSpread = "0.01";
 
   const msgs = useMemo(() => {
     if (
+      !senderAddress ||
+      !warpFeeTokenAddress ||
       !warpControllerAddress ||
       !warpAccountAddress ||
       !warpJobCreationFeePercentage ||
@@ -60,14 +62,14 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       !dcaCount ||
       !dcaInterval ||
       !dcaStartTimestamp ||
-      !maxSpread ||
-      !wallet
+      !maxSpread
     ) {
       return [];
     }
 
     const fundWarpAccountForFee = constructFundDcaOrderJobForFeeMsg({
-      wallet,
+      senderAddress,
+      warpFeeTokenAddress,
       warpAccountAddress,
       warpJobCreationFeePercentage,
       dcaCount,
@@ -75,11 +77,11 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       dcaStartTimestamp,
     });
 
-    const fundWarpAccountForOfferedAsset = constructFundJobForOfferedAssetMsg({
-      wallet,
-      warpAccountAddress,
-      offerAssetAddress,
-      offerAmount,
+    const fundWarpAccountForOfferedAsset = constructSendTokenMsg({
+      tokenAddress: offerAssetAddress,
+      senderAddress: senderAddress,
+      receiverAddress: warpAccountAddress,
+      humanAmount: offerAmount,
     });
 
     const astroportSwapMsg = isNativeAsset(offerAssetAddress)
@@ -94,7 +96,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
               amount: convertTokenDecimals(offerAmount, offerAssetAddress),
             },
             max_spread: maxSpread,
-            to: wallet.account.address,
+            to: senderAddress,
           },
         }
       : {
@@ -111,7 +113,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
                 // offer_asset
                 // "belief_price": beliefPrice,
                 max_spread: maxSpread,
-                to: wallet.account.address,
+                to: senderAddress,
               },
             }),
           },
@@ -226,10 +228,10 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       ],
     };
 
-    const createJob = new MsgExecuteContract({
-      sender: wallet.account.address,
-      contract: warpControllerAddress,
-      msg: {
+    const createJob = new MsgExecuteContract(
+      senderAddress,
+      warpControllerAddress,
+      {
         create_job: {
           name: constructJobNameForAstroportDcaOrder(
             offerAmount,
@@ -240,18 +242,19 @@ export const useWarpCreateJobAstroportDcaOrder = ({
           requeue_on_evict: false,
           reward: convertTokenDecimals(
             DEFAULT_JOB_REWARD_AMOUNT,
-            wallet.network.defaultCurrency!.coinMinimalDenom
+            warpFeeTokenAddress
           ),
           condition: condition,
           msgs: [swapJsonString],
           vars: [jobVarAlreadyRunCounter, jobVarNextExecution],
         },
-      },
-    });
+      }
+    );
 
     return [fundWarpAccountForFee, fundWarpAccountForOfferedAsset, createJob];
   }, [
-    wallet,
+    senderAddress,
+    warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
     warpJobCreationFeePercentage,

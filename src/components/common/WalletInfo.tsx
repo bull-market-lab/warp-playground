@@ -8,34 +8,46 @@ import {
   VStack,
   Text,
 } from "@chakra-ui/react";
-import { useWallet, useConnectedWallet } from "@terra-money/wallet-kit";
+import {
+  useWallet,
+  ConnectResponse,
+  useLcdClient,
+} from "@terra-money/wallet-kit";
 import copy from "copy-to-clipboard";
 import { FC } from "react";
 
-import PopoverWrapper from "./PopoverWrapper";
-import WalletNetwork from "./WalletNetwork";
-import WalletIcon from "./WalletIcon";
-import CopyIcon from "./CopyIcon";
-import ExternalLinkIcon from "./ExternalLinkIcon";
-import { truncateString, formatNumber } from "@/utils/formatHelpers";
-import { useBalances } from "@/hooks/useBalanceOld";
+import PopoverWrapper from "@/components/common/PopoverWrapper";
+import WalletNetwork from "@/components/common/WalletNetwork";
+import WalletIcon from "@/components/common/WalletIcon";
+import CopyIcon from "@/components/common/CopyIcon";
+import ExternalLinkIcon from "@/components/common/ExternalLinkIcon";
+import { truncateString } from "@/utils/formatHelpers";
+import useBalance from "@/hooks/useBalance";
+import { getChainIDByNetwork } from "@/utils/network";
 
-/**
- * @dev NOTE: This element is only rendered when wallet is connected, so we can assume `wallet` is defined.
- */
-const WalletInfo: FC = () => {
+type WalletInfoProps = {
+  wallet: ConnectResponse;
+};
+
+const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
   const { disconnect } = useWallet();
-  const wallet = useConnectedWallet();
-  const balances = useBalances();
+  const lcd = useLcdClient();
+  const chainID = getChainIDByNetwork(wallet.network);
+  const myAddress = wallet.addresses[chainID];
 
-  console.log("wallet network: ", wallet?.network);
+  const balance = useBalance({
+    lcd,
+    chainID,
+    ownerAddress: myAddress,
+    tokenAddress: "uluna",
+  });
 
   return (
     <PopoverWrapper
       title="My wallet"
       triggerElement={() => (
         <Button type="button" bg="none" p="0" _hover={{ bg: "none" }}>
-          <WalletNetwork network={wallet?.network.name} />
+          <WalletNetwork chainID={chainID} />
           <Flex color="white" justify="center">
             <Box
               color="white"
@@ -49,7 +61,7 @@ const WalletInfo: FC = () => {
               <HStack spacing="3">
                 <WalletIcon w="1.25rem" h="1.25rem" />
                 <Text fontSize="md" color="white">
-                  {truncateString(wallet?.terraAddress)}
+                  {truncateString(myAddress)}
                 </Text>
               </HStack>
             </Box>
@@ -66,7 +78,7 @@ const WalletInfo: FC = () => {
                   Luna
                 </Text>
                 <Text fontSize="md" color="white">
-                  {balances ? formatNumber(balances.uluna / 1e6) : "0.00"}
+                  {balance.data}
                 </Text>
               </HStack>
             </Center>
@@ -78,11 +90,11 @@ const WalletInfo: FC = () => {
         <VStack mt={6} align="flex-start">
           <Text textStyle="minibutton">My Address</Text>
           <Text fontSize="xs" variant="dimmed">
-            {wallet?.terraAddress}
+            {myAddress}
           </Text>
         </VStack>
         <Flex mt={3} justify="left" verticalAlign="middle">
-          <Button onClick={() => copy(wallet!.terraAddress)} variant="simple">
+          <Button onClick={() => copy(myAddress)} variant="simple">
             <HStack>
               <CopyIcon width="1.5rem" height="1.5rem" />
               <Text
@@ -99,7 +111,7 @@ const WalletInfo: FC = () => {
           </Button>
           <Link
             isExternal
-            href={`https://finder.terra.money/${wallet?.network.name}/address/${wallet?.terraAddress}`}
+            href={`https://finder.terra.money/${chainID}/address/${myAddress}`}
             ml="6"
             my="auto"
             textUnderlineOffset="0.3rem"
@@ -113,12 +125,7 @@ const WalletInfo: FC = () => {
           </Link>
         </Flex>
         <Box mt="6">
-          <Button
-            type="button"
-            variant="primary"
-            isFullWidth
-            onClick={disconnect}
-          >
+          <Button type="button" variant="primary" w="100%" onClick={disconnect}>
             Disconnect
           </Button>
         </Box>

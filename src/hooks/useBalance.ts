@@ -1,42 +1,49 @@
 import { useQuery } from "@tanstack/react-query";
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import { getTokenDecimals } from "@/config/tokens";
-import useWallet from "./useWallet";
+import { getTokenDecimals, isNativeAsset } from "@/config/tokens";
+import { LCDClient } from "@terra-money/feather.js";
 
-export default function useBalance(tokenAddress: string) {
-  const wallet = useWallet();
+type Cw20BalanceResponse = {
+  balance: string;
+}
 
+type UseBalanceProps = {
+  lcd: LCDClient;
+  chainID?: string;
+  ownerAddress?: string;
+  tokenAddress?: string;
+};
+
+export default function useBalance({
+  lcd,
+  chainID,
+  ownerAddress,
+  tokenAddress,
+}: UseBalanceProps) {
   return useQuery(
-    ["balance", wallet?.id, tokenAddress],
+    ["balance", chainID, ownerAddress, tokenAddress],
     async () => {
-      if (!wallet || !tokenAddress) {
+      if (!ownerAddress || !tokenAddress || !chainID) {
         return 0;
       }
 
-      const client = await CosmWasmClient.connect(wallet?.network.rpc || "");
-
-      if (
-        tokenAddress.startsWith("u") ||
-        tokenAddress === "inj" ||
-        tokenAddress.startsWith("ibc/")
-      ) {
-        const response = await client.getBalance(
-          wallet?.account.address || "",
-          tokenAddress
+      if (isNativeAsset(tokenAddress)) {
+        const [coins, pagination] = await lcd.bank.balance(ownerAddress);
+        console.log("coins", coins, pagination);
+        // TODO: handle multiple native coins
+        return (
+          Number(coins.toData()[0].amount) / getTokenDecimals(tokenAddress)
         );
-        return Number(response.amount) / getTokenDecimals(tokenAddress);
+      } else {
+        const response: Cw20BalanceResponse = await lcd.wasm.contractQuery(tokenAddress, {
+          balance: {
+            address: ownerAddress,
+          },
+        });
+        return Number(response.balance) / getTokenDecimals(tokenAddress);
       }
-
-      const response = await client.queryContractSmart(tokenAddress, {
-        balance: {
-          address: wallet?.account.address || "",
-        },
-      });
-
-      return Number(response.balance) / getTokenDecimals(tokenAddress);
     },
     {
-      enabled: !!wallet && !!tokenAddress,
+      enabled: !!ownerAddress && !!tokenAddress && !!chainID,
       initialData: 0,
       placeholderData: 0,
     }

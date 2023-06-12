@@ -1,20 +1,20 @@
-import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex } from "@chakra-ui/react";
 import { useWarpCancelJob } from "@/hooks/useWarpCancelJob";
 import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
 
 type WarpCancelJobProps = {
-  wallet: WalletConnection;
+  senderAddress?: string;
   warpControllerAddress: string;
   jobId: string;
 };
 
 export const WarpCancelJob = ({
-  wallet,
+  senderAddress,
   warpControllerAddress,
   jobId,
 }: WarpCancelJobProps) => {
   const cancelJob = useWarpCancelJob({
+    senderAddress,
     warpControllerAddress,
     jobId,
   });
@@ -22,7 +22,6 @@ export const WarpCancelJob = ({
   return (
     <Flex align="center" justify="center">
       <CreateAndBroadcastTxModal
-        wallet={wallet}
         msgs={cancelJob.msgs}
         buttonText={"cancel job"}
         disabled={false}

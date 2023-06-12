@@ -1,15 +1,10 @@
 import BigNumber from "bignumber.js";
-import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
-import {
-  MsgExecuteContract,
-  MsgSend,
-  WalletConnection,
-} from "@delphi-labs/shuttle";
 import {
   DAY_IN_SECONDS,
   DEFAULT_JOB_REWARD_AMOUNT,
   EVICTION_FEE,
 } from "./constants";
+import { constructSendTokenMsg } from "./token";
 
 /*
   job example
@@ -77,7 +72,8 @@ export const constructJobUrl = (jobId: string) =>
   `https://beta.warp.money/#/jobs/${jobId}`;
 
 type ConstructFundLimitOrderJobForFeeMsgProps = {
-  wallet: WalletConnection;
+  senderAddress: string;
+  warpFeeTokenAddress: string;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
   expiredAfterDays: number;
@@ -85,7 +81,8 @@ type ConstructFundLimitOrderJobForFeeMsgProps = {
 
 // send job reward, job creation fee and eviction fee to warp account
 export const constructFundLimitOrderJobForFeeMsg = ({
-  wallet,
+  senderAddress,
+  warpFeeTokenAddress,
   warpAccountAddress,
   warpJobCreationFeePercentage,
   expiredAfterDays,
@@ -96,23 +93,17 @@ export const constructFundLimitOrderJobForFeeMsg = ({
     .plus(BigNumber(EVICTION_FEE).multipliedBy(expiredAfterDays - 1))
     .toString();
 
-  return new MsgSend({
-    fromAddress: wallet.account.address,
-    toAddress: warpAccountAddress,
-    amount: [
-      {
-        denom: wallet.network.defaultCurrency!.coinMinimalDenom,
-        amount: convertTokenDecimals(
-          jobFee,
-          wallet.network.defaultCurrency!.coinMinimalDenom
-        ),
-      },
-    ],
+  return constructSendTokenMsg({
+    tokenAddress: warpFeeTokenAddress,
+    senderAddress: senderAddress,
+    receiverAddress: warpAccountAddress,
+    humanAmount: jobFee,
   });
 };
 
 type ConstructFundDcaOrderJobForFeeMsgProps = {
-  wallet: WalletConnection;
+  senderAddress: string;
+  warpFeeTokenAddress: string;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
   // how many times to repeat the job, e.g. 10 means the job will run 10 times
@@ -125,7 +116,8 @@ type ConstructFundDcaOrderJobForFeeMsgProps = {
 
 // send job reward, job creation fee and eviction fee to warp account
 export const constructFundDcaOrderJobForFeeMsg = ({
-  wallet,
+  senderAddress,
+  warpFeeTokenAddress,
   warpAccountAddress,
   warpJobCreationFeePercentage,
   dcaCount,
@@ -136,7 +128,7 @@ export const constructFundDcaOrderJobForFeeMsg = ({
     (dcaStartTimestamp - Date.now() / 1000) / DAY_IN_SECONDS
   );
 
-  // we might be overpaying eviction fee, but it's fine, as long as it's underpaid
+  // we might be overpaying eviction fee, but it's fine, as long as it's not underpaid
   const jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
     // creation fee + reward for a single job
     .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
@@ -148,53 +140,10 @@ export const constructFundDcaOrderJobForFeeMsg = ({
     .plus(BigNumber(EVICTION_FEE).times(howManyDaysUntilStartTime))
     .toString();
 
-  return new MsgSend({
-    fromAddress: wallet.account.address,
-    toAddress: warpAccountAddress,
-    amount: [
-      {
-        denom: wallet.network.defaultCurrency!.coinMinimalDenom,
-        amount: convertTokenDecimals(
-          jobFee,
-          wallet.network.defaultCurrency!.coinMinimalDenom
-        ),
-      },
-    ],
+  return constructSendTokenMsg({
+    tokenAddress: warpFeeTokenAddress,
+    senderAddress: senderAddress,
+    receiverAddress: warpAccountAddress,
+    humanAmount: jobFee,
   });
-};
-
-type ConstructFundJobForOfferedAssetMsgProps = {
-  wallet: WalletConnection;
-  warpAccountAddress: string;
-  offerAssetAddress: string;
-  offerAmount: string;
-};
-
-export const constructFundJobForOfferedAssetMsg = ({
-  wallet,
-  warpAccountAddress,
-  offerAssetAddress,
-  offerAmount,
-}: ConstructFundJobForOfferedAssetMsgProps) => {
-  return isNativeAsset(offerAssetAddress)
-    ? new MsgSend({
-        fromAddress: wallet.account.address,
-        toAddress: warpAccountAddress,
-        amount: [
-          {
-            denom: wallet.network.defaultCurrency!.coinMinimalDenom,
-            amount: convertTokenDecimals(offerAmount, offerAssetAddress),
-          },
-        ],
-      })
-    : new MsgExecuteContract({
-        sender: wallet.account.address,
-        contract: offerAssetAddress,
-        msg: {
-          transfer: {
-            recipient: warpAccountAddress,
-            amount: convertTokenDecimals(offerAmount, offerAssetAddress),
-          },
-        },
-      });
 };

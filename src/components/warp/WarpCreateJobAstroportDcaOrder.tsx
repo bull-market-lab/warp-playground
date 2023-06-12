@@ -1,10 +1,10 @@
-import { WalletConnection } from "@delphi-labs/shuttle";
 import { Flex } from "@chakra-ui/react";
 import { useWarpCreateJobAstroportDcaOrder } from "@/hooks/useWarpCreateJobAstroportDcaOrder";
 import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportDcaOrderProps = {
-  wallet: WalletConnection;
+  senderAddress?: string;
+  warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
   warpJobCreationFeePercentage: string;
@@ -24,7 +24,8 @@ type WarpCreateJobAstroportDcaOrderProps = {
 };
 
 export const WarpCreateJobAstroportDcaOrder = ({
-  wallet,
+  senderAddress,
+  warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
   warpJobCreationFeePercentage,
@@ -39,6 +40,8 @@ export const WarpCreateJobAstroportDcaOrder = ({
   maxSpread,
 }: WarpCreateJobAstroportDcaOrderProps) => {
   const createWarpJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
+    senderAddress,
+    warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
     warpJobCreationFeePercentage,
@@ -55,7 +58,6 @@ export const WarpCreateJobAstroportDcaOrder = ({
   return (
     <Flex>
       <CreateAndBroadcastTxModal
-        wallet={wallet}
         msgs={createWarpJobAstroportDcaOrder.msgs}
         buttonText={"create DCA order"}
         disabled={
