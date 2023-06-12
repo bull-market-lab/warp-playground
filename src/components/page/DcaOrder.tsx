@@ -1,8 +1,4 @@
-import {
-  useConnectedWallet,
-  useLcdClient,
-  useWallet,
-} from "@terra-money/wallet-kit";
+import { useConnectedWallet, useLcdClient } from "@terra-money/wallet-kit";
 import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
@@ -155,7 +151,7 @@ export const DcaOrderPage = () => {
         .div(getTokenDecimals(tokenReturn))
         .toString()
     );
-  }, [simulateResult]);
+  }, [simulateResult, tokenReturn]);
 
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);

@@ -146,7 +146,7 @@ export const LimitOrderPage = () => {
         .div(getTokenDecimals(tokenReturn))
         .toString()
     );
-  }, [simulateResult]);
+  }, [simulateResult, tokenReturn, desiredExchangeRate]);
 
   useEffect(() => {
     if (!desiredExchangeRate) {
@@ -155,7 +155,7 @@ export const LimitOrderPage = () => {
     setTokenReturnAmount(
       BigNumber(tokenOfferAmount).div(desiredExchangeRate).toString()
     );
-  }, [desiredExchangeRate]);
+  }, [desiredExchangeRate, tokenOfferAmount]);
 
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);
