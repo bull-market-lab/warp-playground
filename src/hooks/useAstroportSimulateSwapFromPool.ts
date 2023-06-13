@@ -23,7 +23,7 @@ type SimulateSwapResponse = {
 };
 
 type UseSimulateSwapProps = {
-  lcd: LCDClient;
+  lcd?: LCDClient;
   chainID: string;
   amount: string;
   offerAssetAddress: string;
@@ -42,6 +42,7 @@ export const useSimulateSwap = ({
   const simulateResult = useQuery(
     [
       "swap-simulate",
+      chainID,
       amount,
       offerAssetAddress,
       returnAssetAddress,
@@ -49,6 +50,7 @@ export const useSimulateSwap = ({
     ],
     async () => {
       if (
+        !lcd ||
         !chainID ||
         !amount ||
         !offerAssetAddress ||
@@ -96,6 +98,7 @@ export const useSimulateSwap = ({
     },
     {
       enabled:
+        !!lcd &&
         !!chainID &&
         !!amount &&
         !!offerAssetAddress &&

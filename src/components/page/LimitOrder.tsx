@@ -10,7 +10,9 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
 } from "@chakra-ui/react";
-import { useConnectedWallet, useLcdClient } from "@terra-money/wallet-kit";
+import {
+  useConnectedWallet, useWallet
+} from "@terra-money/wallet-kit";
 
 import { POOLS } from "@/config/pools";
 import useBalance from "@/hooks/useBalance";
@@ -26,12 +28,15 @@ import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJobAstroportLimitOrder";
 import { Swap } from "@/components/warp/Swap";
 import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/config/tokens";
+import { LCDClient } from "@terra-money/feather.js";
 
 export const LimitOrderPage = () => {
+  const wallet = useWallet();
   const connectedWallet = useConnectedWallet();
-  const lcd = useLcdClient();
   const chainID = getChainIDByNetwork(connectedWallet?.network);
   const myAddress = connectedWallet?.addresses[chainID];
+
+  const [lcd, setLcd] = useState<LCDClient>();
 
   const [warpAccountAddress, setWarpAccountAddress] = useState("");
   const [warpControllerAddress, setWarpControllerAddress] = useState(
@@ -53,6 +58,16 @@ export const LimitOrderPage = () => {
   const [tokenOffer, setTokenOffer] = useState(TOKENS[chainID]?.axlusdc!);
   // @ts-ignore
   const [tokenReturn, setTokenReturn] = useState(TOKENS[chainID]?.native);
+
+  useEffect(() => {
+    if (wallet.status === "CONNECTED") {
+      setLcd(new LCDClient(
+        wallet.network
+      ));
+    } else {
+      setLcd(undefined);
+    }
+  }, [wallet.status]);
 
   useEffect(() => {
     if (chainID === CHAIN_ID_PHOENIX_1) {

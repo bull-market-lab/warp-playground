@@ -7,7 +7,7 @@ import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { LCDClient } from "@terra-money/feather.js";
 
 type WarpExecutedJobsProps = {
-  lcd: LCDClient;
+  lcd?: LCDClient;
   chainID: string;
   ownerAddress?: string;
   warpControllerAddress: string;

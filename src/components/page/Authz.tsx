@@ -1,6 +1,4 @@
-import {
-  useConnectedWallet, useWallet
-} from "@terra-money/wallet-kit";
+import { useConnectedWallet, useWallet } from "@terra-money/wallet-kit";
 import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
@@ -29,7 +27,7 @@ import { WarpCreateJobAstroportDcaOrder } from "@/components/warp/WarpCreateJobA
 import { Swap } from "@/components/warp/Swap";
 import { LCDClient } from "@terra-money/feather.js";
 
-export const DcaOrderPage = () => {
+export const AuthzPage = () => {
   const wallet = useWallet();
   const connectedWallet = useConnectedWallet();
   const chainID = getChainIDByNetwork(connectedWallet?.network);
@@ -59,16 +57,6 @@ export const DcaOrderPage = () => {
   const [tokenReturn, setTokenReturn] = useState(TOKENS[chainID]?.native);
 
   useEffect(() => {
-    if (wallet.status === "CONNECTED") {
-      setLcd(new LCDClient(
-        wallet.network
-      ));
-    } else {
-      setLcd(undefined);
-    }
-  }, [wallet.status]);
-
-  useEffect(() => {
     if (chainID === CHAIN_ID_PHOENIX_1) {
       // @ts-ignore
       setTokenOffer(TOKENS[chainID]?.axlusdc!);
@@ -89,6 +77,14 @@ export const DcaOrderPage = () => {
     // @ts-ignore
     setWarpFeeTokenAddress(WARP_CONSTANTS[chainID].feeTokenAddress);
   }, [chainID]);
+
+  useEffect(() => {
+    if (wallet.status === "CONNECTED") {
+      setLcd(new LCDClient(wallet.network));
+    } else {
+      setLcd(undefined);
+    }
+  }, [wallet.status]);
 
   const tokenOfferBalance = useBalance({
     lcd,
@@ -119,6 +115,7 @@ export const DcaOrderPage = () => {
 
   const getWarpConfigResult = useWarpGetConfig({
     lcd,
+
     chainID,
     warpControllerAddress,
   }).configResult.data;

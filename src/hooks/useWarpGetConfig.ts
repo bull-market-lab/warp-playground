@@ -20,7 +20,7 @@ type GetWarpConfigResponse = {
 };
 
 type UseWarpGetConfigProps = {
-  lcd: LCDClient;
+  lcd?: LCDClient;
   chainID: string;
   warpControllerAddress: string;
 };
@@ -33,7 +33,7 @@ export const useWarpGetConfig = ({
   const configResult = useQuery(
     ["get-config", chainID, warpControllerAddress],
     async () => {
-      if (!chainID || !warpControllerAddress) {
+      if (!lcd || !chainID || !warpControllerAddress) {
         return null;
       }
 
@@ -48,7 +48,7 @@ export const useWarpGetConfig = ({
       };
     },
     {
-      enabled: !!warpControllerAddress && !!chainID,
+      enabled: !!warpControllerAddress && !!chainID && !!lcd,
     }
   );
   return useMemo(() => {

@@ -8,7 +8,7 @@ import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
 
 type WarpClosedJobsProps = {
-  lcd: LCDClient;
+  lcd?: LCDClient;
   chainID: string;
   ownerAddress?: string;
   warpControllerAddress: string;

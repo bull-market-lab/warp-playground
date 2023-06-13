@@ -9,7 +9,7 @@ type GetWarpJobsResponse = {
 };
 
 type UseWarpGetJobsProps = {
-  lcd: LCDClient;
+  lcd?: LCDClient;
   chainID: string;
   ownerAddress?: string;
   warpControllerAddress: string;
@@ -26,7 +26,13 @@ export const useWarpGetJobs = ({
   const jobsResult = useQuery(
     [`get-jobs`, status, chainID, ownerAddress, warpControllerAddress],
     async () => {
-      if (!chainID || !ownerAddress || !warpControllerAddress || !status) {
+      if (
+        !lcd ||
+        !chainID ||
+        !ownerAddress ||
+        !warpControllerAddress ||
+        !status
+      ) {
         return null;
       }
 
@@ -48,7 +54,11 @@ export const useWarpGetJobs = ({
     },
     {
       enabled:
-        !!warpControllerAddress && !!ownerAddress && !!chainID && !!status,
+        !!warpControllerAddress &&
+        !!ownerAddress &&
+        !!chainID &&
+        !!status &&
+        !!lcd,
     }
   );
   return useMemo(() => {

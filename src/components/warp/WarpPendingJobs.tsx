@@ -9,7 +9,7 @@ import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { WarpCancelJob } from "@/components/warp/WarpCancelJob";
 
 type WarpPendingJobsProps = {
-  lcd: LCDClient;
+  lcd?: LCDClient;
   chainID: string;
   ownerAddress?: string;
   warpControllerAddress: string;

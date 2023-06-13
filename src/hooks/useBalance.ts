@@ -4,11 +4,11 @@ import { LCDClient } from "@terra-money/feather.js";
 
 type Cw20BalanceResponse = {
   balance: string;
-}
+};
 
 type UseBalanceProps = {
-  lcd: LCDClient;
-  chainID?: string;
+  lcd?: LCDClient;
+  chainID: string;
   ownerAddress?: string;
   tokenAddress?: string;
 };
@@ -22,7 +22,7 @@ export default function useBalance({
   return useQuery(
     ["balance", chainID, ownerAddress, tokenAddress],
     async () => {
-      if (!ownerAddress || !tokenAddress || !chainID) {
+      if (!lcd || !chainID || !ownerAddress || !tokenAddress || !chainID) {
         return 0;
       }
 
@@ -34,16 +34,19 @@ export default function useBalance({
           Number(coins.toData()[0].amount) / getTokenDecimals(tokenAddress)
         );
       } else {
-        const response: Cw20BalanceResponse = await lcd.wasm.contractQuery(tokenAddress, {
-          balance: {
-            address: ownerAddress,
-          },
-        });
+        const response: Cw20BalanceResponse = await lcd.wasm.contractQuery(
+          tokenAddress,
+          {
+            balance: {
+              address: ownerAddress,
+            },
+          }
+        );
         return Number(response.balance) / getTokenDecimals(tokenAddress);
       }
     },
     {
-      enabled: !!ownerAddress && !!tokenAddress && !!chainID,
+      enabled: !!ownerAddress && !!tokenAddress && !!chainID && !!lcd,
       initialData: 0,
       placeholderData: 0,
     }

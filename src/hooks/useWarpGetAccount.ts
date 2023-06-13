@@ -10,8 +10,8 @@ type GetWarpAccountResponse = {
 };
 
 type UseWarpGetAccountProps = {
-  lcd: LCDClient;
-  chainID?: string;
+  lcd?: LCDClient;
+  chainID: string;
   ownerAddress?: string;
   warpControllerAddress?: string;
 };
@@ -25,7 +25,7 @@ export const useWarpGetAccount = ({
   const accountResult = useQuery(
     ["get-account", chainID, ownerAddress, warpControllerAddress],
     async () => {
-      if (!chainID || !ownerAddress || !warpControllerAddress) {
+      if (!lcd || !chainID || !ownerAddress || !warpControllerAddress) {
         return null;
       }
 
@@ -42,7 +42,7 @@ export const useWarpGetAccount = ({
       };
     },
     {
-      enabled: !!warpControllerAddress && !!ownerAddress && !!chainID,
+      enabled: !!lcd && !!warpControllerAddress && !!ownerAddress && !!chainID,
     }
   );
   return useMemo(() => {
