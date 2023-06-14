@@ -28,7 +28,7 @@ export const WarpJobs = ({
   return (
     <Flex align="center" justify="center" direction="column">
       <Tabs>
-        <TabList display="flex" justifyContent="space-between" width="100%">
+        <TabList display="flex" justifyContent="space-between" width="85vw">
           <Tab flex="1" minWidth="0">
             pending
           </Tab>

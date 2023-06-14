@@ -8,7 +8,7 @@ const AboutPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Warp World | Risk</title>
+        <title>Warp World | About</title>
       </Head>
       <About />
       <UsageWarning />

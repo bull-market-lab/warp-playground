@@ -1,5 +1,12 @@
 import { DENOM_TO_TOKEN_NAME } from "@/config/tokens";
-import { Flex, Box, NumberInput, NumberInputField } from "@chakra-ui/react";
+import {
+  Flex,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+} from "@chakra-ui/react";
 
 type SwapProps = {
   offerAssetAddress: string;
@@ -10,7 +17,6 @@ type SwapProps = {
     valueAsString: string,
     valueAsNumber: number
   ) => void;
-  isDcaOrder?: boolean
 };
 
 export const Swap = ({
@@ -19,24 +25,30 @@ export const Swap = ({
   returnAmount,
   offerTokenBalance,
   onChangeTokenOfferAmount,
-  isDcaOrder = false
 }: SwapProps) => {
   return (
-    <Flex>
-      <Box>{isDcaOrder ? "total swap " : "swap"}</Box>
+    <Flex align="center" justify="center" style={{ marginTop: '10px' }}>
+      swap
       <NumberInput
         defaultValue={offerTokenBalance}
         min={0}
-        // max={tokenOfferBalance.data} disable max so people can play around with empty balance
+        step={1}
+        precision={3}
         onChange={onChangeTokenOfferAmount}
+        width={150}
       >
-        <NumberInputField />
+        <NumberInputField style={{ textAlign: "center" }} />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
       </NumberInput>
-      <Box>{DENOM_TO_TOKEN_NAME[offerAssetAddress]} to</Box>
-      <NumberInput value={returnAmount}>
-        <NumberInputField disabled={true} />
+      {DENOM_TO_TOKEN_NAME[offerAssetAddress]}
+      {" to "}
+      <NumberInput value={returnAmount} precision={3} width={150}>
+        <NumberInputField disabled={true} style={{ textAlign: "center" }} />
       </NumberInput>
-      <Box>{DENOM_TO_TOKEN_NAME[returnAssetAddress]}</Box>
+      {DENOM_TO_TOKEN_NAME[returnAssetAddress]}
     </Flex>
   );
 };

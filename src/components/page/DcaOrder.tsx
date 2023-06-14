@@ -1,6 +1,4 @@
-import {
-  useConnectedWallet, useWallet
-} from "@terra-money/wallet-kit";
+import { useConnectedWallet, useWallet } from "@terra-money/wallet-kit";
 import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
@@ -19,7 +17,6 @@ import { WARP_CONSTANTS } from "@/config/warpContracts";
 import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
 import { WarpAccount } from "@/components/warp/WarpAccount";
-import { WarpCreateAccount } from "@/components/warp/WarpCreateAccount";
 import { SelectPool } from "@/components/warp/SelectPool";
 import { WarpJobs } from "@/components/warp/WarpJobs";
 import { CHAIN_ID_PHOENIX_1, getChainIDByNetwork } from "@/utils/network";
@@ -33,7 +30,7 @@ export const DcaOrderPage = () => {
   const wallet = useWallet();
   const connectedWallet = useConnectedWallet();
   const chainID = getChainIDByNetwork(connectedWallet?.network);
-  const myAddress = connectedWallet?.addresses[chainID];
+  const myAddress = connectedWallet?.addresses[chainID] || "";
 
   const [lcd, setLcd] = useState<LCDClient>();
 
@@ -60,9 +57,7 @@ export const DcaOrderPage = () => {
 
   useEffect(() => {
     if (wallet.status === "CONNECTED") {
-      setLcd(new LCDClient(
-        wallet.network
-      ));
+      setLcd(new LCDClient(wallet.network));
     } else {
       setLcd(undefined);
     }
@@ -133,6 +128,7 @@ export const DcaOrderPage = () => {
   }, [getWarpConfigResult]);
 
   const [tokenOfferAmount, setTokenOfferAmount] = useState("0");
+  const [totalTokenOfferAmount, setTotalTokenOfferAmount] = useState("0");
   const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
 
   const [marketExchangeRate, setMarketExchangeRate] = useState("1");
@@ -167,6 +163,12 @@ export const DcaOrderPage = () => {
     );
   }, [simulateResult, tokenReturn]);
 
+  useEffect(() => {
+    setTotalTokenOfferAmount(
+      BigNumber(tokenOfferAmount).multipliedBy(dcaCount).toString()
+    );
+  }, [tokenOfferAmount, dcaCount]);
+
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);
   };
@@ -192,60 +194,76 @@ export const DcaOrderPage = () => {
   };
 
   return (
-    <Flex align="center" justify="center" direction="column">
-      {warpAccountAddress ? (
-        <WarpAccount warpAccountAddress={warpAccountAddress} />
-      ) : (
-        <WarpCreateAccount
-          senderAddress={myAddress}
-          warpControllerAddress={warpControllerAddress}
-        />
-      )}
-      <Flex align="center" justify="center" direction="column">
+    <Flex
+      align="center"
+      justify="center"
+      direction="column"
+      style={{ marginTop: "10px" }}
+    >
+      <WarpAccount
+        myAddress={myAddress}
+        warpAccountAddress={warpAccountAddress}
+        warpControllerAddress={warpControllerAddress}
+      />
+      <Flex
+        align="center"
+        justify="center"
+        direction="column"
+        style={{ marginTop: "10px" }}
+      >
         <SelectPool
           chainID={chainID}
           onChangeTokenOffer={onChangeTokenOffer}
           onChangeTokenReturn={onChangeTokenReturn}
           onChangePoolAddress={onChangePoolAddress}
         />
-        {poolAddress && (
-          <Flex align="center" justify="center" direction="column">
-            {/* <Box>Pool address: {poolAddress}</Box> */}
-            <Box>
-              {DENOM_TO_TOKEN_NAME[tokenOffer]} balance:{" "}
-              {tokenOfferBalance.data}
-            </Box>
-            <Box>
-              {DENOM_TO_TOKEN_NAME[tokenReturn]} balance:{" "}
-              {tokenReturnBalance.data}
-            </Box>
-          </Flex>
-        )}
+        <Flex align="center" justify="center" direction="row">
+          {/* <Box>Pool address: {poolAddress}</Box> */}
+          <Box style={{ marginRight: "20px" }}>
+            {DENOM_TO_TOKEN_NAME[tokenOffer]} balance: {tokenOfferBalance.data}
+          </Box>
+          <Box>
+            {DENOM_TO_TOKEN_NAME[tokenReturn]} balance:{" "}
+            {tokenReturnBalance.data}
+          </Box>
+        </Flex>
       </Flex>
-      <Swap
-        offerAssetAddress={tokenOffer}
-        returnAssetAddress={tokenReturn}
-        returnAmount={tokenReturnAmount}
-        offerTokenBalance={tokenOfferBalance.data}
-        onChangeTokenOfferAmount={setTokenOfferAmount}
-        isDcaOrder={true}
-      />
-      <Flex>
+      <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
+        each time swap
+        <NumberInput
+          defaultValue={tokenOfferBalance.data}
+          min={0}
+          step={1}
+          precision={3}
+          onChange={setTokenOfferAmount}
+          width={150}
+        >
+          <NumberInputField style={{ textAlign: "center" }} />
+          <NumberInputStepper>
+            <NumberIncrementStepper />
+            <NumberDecrementStepper />
+          </NumberInputStepper>
+        </NumberInput>
+        {DENOM_TO_TOKEN_NAME[tokenOffer]} {" to "}
+        {DENOM_TO_TOKEN_NAME[tokenReturn]}
+      </Flex>
+      <Flex style={{ marginTop: "10px" }}>
         <Box>
           current market rate 1 {DENOM_TO_TOKEN_NAME[tokenReturn]} ={" "}
           {marketExchangeRate} {DENOM_TO_TOKEN_NAME[tokenOffer]}
         </Box>
       </Flex>
-      <Flex>
-        <Box>run </Box>
+      <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
+        <Box>total swap </Box>
         <NumberInput
           defaultValue={dcaCount}
           min={2}
           onChange={onChangeDcaCount}
           step={1}
           precision={0}
+          width={150}
         >
-          <NumberInputField />
+          <NumberInputField style={{ textAlign: "center" }} />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
@@ -253,16 +271,17 @@ export const DcaOrderPage = () => {
         </NumberInput>
         <Box>times</Box>
       </Flex>
-      <Flex>
-        <Box>run every</Box>
+      <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
+        <Box>swap every</Box>
         <NumberInput
           defaultValue={dcaInterval}
           min={1}
           onChange={onChangeDcaInterval}
           step={1}
           precision={0}
+          width={150}
         >
-          <NumberInputField />
+          <NumberInputField style={{ textAlign: "center" }} />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
@@ -270,7 +289,7 @@ export const DcaOrderPage = () => {
         </NumberInput>
         <Box>{dcaInterval > 1 ? "days" : "day"}</Box>
       </Flex>
-      <Flex>
+      <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
         <Box>max spread</Box>
         <NumberInput
           defaultValue={maxSpread}
@@ -279,8 +298,9 @@ export const DcaOrderPage = () => {
           onChange={onChangeMaxSpread}
           step={0.01}
           precision={2}
+          width={150}
         >
-          <NumberInputField />
+          <NumberInputField style={{ textAlign: "center" }} />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
@@ -303,30 +323,33 @@ export const DcaOrderPage = () => {
           )}
         </Flex>
       </Flex> */}
-      <WarpCreateJobAstroportDcaOrder
-        senderAddress={myAddress}
-        warpFeeTokenAddress={warpFeeTokenAddress}
-        warpControllerAddress={warpControllerAddress}
-        warpAccountAddress={warpAccountAddress}
-        warpJobCreationFeePercentage={warpJobCreationFeePercentage}
-        poolAddress={poolAddress}
-        offerAssetAddress={tokenOffer}
-        offerAmount={tokenOfferAmount}
-        returnAssetAddress={tokenReturn}
-        offerTokenBalance={tokenOfferBalance.data}
-        dcaCount={dcaCount}
-        dcaInterval={dcaInterval}
-        dcaStartTimestamp={dcaStartTimestamp}
-        maxSpread={(maxSpread / 100).toString()}
-      />
-      {warpAccountAddress && (
-        <WarpJobs
-          lcd={lcd}
-          chainID={chainID}
-          myAddress={myAddress}
+      <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
+        In total you will swap {totalTokenOfferAmount}{" "}
+        {DENOM_TO_TOKEN_NAME[tokenOffer]} {" to "}
+        {DENOM_TO_TOKEN_NAME[tokenReturn]}
+        <WarpCreateJobAstroportDcaOrder
+          senderAddress={myAddress}
+          warpFeeTokenAddress={warpFeeTokenAddress}
           warpControllerAddress={warpControllerAddress}
+          warpAccountAddress={warpAccountAddress}
+          warpJobCreationFeePercentage={warpJobCreationFeePercentage}
+          poolAddress={poolAddress}
+          offerAssetAddress={tokenOffer}
+          offerAmount={tokenOfferAmount}
+          returnAssetAddress={tokenReturn}
+          offerTokenBalance={tokenOfferBalance.data}
+          dcaCount={dcaCount}
+          dcaInterval={dcaInterval}
+          dcaStartTimestamp={dcaStartTimestamp}
+          maxSpread={(maxSpread / 100).toString()}
         />
-      )}
+      </Flex>
+      <WarpJobs
+        lcd={lcd}
+        chainID={chainID}
+        myAddress={myAddress}
+        warpControllerAddress={warpControllerAddress}
+      />
     </Flex>
   );
 };

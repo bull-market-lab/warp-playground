@@ -11,7 +11,7 @@ import Header from "./Header";
 export const UsageWarning = () => {
   return (
     <>
-    <Header text="Risk" />
+    <Header text="Limitation" />
     <Flex align="center" justify="center" direction="column">
       <Card align="center" justify="center" direction="column">
         <CardBody>

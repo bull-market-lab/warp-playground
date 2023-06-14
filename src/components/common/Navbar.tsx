@@ -36,7 +36,7 @@ const NavbarLinks: FC<Props> = ({ isBack = false }) => {
       <Flex direction="row">
         {isBack ? null : <NavbarLink text="DCA" href="/" />}
         {isBack ? null : <NavbarLink text="Limit Order" href="/limit_order" />}
-        {isBack ? null : <NavbarLink text="Authz" href="/authz" />}
+        {/* {isBack ? null : <NavbarLink text="Staking+" href="/staking" />} */}
         {isBack ? null : <NavbarLink text="About" href="/about" />}
       </Flex>
     </HStack>
@@ -51,9 +51,9 @@ const SidebarLinks: FC<Props> = ({ isBack = false, onClick }) => {
       {isBack ? null : (
         <NavbarLink onClick={onClick} text="Limit Order" href="/limit_order" />
       )}
-      {isBack ? null : (
-        <NavbarLink onClick={onClick} text="Authz" href="/authz" />
-      )}
+      {/* {isBack ? null : (
+        <NavbarLink onClick={onClick} text="Staking+" href="/staking" />
+      )} */}
       {isBack ? null : (
         <NavbarLink onClick={onClick} text="About" href="/about" />
       )}
