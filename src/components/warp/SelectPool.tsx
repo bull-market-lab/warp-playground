@@ -1,5 +1,5 @@
-import { TOKENS } from "@/config/tokens";
-import { POOLS } from "@/config/pools";
+import { TOKENS } from "@/utils/token";
+import { POOLS } from "@/utils/pools";
 import { Select, Flex } from "@chakra-ui/react";
 import { CHAIN_ID_PHOENIX_1, CHAIN_ID_PISCO_1 } from "@/utils/network";
 

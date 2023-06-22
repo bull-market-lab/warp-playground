@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
-import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
+import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import { LCDClient } from "@terra-money/feather.js";
 
 type AssetInfo =

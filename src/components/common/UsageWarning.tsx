@@ -32,8 +32,7 @@ export const UsageWarning = () => {
               job.
             </Text>
             <Link
-              // TODO: url may change after warp comes out of beta
-              href={"https://beta.warp.money/#/balances"}
+              href={"https://app.warp.money/#/balances"}
               color="blue.500"
               fontWeight="bold"
               _hover={{ textDecoration: "underline" }}

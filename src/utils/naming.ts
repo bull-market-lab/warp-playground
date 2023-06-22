@@ -1,4 +1,4 @@
-import { DENOM_TO_TOKEN_NAME } from "@/config/tokens";
+import { DENOM_TO_TOKEN_NAME } from "@/utils/token";
 import BigNumber from "bignumber.js";
 
 export const constructJobVarNameForAstroportLimitOrder = (

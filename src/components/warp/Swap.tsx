@@ -1,4 +1,4 @@
-import { DENOM_TO_TOKEN_NAME } from "@/config/tokens";
+import { DENOM_TO_TOKEN_NAME } from "@/utils/token";
 import {
   Flex,
   NumberInput,
@@ -27,7 +27,7 @@ export const Swap = ({
   onChangeTokenOfferAmount,
 }: SwapProps) => {
   return (
-    <Flex align="center" justify="center" style={{ marginTop: '10px' }}>
+    <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
       swap
       <NumberInput
         defaultValue={offerTokenBalance}

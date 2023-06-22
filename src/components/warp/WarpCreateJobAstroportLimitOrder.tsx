@@ -42,7 +42,7 @@ export const WarpCreateJobAstroportLimitOrder = ({
     minimumReturnAmount,
     offerAssetAddress,
     returnAssetAddress,
-    expiredAfterDays
+    expiredAfterDays,
   });
 
   return (

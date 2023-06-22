@@ -1,10 +1,11 @@
 import BigNumber from "bignumber.js";
+import { MsgExecuteContract } from "@terra-money/feather.js";
+import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import {
-  DAY_IN_SECONDS,
-  DEFAULT_JOB_REWARD_AMOUNT,
-  EVICTION_FEE,
-} from "./constants";
-import { constructSendTokenMsg } from "./token";
+  CHAIN_ID_LOCALTERRA,
+  CHAIN_ID_PHOENIX_1,
+  CHAIN_ID_PISCO_1,
+} from "@/utils/network";
 
 /*
   job example
@@ -15,6 +16,8 @@ import { constructSendTokenMsg } from "./token";
       "owner": "terra12t7aleqrmrgq2wtzrlxu4hf8lldrg5vk5zrgmn",
       "last_update_time": "1684727046",
       "name": "warp-world-astroport-limit-swap",
+      "description": "warp-world-astroport-limit-swap",
+      "labels": [],
       "status": "Executed",
       "condition": {
         "expr": {
@@ -64,86 +67,122 @@ import { constructSendTokenMsg } from "./token";
 export type Job = {
   id: string;
   name: string;
+  description: string;
+  labels: string[];
   status: string;
 };
 
-// TODO: url may change after warp comes out of beta
+export const WARP_CONSTANTS = {
+  [CHAIN_ID_PHOENIX_1]: {
+    controller:
+      "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj",
+    feeTokenAddress: "uluna",
+  },
+  [CHAIN_ID_PISCO_1]: {
+    controller:
+      "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt",
+    feeTokenAddress: "uluna",
+  },
+  [CHAIN_ID_LOCALTERRA]: {
+    controller:
+      "terra156fwsk56dgldh4l6dpvm2p3mheugm408lac9au4pc8gn4gqn0kfsy44rqr",
+    feeTokenAddress: "uluna",
+  },
+};
+
 export const constructJobUrl = (jobId: string) =>
-  `https://beta.warp.money/#/jobs/${jobId}`;
+  `https://app.warp.money/#/jobs/${jobId}`;
 
-type ConstructFundLimitOrderJobForFeeMsgProps = {
+type ConstructHelperMsgsProps = {
   senderAddress: string;
+  warpControllerAddress: string;
   warpFeeTokenAddress: string;
-  warpAccountAddress: string;
-  warpJobCreationFeePercentage: string;
-  expiredAfterDays: number;
+  jobFee: string;
+  offerAssetAddress: string;
+  offerAmount: string;
 };
 
-// send job reward, job creation fee and eviction fee to warp account
-export const constructFundLimitOrderJobForFeeMsg = ({
+// msg 1. increase allowance if it's sending cw20 token
+// msg 2. create warp account if not exist, send job reward, job creation fee and eviction fee to warp account
+export const constructHelperMsgs = ({
   senderAddress,
+  warpControllerAddress,
   warpFeeTokenAddress,
-  warpAccountAddress,
-  warpJobCreationFeePercentage,
-  expiredAfterDays,
-}: ConstructFundLimitOrderJobForFeeMsgProps) => {
-  let jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
-    .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
-    // if expire after 1 day, we don't need to pay eviction fee at all
-    .plus(BigNumber(EVICTION_FEE).multipliedBy(expiredAfterDays - 1))
-    .toString();
+  jobFee,
+  offerAssetAddress,
+  offerAmount,
+}: ConstructHelperMsgsProps) => {
+  let cwFunds: { cw20: { contract_addr: string; amount: string } }[] = [];
+  let nativeFunds = {};
 
-  return constructSendTokenMsg({
-    tokenAddress: warpFeeTokenAddress,
-    senderAddress: senderAddress,
-    receiverAddress: warpAccountAddress,
-    humanAmount: jobFee,
-  });
-};
+  if (isNativeAsset(offerAssetAddress)) {
+    if (warpFeeTokenAddress === offerAssetAddress) {
+      nativeFunds = {
+        [offerAssetAddress]: convertTokenDecimals(
+          BigNumber(jobFee).plus(offerAmount).toString(),
+          offerAssetAddress
+        ),
+      };
+    } else {
+      nativeFunds = {
+        [warpFeeTokenAddress]: convertTokenDecimals(
+          jobFee,
+          warpFeeTokenAddress
+        ),
+        [offerAssetAddress]: convertTokenDecimals(
+          offerAmount,
+          offerAssetAddress
+        ),
+      };
+    }
+  } else {
+    cwFunds = [
+      {
+        cw20: {
+          contract_addr: offerAssetAddress,
+          amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+        },
+      },
+    ];
+    nativeFunds = {
+      [warpFeeTokenAddress]: convertTokenDecimals(jobFee, warpFeeTokenAddress),
+    };
+  }
 
-type ConstructFundDcaOrderJobForFeeMsgProps = {
-  senderAddress: string;
-  warpFeeTokenAddress: string;
-  warpAccountAddress: string;
-  warpJobCreationFeePercentage: string;
-  // how many times to repeat the job, e.g. 10 means the job will run 10 times
-  dcaCount: number;
-  // how often to repeat the job, unit is day, e.g. 1 means the job will run everyday
-  dcaInterval: number;
-  // when to start the job, in unix timestamp
-  dcaStartTimestamp: number;
-};
-
-// send job reward, job creation fee and eviction fee to warp account
-export const constructFundDcaOrderJobForFeeMsg = ({
-  senderAddress,
-  warpFeeTokenAddress,
-  warpAccountAddress,
-  warpJobCreationFeePercentage,
-  dcaCount,
-  dcaInterval,
-  dcaStartTimestamp,
-}: ConstructFundDcaOrderJobForFeeMsgProps) => {
-  const howManyDaysUntilStartTime = Math.ceil(
-    (dcaStartTimestamp - Date.now() / 1000) / DAY_IN_SECONDS
-  );
-
-  // we might be overpaying eviction fee, but it's fine, as long as it's not underpaid
-  const jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
-    // creation fee + reward for a single job
-    .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
-    // pay eviction fee between each interval
-    .plus(BigNumber(EVICTION_FEE).times(dcaInterval))
-    // times how many times the job will run
-    .times(dcaCount)
-    // pay eviction fee between now and start time
-    .plus(BigNumber(EVICTION_FEE).times(howManyDaysUntilStartTime))
-    .toString();
-
-  return constructSendTokenMsg({
-    tokenAddress: warpFeeTokenAddress,
-    senderAddress: senderAddress,
-    receiverAddress: warpAccountAddress,
-    humanAmount: jobFee,
-  });
+  if (isNativeAsset(offerAssetAddress)) {
+    return [
+      new MsgExecuteContract(
+        senderAddress,
+        warpControllerAddress,
+        {
+          create_account: {
+            funds: cwFunds,
+          },
+        },
+        nativeFunds
+      ),
+    ];
+  } else {
+    return [
+      new MsgExecuteContract(senderAddress, offerAssetAddress, {
+        increase_allowance: {
+          spender: warpControllerAddress,
+          amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+          expires: {
+            never: {},
+          },
+        },
+      }),
+      new MsgExecuteContract(
+        senderAddress,
+        warpControllerAddress,
+        {
+          create_account: {
+            funds: cwFunds,
+          },
+        },
+        nativeFunds
+      ),
+    ];
+  }
 };

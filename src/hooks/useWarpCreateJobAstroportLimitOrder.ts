@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
+import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import { toBase64 } from "@/utils/encoding";
 import {
   constructJobVarNameForAstroportLimitOrder,
   constructJobNameForAstroportLimitOrder,
 } from "@/utils/naming";
-import { DEFAULT_JOB_REWARD_AMOUNT } from "@/utils/constants";
-import { constructFundLimitOrderJobForFeeMsg } from "@/utils/warpHelpers";
+import { DEFAULT_JOB_REWARD_AMOUNT, EVICTION_FEE } from "@/utils/constants";
+import { constructHelperMsgs } from "@/utils/warpHelpers";
 import { MsgExecuteContract } from "@terra-money/feather.js";
-import { constructSendTokenMsg } from "@/utils/token";
+import BigNumber from "bignumber.js";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
   senderAddress?: string;
@@ -58,20 +58,21 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       return [];
     }
 
-    const fundWarpAccountForFee = constructFundLimitOrderJobForFeeMsg({
-      senderAddress,
-      warpFeeTokenAddress,
-      warpAccountAddress,
-      warpJobCreationFeePercentage,
-      expiredAfterDays,
-    });
+    let jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
+      .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
+      // if expire after 1 day, we don't need to pay eviction fee at all
+      .plus(BigNumber(EVICTION_FEE).multipliedBy(expiredAfterDays - 1))
+      .toString();
 
-    const fundWarpAccountForOfferedAsset = constructSendTokenMsg({
-      tokenAddress: offerAssetAddress,
-      senderAddress: senderAddress,
-      receiverAddress: warpAccountAddress,
-      humanAmount: offerAmount,
-    });
+    const helperMsgs =
+    constructHelperMsgs({
+        senderAddress,
+        warpControllerAddress,
+        warpFeeTokenAddress,
+        jobFee,
+        offerAssetAddress,
+        offerAmount,
+      });
 
     const astroportSwapMsg = isNativeAsset(offerAssetAddress)
       ? {
@@ -198,6 +199,8 @@ export const useWarpCreateJobAstroportLimitOrder = ({
             returnAssetAddress,
             minimumReturnAmount
           ),
+          description: "limit order",
+          labels: [],
           recurring: false,
           requeue_on_evict: expiredAfterDays > 1,
           reward: convertTokenDecimals(
@@ -211,7 +214,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       }
     );
 
-    return [fundWarpAccountForFee, fundWarpAccountForOfferedAsset, createJob];
+    return [...helperMsgs, createJob];
   }, [
     senderAddress,
     warpFeeTokenAddress,

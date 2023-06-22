@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTokenDecimals, isNativeAsset } from "@/config/tokens";
+import { getTokenDecimals, isNativeAsset } from "@/utils/token";
 import { LCDClient } from "@terra-money/feather.js";
 
 type Cw20BalanceResponse = {

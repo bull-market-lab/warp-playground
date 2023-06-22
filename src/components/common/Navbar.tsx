@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   HStack,
-  VStack,
   Drawer,
   DrawerOverlay,
   DrawerContent,
@@ -14,52 +13,10 @@ import React, { FC } from "react";
 
 import BurgerIcon from "@/components/common/BurgerIcon";
 import CloseIcon from "@/components/common/CloseIcon";
-import NavbarLink from "@/components/common/NavbarLink";
-import NavbarReturn from "@/components/common/NavbarReturn";
 import WalletInfo from "@/components/common/WalletInfo";
 import WalletConnect from "@/components/common/WalletConnect";
-
-type Props = {
-  isBack: boolean;
-  onClick?: React.MouseEventHandler;
-};
-
-const NavbarLinks: FC<Props> = ({ isBack = false }) => {
-  return (
-    <HStack
-      display={["none", null, "block", null]}
-      flex="1"
-      px="12"
-      spacing="6"
-    >
-      {isBack ? <NavbarReturn /> : null}
-      <Flex direction="row">
-        {isBack ? null : <NavbarLink text="DCA" href="/" />}
-        {isBack ? null : <NavbarLink text="Limit Order" href="/limit_order" />}
-        {/* {isBack ? null : <NavbarLink text="Staking+" href="/staking" />} */}
-        {isBack ? null : <NavbarLink text="About" href="/about" />}
-      </Flex>
-    </HStack>
-  );
-};
-
-const SidebarLinks: FC<Props> = ({ isBack = false, onClick }) => {
-  return (
-    <VStack align="flex-start" mt="20">
-      {isBack ? <NavbarReturn onClick={onClick} /> : null}
-      {isBack ? null : <NavbarLink onClick={onClick} text="DCA" href="/" />}
-      {isBack ? null : (
-        <NavbarLink onClick={onClick} text="Limit Order" href="/limit_order" />
-      )}
-      {/* {isBack ? null : (
-        <NavbarLink onClick={onClick} text="Staking+" href="/staking" />
-      )} */}
-      {isBack ? null : (
-        <NavbarLink onClick={onClick} text="About" href="/about" />
-      )}
-    </VStack>
-  );
-};
+import { NavbarLinks } from "./NavbarLinks";
+import { SidebarLinks } from "./SidebarLinks";
 
 const Navbar: FC = () => {
   const wallet = useConnectedWallet();

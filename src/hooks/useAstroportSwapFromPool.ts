@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import BigNumber from "bignumber.js";
 import { toBase64 } from "@/utils/encoding";
-import { convertTokenDecimals, isNativeAsset } from "@/config/tokens";
+import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import { Coins, MsgExecuteContract } from "@terra-money/feather.js";
 
 type UseSwapProps = {

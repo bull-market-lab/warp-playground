@@ -11,19 +11,17 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 
-import { POOLS } from "@/config/pools";
+import { POOLS } from "@/utils/pools";
 import useBalance from "@/hooks/useBalance";
-import { WARP_CONSTANTS } from "@/config/warpContracts";
+import { WARP_CONSTANTS } from "@/utils/warpHelpers";
 import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
-import { WarpAccount } from "@/components/warp/WarpAccount";
 import { SelectPool } from "@/components/warp/SelectPool";
 import { WarpJobs } from "@/components/warp/WarpJobs";
 import { CHAIN_ID_PHOENIX_1, getChainIDByNetwork } from "@/utils/network";
-import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/config/tokens";
+import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/utils/token";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpCreateJobAstroportDcaOrder } from "@/components/warp/WarpCreateJobAstroportDcaOrder";
-import { Swap } from "@/components/warp/Swap";
 import { LCDClient } from "@terra-money/feather.js";
 
 export const DcaOrderPage = () => {
@@ -200,11 +198,6 @@ export const DcaOrderPage = () => {
       direction="column"
       style={{ marginTop: "10px" }}
     >
-      <WarpAccount
-        myAddress={myAddress}
-        warpAccountAddress={warpAccountAddress}
-        warpControllerAddress={warpControllerAddress}
-      />
       <Flex
         align="center"
         justify="center"

@@ -4,7 +4,7 @@ UI for everyone to harness the power of [warp protocol](https://warp.money/).
 
 ## Credit
 
-Lots of styling and layout is copied from [steak](https://liquidstaking.app/).
+Lots of styling and layout is copied from [steak](https://liquidstaking.app/). Credit goes to steak author [larry0x](https://github.com/larry0x)
 
 ---
 

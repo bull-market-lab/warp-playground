@@ -12,19 +12,18 @@ import {
 } from "@chakra-ui/react";
 import { useConnectedWallet, useWallet } from "@terra-money/wallet-kit";
 
-import { POOLS } from "@/config/pools";
+import { POOLS } from "@/utils/pools";
 import useBalance from "@/hooks/useBalance";
-import { WARP_CONSTANTS } from "@/config/warpContracts";
+import { WARP_CONSTANTS } from "@/utils/warpHelpers";
 import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
-import { WarpAccount } from "@/components/warp/WarpAccount";
 import { SelectPool } from "@/components/warp/SelectPool";
 import { WarpJobs } from "@/components/warp/WarpJobs";
 import { CHAIN_ID_PHOENIX_1, getChainIDByNetwork } from "@/utils/network";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJobAstroportLimitOrder";
 import { Swap } from "@/components/warp/Swap";
-import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/config/tokens";
+import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/utils/token";
 import { LCDClient } from "@terra-money/feather.js";
 
 export const LimitOrderPage = () => {
@@ -193,11 +192,6 @@ export const LimitOrderPage = () => {
 
   return (
     <Flex align="center" justify="center" direction="column">
-      <WarpAccount
-        myAddress={myAddress}
-        warpAccountAddress={warpAccountAddress}
-        warpControllerAddress={warpControllerAddress}
-      />
       <Flex
         align="center"
         justify="center"
