@@ -23,6 +23,13 @@ import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/utils/token";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpCreateJobAstroportDcaOrder } from "@/components/warp/WarpCreateJobAstroportDcaOrder";
 import { LCDClient } from "@terra-money/feather.js";
+import {
+  DAY_IN_SECONDS,
+  DEFAULT_JOB_REWARD_AMOUNT,
+  EVICTION_FEE,
+  LABEL_ASTROPORT_DCA_ORDER,
+} from "@/utils/constants";
+import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
 
 export const DcaOrderPage = () => {
   const wallet = useWallet();
@@ -42,7 +49,12 @@ export const DcaOrderPage = () => {
     WARP_CONSTANTS[chainID].feeTokenAddress
   );
   const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
-    useState("");
+    useState("5");
+
+  const [warpJobCreationFee, setWarpJobCreationFee] = useState("0");
+  const [warpJobEvictionFee, setWarpJobEvictionFee] = useState("0");
+  const [warpJobRewardFee, setWarpJobRewardFee] = useState("0");
+  const [warpTotalJobFee, setWarpTotalJobFee] = useState("0");
 
   const [poolAddress, setPoolAddress] = useState(
     // @ts-ignore
@@ -52,6 +64,22 @@ export const DcaOrderPage = () => {
   const [tokenOffer, setTokenOffer] = useState(TOKENS[chainID]?.axlusdc!);
   // @ts-ignore
   const [tokenReturn, setTokenReturn] = useState(TOKENS[chainID]?.native);
+
+  const [tokenOfferAmount, setTokenOfferAmount] = useState("1");
+  const [totalTokenOfferAmount, setTotalTokenOfferAmount] = useState("2");
+  const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
+
+  const [marketExchangeRate, setMarketExchangeRate] = useState("1");
+
+  const [dcaCount, setDcaCount] = useState(2); // default 2 times
+  const [dcaInterval, setDcaInterval] = useState(1); // default 1 day
+  // default start DCA order immediately
+  const [dcaStartTimestamp, setDcaStartTimestamp] = useState(
+    Math.floor(Date.now() / 1000)
+  );
+  const [daysUntilStart, setDaysUntilStart] = useState(0);
+
+  const [maxSpread, setMaxSpread] = useState(1); // default 1%
 
   useEffect(() => {
     if (wallet.status === "CONNECTED") {
@@ -125,20 +153,6 @@ export const DcaOrderPage = () => {
     );
   }, [getWarpConfigResult]);
 
-  const [tokenOfferAmount, setTokenOfferAmount] = useState("0");
-  const [totalTokenOfferAmount, setTotalTokenOfferAmount] = useState("0");
-  const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
-
-  const [marketExchangeRate, setMarketExchangeRate] = useState("1");
-
-  const [dcaCount, setDcaCount] = useState(2); // default 2 times
-  const [dcaInterval, setDcaInterval] = useState(1); // default 1 day
-  // default start DCA order immediately
-  const [dcaStartTimestamp, setDcaStartTimestamp] = useState(
-    Math.floor(Date.now() / 1000)
-  );
-  const [maxSpread, setMaxSpread] = useState(1); // default 1%
-
   const simulateResult = useSimulateSwap({
     lcd,
     chainID,
@@ -166,6 +180,43 @@ export const DcaOrderPage = () => {
       BigNumber(tokenOfferAmount).multipliedBy(dcaCount).toString()
     );
   }, [tokenOfferAmount, dcaCount]);
+
+  useEffect(() => {
+    setDaysUntilStart(
+      Math.ceil((dcaStartTimestamp - Date.now() / 1000) / DAY_IN_SECONDS)
+    );
+  }, [dcaStartTimestamp]);
+
+  useEffect(() => {
+    setWarpJobRewardFee(
+      BigNumber(DEFAULT_JOB_REWARD_AMOUNT).times(dcaCount).toString()
+    );
+  }, [dcaCount]);
+
+  useEffect(() => {
+    setWarpJobCreationFee(
+      BigNumber(warpJobRewardFee)
+        .times(BigNumber(warpJobCreationFeePercentage).div(100))
+        .toString()
+    );
+  }, [warpJobRewardFee, warpJobCreationFeePercentage]);
+
+  useEffect(() => {
+    setWarpJobEvictionFee(
+      BigNumber(EVICTION_FEE)
+        .times(BigNumber(dcaInterval).times(dcaCount).plus(daysUntilStart))
+        .toString()
+    );
+  }, [daysUntilStart, dcaInterval, dcaCount]);
+
+  useEffect(() => {
+    setWarpTotalJobFee(
+      BigNumber(warpJobCreationFee)
+        .plus(BigNumber(warpJobEvictionFee))
+        .plus(BigNumber(warpJobRewardFee))
+        .toString()
+    );
+  }, [warpJobCreationFee, warpJobEvictionFee, warpJobRewardFee]);
 
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);
@@ -325,7 +376,7 @@ export const DcaOrderPage = () => {
           warpFeeTokenAddress={warpFeeTokenAddress}
           warpControllerAddress={warpControllerAddress}
           warpAccountAddress={warpAccountAddress}
-          warpJobCreationFeePercentage={warpJobCreationFeePercentage}
+          warpTotalJobFee={warpTotalJobFee}
           poolAddress={poolAddress}
           offerAssetAddress={tokenOffer}
           offerAmount={tokenOfferAmount}
@@ -337,11 +388,19 @@ export const DcaOrderPage = () => {
           maxSpread={(maxSpread / 100).toString()}
         />
       </Flex>
+      <WarpProtocolFeeBreakdown
+        warpJobCreationFee={warpJobCreationFee}
+        warpJobEvictionFee={warpJobEvictionFee}
+        warpJobRewardFee={warpJobRewardFee}
+        warpTotalJobFee={warpTotalJobFee}
+        warpFeeTokenAddress={warpFeeTokenAddress}
+      />
       <WarpJobs
         lcd={lcd}
         chainID={chainID}
         myAddress={myAddress}
         warpControllerAddress={warpControllerAddress}
+        warpJobLabel={LABEL_ASTROPORT_DCA_ORDER}
       />
     </Flex>
   );

@@ -17,6 +17,7 @@ type WarpJobsProps = {
   chainID: string;
   myAddress?: string;
   warpControllerAddress: string;
+  warpJobLabel: string;
 };
 
 export const WarpJobs = ({
@@ -24,9 +25,10 @@ export const WarpJobs = ({
   chainID,
   myAddress,
   warpControllerAddress,
+  warpJobLabel,
 }: WarpJobsProps) => {
   return (
-    <Flex align="center" justify="center" direction="column">
+    <Flex align="center" justify="center" direction="column" style={{ marginTop: "10px" }}>
       <Tabs>
         <TabList display="flex" justifyContent="space-between" width="85vw">
           <Tab flex="1" minWidth="0">
@@ -46,6 +48,7 @@ export const WarpJobs = ({
               chainID={chainID}
               ownerAddress={myAddress}
               warpControllerAddress={warpControllerAddress}
+              warpJobLabel={warpJobLabel}
             />
           </TabPanel>
           <TabPanel>
@@ -54,6 +57,7 @@ export const WarpJobs = ({
               chainID={chainID}
               ownerAddress={myAddress}
               warpControllerAddress={warpControllerAddress}
+              warpJobLabel={warpJobLabel}
             />
           </TabPanel>
           <TabPanel>
@@ -62,6 +66,7 @@ export const WarpJobs = ({
               chainID={chainID}
               ownerAddress={myAddress}
               warpControllerAddress={warpControllerAddress}
+              warpJobLabel={warpJobLabel}
             />
           </TabPanel>
         </TabPanels>

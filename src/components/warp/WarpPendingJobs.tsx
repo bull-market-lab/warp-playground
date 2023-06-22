@@ -7,12 +7,14 @@ import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { WarpCancelJob } from "@/components/warp/WarpCancelJob";
+import { LABEL_WARP_WORLD } from "@/utils/constants";
 
 type WarpPendingJobsProps = {
   lcd?: LCDClient;
   chainID: string;
   ownerAddress?: string;
   warpControllerAddress: string;
+  warpJobLabel: string;
 };
 
 export const WarpPendingJobs = ({
@@ -20,6 +22,7 @@ export const WarpPendingJobs = ({
   chainID,
   ownerAddress,
   warpControllerAddress,
+  warpJobLabel,
 }: WarpPendingJobsProps) => {
   const [warpPendingJobs, setWarpPendingJobs] = useState<Job[]>([]);
   const [warpPendingJobCount, setWarpPendingJobCount] = useState(0);
@@ -36,8 +39,13 @@ export const WarpPendingJobs = ({
     if (!getWarpPendingJobsResult) {
       return;
     }
-    setWarpPendingJobCount(getWarpPendingJobsResult.totalCount);
-    setWarpPendingJobs(getWarpPendingJobsResult.jobs);
+    const jobs = getWarpPendingJobsResult.jobs.filter(
+      (job) =>
+        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(warpJobLabel)
+    );
+    setWarpPendingJobCount(jobs.length);
+    setWarpPendingJobs(jobs);
   }, [getWarpPendingJobsResult]);
 
   const warpPendingJobItems =
@@ -54,7 +62,7 @@ export const WarpPendingJobs = ({
             <WarpJobLink jobId={job.id} />
           </Td>
           <Td borderBottom="none" py="6" minW="200px">
-            <WarpJobDetail jobName={job.name} />
+            <WarpJobDetail job={job} />
           </Td>
           <Td borderBottom="none" py="6" minW="200px" borderRightRadius="2xl">
             <WarpCancelJob

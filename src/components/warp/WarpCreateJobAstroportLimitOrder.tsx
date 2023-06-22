@@ -7,7 +7,7 @@ type WarpCreateJobAstroportLimitOrderProps = {
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
-  warpJobCreationFeePercentage: string;
+  warpTotalJobFee: string;
   poolAddress: string;
   offerAssetAddress: string;
   offerAmount: string;
@@ -22,7 +22,7 @@ export const WarpCreateJobAstroportLimitOrder = ({
   warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
-  warpJobCreationFeePercentage,
+  warpTotalJobFee,
   poolAddress,
   offerAssetAddress,
   offerAmount,
@@ -36,7 +36,7 @@ export const WarpCreateJobAstroportLimitOrder = ({
     warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
-    warpJobCreationFeePercentage,
+    warpTotalJobFee,
     poolAddress,
     offerAmount,
     minimumReturnAmount,

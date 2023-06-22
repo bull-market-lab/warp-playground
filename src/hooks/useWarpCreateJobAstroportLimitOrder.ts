@@ -3,12 +3,16 @@ import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import { toBase64 } from "@/utils/encoding";
 import {
   constructJobVarNameForAstroportLimitOrder,
-  constructJobNameForAstroportLimitOrder,
+  constructJobDescriptionForAstroportLimitOrder,
 } from "@/utils/naming";
-import { DEFAULT_JOB_REWARD_AMOUNT, EVICTION_FEE } from "@/utils/constants";
+import {
+  DEFAULT_JOB_REWARD_AMOUNT,
+  LABEL_ASTROPORT_LIMIT_ORDER,
+  LABEL_WARP_WORLD,
+  NAME_WARP_WORLD_ASTROPORT_LIMIT_ORDER,
+} from "@/utils/constants";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
 import { MsgExecuteContract } from "@terra-money/feather.js";
-import BigNumber from "bignumber.js";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
   senderAddress?: string;
@@ -16,7 +20,7 @@ type UseWarpCreateJobAstroportLimitOrderProps = {
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
-  warpJobCreationFeePercentage: string;
+  warpTotalJobFee: string;
   poolAddress: string;
   offerAmount: string;
   minimumReturnAmount: string;
@@ -30,7 +34,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
   warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
-  warpJobCreationFeePercentage,
+  warpTotalJobFee,
   poolAddress,
   offerAmount,
   minimumReturnAmount,
@@ -46,7 +50,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     if (
       !warpControllerAddress ||
       !warpAccountAddress ||
-      !warpJobCreationFeePercentage ||
+      !warpTotalJobFee ||
       !poolAddress ||
       !offerAmount ||
       !minimumReturnAmount ||
@@ -58,21 +62,14 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       return [];
     }
 
-    let jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
-      .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
-      // if expire after 1 day, we don't need to pay eviction fee at all
-      .plus(BigNumber(EVICTION_FEE).multipliedBy(expiredAfterDays - 1))
-      .toString();
-
-    const helperMsgs =
-    constructHelperMsgs({
-        senderAddress,
-        warpControllerAddress,
-        warpFeeTokenAddress,
-        jobFee,
-        offerAssetAddress,
-        offerAmount,
-      });
+    const helperMsgs = constructHelperMsgs({
+      senderAddress,
+      warpControllerAddress,
+      warpFeeTokenAddress,
+      warpTotalJobFee,
+      offerAssetAddress,
+      offerAmount,
+    });
 
     const astroportSwapMsg = isNativeAsset(offerAssetAddress)
       ? {
@@ -193,14 +190,14 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       warpControllerAddress,
       {
         create_job: {
-          name: constructJobNameForAstroportLimitOrder(
+          name: NAME_WARP_WORLD_ASTROPORT_LIMIT_ORDER,
+          description: constructJobDescriptionForAstroportLimitOrder(
             offerAmount,
             offerAssetAddress,
             returnAssetAddress,
             minimumReturnAmount
           ),
-          description: "limit order",
-          labels: [],
+          labels: [LABEL_WARP_WORLD, LABEL_ASTROPORT_LIMIT_ORDER],
           recurring: false,
           requeue_on_evict: expiredAfterDays > 1,
           reward: convertTokenDecimals(
@@ -220,7 +217,7 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
-    warpJobCreationFeePercentage,
+    warpTotalJobFee,
     poolAddress,
     offerAmount,
     minimumReturnAmount,

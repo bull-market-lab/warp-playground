@@ -6,12 +6,14 @@ import { LCDClient } from "@terra-money/feather.js";
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
+import { LABEL_WARP_WORLD } from "@/utils/constants";
 
 type WarpClosedJobsProps = {
   lcd?: LCDClient;
   chainID: string;
   ownerAddress?: string;
   warpControllerAddress: string;
+  warpJobLabel: string;
 };
 
 export const WarpClosedJobs = ({
@@ -19,6 +21,7 @@ export const WarpClosedJobs = ({
   chainID,
   ownerAddress,
   warpControllerAddress,
+  warpJobLabel,
 }: WarpClosedJobsProps) => {
   const [warpCancelledJobs, setWarpCancelledJobs] = useState<Job[]>([]);
   const [warpCancelledJobCount, setWarpCancelledJobCount] = useState(0);
@@ -36,8 +39,13 @@ export const WarpClosedJobs = ({
     if (!getWarpCancelledJobsResult) {
       return;
     }
-    setWarpCancelledJobCount(getWarpCancelledJobsResult.totalCount);
-    setWarpCancelledJobs(getWarpCancelledJobsResult.jobs);
+    const jobs = getWarpCancelledJobsResult.jobs.filter(
+      (job) =>
+        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(warpJobLabel)
+    );
+    setWarpCancelledJobCount(jobs.length);
+    setWarpCancelledJobs(jobs);
   }, [getWarpCancelledJobsResult]);
 
   const warpCancelledJobItems =
@@ -54,7 +62,7 @@ export const WarpClosedJobs = ({
             <WarpJobLink jobId={job.id} />
           </Td>
           <Td borderBottom="none" py="6" minW="230px" borderRightRadius="2xl">
-            <WarpJobDetail jobName={job.name} />
+            <WarpJobDetail job={job} />
           </Td>
         </Tr>
       ))

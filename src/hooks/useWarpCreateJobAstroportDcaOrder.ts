@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import { toBase64 } from "@/utils/encoding";
-import { constructJobNameForAstroportDcaOrder } from "@/utils/naming";
+import { constructJobDescriptionForAstroportDcaOrder } from "@/utils/naming";
 import {
-  DAY_IN_SECONDS,
   DEFAULT_JOB_REWARD_AMOUNT,
-  EVICTION_FEE,
+  LABEL_ASTROPORT_DCA_ORDER,
+  LABEL_WARP_WORLD,
+  NAME_WARP_WORLD_ASTROPORT_DCA_ORDER,
 } from "@/utils/constants";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
 import { MsgExecuteContract } from "@terra-money/feather.js";
@@ -17,7 +18,7 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
-  warpJobCreationFeePercentage: string;
+  warpTotalJobFee: string;
   poolAddress: string;
   // total offer amount, each order will be offerAmount / dcaCount
   offerAmount: string;
@@ -38,7 +39,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
   warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
-  warpJobCreationFeePercentage,
+  warpTotalJobFee,
   poolAddress,
   offerAmount,
   offerAssetAddress,
@@ -58,7 +59,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       !warpFeeTokenAddress ||
       !warpControllerAddress ||
       !warpAccountAddress ||
-      !warpJobCreationFeePercentage ||
+      !warpTotalJobFee ||
       !poolAddress ||
       !offerAmount ||
       !offerAssetAddress ||
@@ -71,27 +72,11 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       return [];
     }
 
-    const howManyDaysUntilStartTime = Math.ceil(
-      (dcaStartTimestamp - Date.now() / 1000) / DAY_IN_SECONDS
-    );
-
-    // we might be overpaying eviction fee, but it's fine, as long as it's not underpaid
-    const jobFee = BigNumber(DEFAULT_JOB_REWARD_AMOUNT)
-      // creation fee + reward for a single job
-      .times(BigNumber(warpJobCreationFeePercentage).plus(100).div(100))
-      // pay eviction fee between each interval
-      .plus(BigNumber(EVICTION_FEE).times(dcaInterval))
-      // times how many times the job will run
-      .times(dcaCount)
-      // pay eviction fee between now and start time
-      .plus(BigNumber(EVICTION_FEE).times(howManyDaysUntilStartTime))
-      .toString();
-
     const helperMsgs = constructHelperMsgs({
       senderAddress,
       warpControllerAddress,
       warpFeeTokenAddress,
-      jobFee,
+      warpTotalJobFee,
       offerAssetAddress,
       offerAmount: BigNumber(offerAmount).times(dcaCount).toString(),
     });
@@ -245,13 +230,15 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       warpControllerAddress,
       {
         create_job: {
-          name: constructJobNameForAstroportDcaOrder(
+          name: NAME_WARP_WORLD_ASTROPORT_DCA_ORDER,
+          description: constructJobDescriptionForAstroportDcaOrder(
             offerAmount,
             offerAssetAddress,
-            returnAssetAddress
+            returnAssetAddress,
+            dcaCount,
+            dcaInterval,
           ),
-          description: "dca order",
-          labels: [],
+          labels: [LABEL_WARP_WORLD, LABEL_ASTROPORT_DCA_ORDER],
           recurring: true,
           requeue_on_evict: false,
           reward: convertTokenDecimals(
@@ -271,7 +258,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
     warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
-    warpJobCreationFeePercentage,
+    warpTotalJobFee,
     poolAddress,
     offerAmount,
     offerAssetAddress,

@@ -25,6 +25,8 @@ import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJo
 import { Swap } from "@/components/warp/Swap";
 import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/utils/token";
 import { LCDClient } from "@terra-money/feather.js";
+import { DEFAULT_JOB_REWARD_AMOUNT, EVICTION_FEE, LABEL_ASTROPORT_LIMIT_ORDER } from "@/utils/constants";
+import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
 
 export const LimitOrderPage = () => {
   const wallet = useWallet();
@@ -44,7 +46,14 @@ export const LimitOrderPage = () => {
     WARP_CONSTANTS[chainID].feeTokenAddress
   );
   const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
-    useState("");
+    useState("5");
+
+  const [warpJobCreationFee, setWarpJobCreationFee] = useState("0");
+  const [warpJobEvictionFee, setWarpJobEvictionFee] = useState("0");
+  const [warpJobRewardFee, setWarpJobRewardFee] = useState(
+    BigNumber(DEFAULT_JOB_REWARD_AMOUNT).toString()
+  );
+  const [warpTotalJobFee, setWarpTotalJobFee] = useState("0");
 
   const [poolAddress, setPoolAddress] = useState(
     // @ts-ignore
@@ -54,6 +63,14 @@ export const LimitOrderPage = () => {
   const [tokenOffer, setTokenOffer] = useState(TOKENS[chainID]?.axlusdc!);
   // @ts-ignore
   const [tokenReturn, setTokenReturn] = useState(TOKENS[chainID]?.native);
+
+  const [tokenOfferAmount, setTokenOfferAmount] = useState("1");
+  const [tokenReturnAmount, setTokenReturnAmount] = useState("1");
+
+  const [marketExchangeRate, setMarketExchangeRate] = useState("1");
+  const [desiredExchangeRate, setDesiredExchangeRate] = useState("1");
+
+  const [expiredAfterDays, setExpiredAfterDays] = useState(1);
 
   useEffect(() => {
     if (wallet.status === "CONNECTED") {
@@ -124,14 +141,6 @@ export const LimitOrderPage = () => {
     );
   }, [getWarpConfigResult]);
 
-  const [tokenOfferAmount, setTokenOfferAmount] = useState("0");
-  const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
-
-  const [marketExchangeRate, setMarketExchangeRate] = useState("1");
-  const [desiredExchangeRate, setDesiredExchangeRate] = useState("1");
-
-  const [expiredAfterDays, setExpiredAfterDays] = useState(1);
-
   const simulateResult = useSimulateSwap({
     lcd,
     chainID,
@@ -165,6 +174,29 @@ export const LimitOrderPage = () => {
       BigNumber(tokenOfferAmount).div(desiredExchangeRate).toString()
     );
   }, [desiredExchangeRate, tokenOfferAmount]);
+
+  useEffect(() => {
+    setWarpJobCreationFee(
+      BigNumber(warpJobRewardFee)
+        .times(BigNumber(warpJobCreationFeePercentage).div(100))
+        .toString()
+    );
+  }, [warpJobRewardFee, warpJobCreationFeePercentage]);
+
+  useEffect(() => {
+    setWarpJobEvictionFee(
+      BigNumber(EVICTION_FEE).times(expiredAfterDays).toString()
+    );
+  }, [expiredAfterDays]);
+
+  useEffect(() => {
+    setWarpTotalJobFee(
+      BigNumber(warpJobCreationFee)
+        .plus(BigNumber(warpJobEvictionFee))
+        .plus(BigNumber(warpJobRewardFee))
+        .toString()
+    );
+  }, [warpJobCreationFee, warpJobEvictionFee, warpJobRewardFee]);
 
   const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
     setTokenOffer(updatedTokenOfferAddress);
@@ -276,7 +308,7 @@ export const LimitOrderPage = () => {
           warpFeeTokenAddress={warpFeeTokenAddress}
           warpControllerAddress={warpControllerAddress}
           warpAccountAddress={warpAccountAddress}
-          warpJobCreationFeePercentage={warpJobCreationFeePercentage}
+          warpTotalJobFee={warpTotalJobFee}
           poolAddress={poolAddress}
           offerAssetAddress={tokenOffer}
           offerAmount={tokenOfferAmount}
@@ -286,11 +318,19 @@ export const LimitOrderPage = () => {
           expiredAfterDays={expiredAfterDays}
         />
       </Flex>
+      <WarpProtocolFeeBreakdown
+        warpJobCreationFee={warpJobCreationFee}
+        warpJobEvictionFee={warpJobEvictionFee}
+        warpJobRewardFee={warpJobRewardFee}
+        warpTotalJobFee={warpTotalJobFee}
+        warpFeeTokenAddress={warpFeeTokenAddress}
+      />
       <WarpJobs
         lcd={lcd}
         chainID={chainID}
         myAddress={myAddress}
         warpControllerAddress={warpControllerAddress}
+        warpJobLabel={LABEL_ASTROPORT_LIMIT_ORDER}
       />
     </Flex>
   );

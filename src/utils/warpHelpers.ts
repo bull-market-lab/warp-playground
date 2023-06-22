@@ -97,7 +97,7 @@ type ConstructHelperMsgsProps = {
   senderAddress: string;
   warpControllerAddress: string;
   warpFeeTokenAddress: string;
-  jobFee: string;
+  warpTotalJobFee: string;
   offerAssetAddress: string;
   offerAmount: string;
 };
@@ -108,7 +108,7 @@ export const constructHelperMsgs = ({
   senderAddress,
   warpControllerAddress,
   warpFeeTokenAddress,
-  jobFee,
+  warpTotalJobFee,
   offerAssetAddress,
   offerAmount,
 }: ConstructHelperMsgsProps) => {
@@ -119,14 +119,14 @@ export const constructHelperMsgs = ({
     if (warpFeeTokenAddress === offerAssetAddress) {
       nativeFunds = {
         [offerAssetAddress]: convertTokenDecimals(
-          BigNumber(jobFee).plus(offerAmount).toString(),
+          BigNumber(warpTotalJobFee).plus(offerAmount).toString(),
           offerAssetAddress
         ),
       };
     } else {
       nativeFunds = {
         [warpFeeTokenAddress]: convertTokenDecimals(
-          jobFee,
+          warpTotalJobFee,
           warpFeeTokenAddress
         ),
         [offerAssetAddress]: convertTokenDecimals(
@@ -145,7 +145,7 @@ export const constructHelperMsgs = ({
       },
     ];
     nativeFunds = {
-      [warpFeeTokenAddress]: convertTokenDecimals(jobFee, warpFeeTokenAddress),
+      [warpFeeTokenAddress]: convertTokenDecimals(warpTotalJobFee, warpFeeTokenAddress),
     };
   }
 

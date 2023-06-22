@@ -7,7 +7,7 @@ type WarpCreateJobAstroportDcaOrderProps = {
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
   warpAccountAddress: string;
-  warpJobCreationFeePercentage: string;
+  warpTotalJobFee: string;
   poolAddress: string;
   offerAssetAddress: string;
   offerAmount: string;
@@ -28,7 +28,7 @@ export const WarpCreateJobAstroportDcaOrder = ({
   warpFeeTokenAddress,
   warpControllerAddress,
   warpAccountAddress,
-  warpJobCreationFeePercentage,
+  warpTotalJobFee,
   poolAddress,
   offerAssetAddress,
   offerAmount,
@@ -44,7 +44,7 @@ export const WarpCreateJobAstroportDcaOrder = ({
     warpFeeTokenAddress,
     warpControllerAddress,
     warpAccountAddress,
-    warpJobCreationFeePercentage,
+    warpTotalJobFee,
     poolAddress,
     offerAmount,
     offerAssetAddress,
