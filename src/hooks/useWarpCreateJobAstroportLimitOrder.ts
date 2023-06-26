@@ -1,4 +1,6 @@
+import { MsgExecuteContract } from "@terra-money/feather.js";
 import { useMemo } from "react";
+
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import { toBase64 } from "@/utils/encoding";
 import {
@@ -10,22 +12,21 @@ import {
   LABEL_ASTROPORT_LIMIT_ORDER,
   LABEL_WARP_WORLD,
   NAME_WARP_WORLD_ASTROPORT_LIMIT_ORDER,
+  Token,
 } from "@/utils/constants";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
-import { MsgExecuteContract } from "@terra-money/feather.js";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
   senderAddress?: string;
   // token denom used to pay for warp fee, now is always uluna
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
-  warpAccountAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
-  offerAmount: string;
-  minimumReturnAmount: string;
-  offerAssetAddress: string;
-  returnAssetAddress: string;
+  offerTokenAmount: string;
+  minimumReturnTokenAmount: string;
+  offerToken: Token;
+  returnToken: Token;
   expiredAfterDays: number;
 };
 
@@ -33,29 +34,27 @@ export const useWarpCreateJobAstroportLimitOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
-  warpAccountAddress,
   warpTotalJobFee,
   poolAddress,
-  offerAmount,
-  minimumReturnAmount,
-  offerAssetAddress,
-  returnAssetAddress,
+  offerTokenAmount,
+  minimumReturnTokenAmount,
+  offerToken,
+  returnToken,
   expiredAfterDays,
 }: UseWarpCreateJobAstroportLimitOrderProps) => {
-  // this can be set arbitrarily large since condition guarantee we always get minimumReturnAmount
+  // this can be set arbitrarily large since condition guarantee we always get minimumReturnTokenAmount
   // TODO: verify that's the case in production
   const maxSpread = "0.1";
 
   const msgs = useMemo(() => {
     if (
       !warpControllerAddress ||
-      !warpAccountAddress ||
       !warpTotalJobFee ||
       !poolAddress ||
-      !offerAmount ||
-      !minimumReturnAmount ||
-      !offerAssetAddress ||
-      !returnAssetAddress ||
+      !offerTokenAmount ||
+      !minimumReturnTokenAmount ||
+      !offerToken ||
+      !returnToken ||
       !expiredAfterDays ||
       !senderAddress
     ) {
@@ -67,20 +66,23 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       warpControllerAddress,
       warpFeeTokenAddress,
       warpTotalJobFee,
-      offerAssetAddress,
-      offerAmount,
+      offerTokenAddress: offerToken.address,
+      offerTokenAmount,
     });
 
-    const astroportSwapMsg = isNativeAsset(offerAssetAddress)
+    const astroportSwapMsg = isNativeAsset(offerToken.address)
       ? {
           swap: {
             offer_asset: {
               info: {
                 native_token: {
-                  denom: offerAssetAddress,
+                  denom: offerToken.address,
                 },
               },
-              amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+              amount: convertTokenDecimals(
+                offerTokenAmount,
+                offerToken.address
+              ),
             },
             max_spread: maxSpread,
             to: senderAddress,
@@ -89,12 +91,12 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       : {
           send: {
             contract: poolAddress,
-            amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+            amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
             msg: toBase64({
               swap: {
                 ask_asset_info: {
                   native_token: {
-                    denom: returnAssetAddress,
+                    denom: offerToken.address,
                   },
                 },
                 // offer_asset
@@ -108,15 +110,18 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     const swap = {
       wasm: {
         execute: {
-          contract_addr: isNativeAsset(offerAssetAddress)
+          contract_addr: isNativeAsset(offerToken.address)
             ? poolAddress
-            : offerAssetAddress,
+            : offerToken.address,
           msg: toBase64(astroportSwapMsg),
-          funds: isNativeAsset(offerAssetAddress)
+          funds: isNativeAsset(offerToken.address)
             ? [
                 {
-                  denom: offerAssetAddress,
-                  amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+                  denom: offerToken.address,
+                  amount: convertTokenDecimals(
+                    offerTokenAmount,
+                    offerToken.address
+                  ),
                 },
               ]
             : [],
@@ -128,26 +133,26 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     const astroportSimulateSwapMsg = {
       simulation: {
         offer_asset: {
-          info: isNativeAsset(offerAssetAddress)
+          info: isNativeAsset(offerToken.address)
             ? {
                 native_token: {
-                  denom: offerAssetAddress,
+                  denom: offerToken.address,
                 },
               }
             : {
                 token: {
-                  contract_addr: offerAssetAddress,
+                  contract_addr: offerToken.address,
                 },
               },
-          amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+          amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
         },
       },
     };
 
     const jobVarName = constructJobVarNameForAstroportLimitOrder(
-      offerAmount,
-      offerAssetAddress,
-      returnAssetAddress
+      offerTokenAmount,
+      offerToken,
+      returnToken
     );
     const jobVar = {
       query: {
@@ -177,8 +182,8 @@ export const useWarpCreateJobAstroportLimitOrder = ({
           },
           right: {
             simple: convertTokenDecimals(
-              minimumReturnAmount,
-              returnAssetAddress
+              minimumReturnTokenAmount,
+              returnToken.address
             ),
           },
         },
@@ -192,10 +197,10 @@ export const useWarpCreateJobAstroportLimitOrder = ({
         create_job: {
           name: NAME_WARP_WORLD_ASTROPORT_LIMIT_ORDER,
           description: constructJobDescriptionForAstroportLimitOrder(
-            offerAmount,
-            offerAssetAddress,
-            returnAssetAddress,
-            minimumReturnAmount
+            offerTokenAmount,
+            offerToken,
+            returnToken,
+            minimumReturnTokenAmount
           ),
           labels: [LABEL_WARP_WORLD, LABEL_ASTROPORT_LIMIT_ORDER],
           recurring: false,
@@ -216,14 +221,13 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     senderAddress,
     warpFeeTokenAddress,
     warpControllerAddress,
-    warpAccountAddress,
     warpTotalJobFee,
     poolAddress,
-    offerAmount,
-    minimumReturnAmount,
-    offerAssetAddress,
+    offerTokenAmount,
+    minimumReturnTokenAmount,
+    offerToken,
     expiredAfterDays,
-    returnAssetAddress,
+    returnToken,
   ]);
 
   return useMemo(() => {

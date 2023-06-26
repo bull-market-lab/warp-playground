@@ -8,8 +8,8 @@ type UseSwapProps = {
   senderAddress: string;
   amount: string;
   exchangeRate: string;
-  offerAssetAddress: string;
-  returnAssetAddress: string;
+  offerTokenAddress: string;
+  returnTokenAddress: string;
   poolAddress: string;
   slippage?: string;
 };
@@ -18,8 +18,8 @@ export const useSwap = ({
   senderAddress,
   amount,
   exchangeRate,
-  offerAssetAddress,
-  returnAssetAddress,
+  offerTokenAddress,
+  returnTokenAddress,
   poolAddress,
   slippage = "0.005",
 }: UseSwapProps) => {
@@ -27,8 +27,8 @@ export const useSwap = ({
     if (
       !amount ||
       !exchangeRate ||
-      !offerAssetAddress ||
-      !returnAssetAddress ||
+      !offerTokenAddress ||
+      !returnTokenAddress ||
       !poolAddress ||
       !senderAddress
     ) {
@@ -39,7 +39,7 @@ export const useSwap = ({
       return [];
     }
 
-    if (isNativeAsset(offerAssetAddress)) {
+    if (isNativeAsset(offerTokenAddress)) {
       return [
         new MsgExecuteContract(
           senderAddress,
@@ -47,8 +47,8 @@ export const useSwap = ({
           {
             swap: {
               offer_asset: {
-                amount: convertTokenDecimals(amount, offerAssetAddress),
-                info: { native_token: { denom: offerAssetAddress } },
+                amount: convertTokenDecimals(amount, offerTokenAddress),
+                info: { native_token: { denom: offerTokenAddress } },
               },
               max_spread: slippage,
               // belief_price: BigNumber(simulate.data?.beliefPrice || "1").toFixed(18).toString(),
@@ -56,9 +56,9 @@ export const useSwap = ({
             },
           },
           new Coins({
-            [offerAssetAddress]: convertTokenDecimals(
+            [offerTokenAddress]: convertTokenDecimals(
               amount,
-              offerAssetAddress
+              offerTokenAddress
             ),
           })
         ),
@@ -66,9 +66,9 @@ export const useSwap = ({
     }
 
     return [
-      new MsgExecuteContract(senderAddress, offerAssetAddress, {
+      new MsgExecuteContract(senderAddress, offerTokenAddress, {
         send: {
-          amount: convertTokenDecimals(amount, offerAssetAddress),
+          amount: convertTokenDecimals(amount, offerTokenAddress),
           contract: poolAddress,
           msg: toBase64({
             swap: {
@@ -83,8 +83,8 @@ export const useSwap = ({
   }, [
     senderAddress,
     exchangeRate,
-    offerAssetAddress,
-    returnAssetAddress,
+    offerTokenAddress,
+    returnTokenAddress,
     poolAddress,
     amount,
     slippage,

@@ -1,39 +1,45 @@
+import { useContext } from "react";
+import {
+  CHAIN_ID_LOCALTERRA,
+  CHAIN_ID_NEUTRON_ONE,
+  CHAIN_ID_PHOENIX_ONE,
+  CHAIN_ID_PION_ONE,
+  CHAIN_ID_PISCO_ONE,
+  CHAIN_NEUTRON,
+  CHAIN_TERRA,
+  ChainConfig,
+  NETWORK_CONSTANTS,
+  NETWORK_LOCALNET,
+  NETWORK_MAINNET,
+  NETWORK_TESTNET,
+  NEUTRON_MAINNET_CHAIN_CONFIG,
+  TERRA_MAINNET_CHAIN_CONFIG,
+} from "./constants";
+import { ChainContext } from "@/contexts/ChainContext";
+
 export const GAS_OPTIONS = {
   gas: undefined, // leave undefined so it is estimated when signing
   gasPrices: "0.15uluna",
   gasAdjustment: 1.75,
 };
 
-export const CHAIN_ID_PHOENIX_1 = "phoenix-1";
-export const CHAIN_ID_PISCO_1 = "pisco-1";
-export const CHAIN_ID_LOCALTERRA = "localterra";
-
-export const NETWORK_MAINNET = "mainnet";
-export const NETWORK_TESTNET = "testnet";
-// TODO: this might be changed to localnet after terrain supports other chains
-export const NETWORK_LOCALNET = "localterra";
-
-export const AVAILABLE_NETWORKS = [
-  NETWORK_MAINNET,
-  NETWORK_TESTNET,
-  NETWORK_LOCALNET,
-];
-
 export const AVAILABLE_CHAIN_IDS = [
-  CHAIN_ID_PHOENIX_1,
-  CHAIN_ID_PISCO_1,
+  CHAIN_ID_PHOENIX_ONE,
+  CHAIN_ID_PISCO_ONE,
   CHAIN_ID_LOCALTERRA,
+  CHAIN_ID_NEUTRON_ONE,
+  CHAIN_ID_PION_ONE,
 ];
 
 export const NETWORK_TO_CHAIN_ID = {
-  mainnet: CHAIN_ID_PHOENIX_1,
-  testnet: CHAIN_ID_PISCO_1,
+  mainnet: CHAIN_ID_PHOENIX_ONE,
+  testnet: CHAIN_ID_PISCO_ONE,
   localterra: CHAIN_ID_LOCALTERRA,
 };
 
 export const NETWORKS = {
-  CHAIN_ID_PHOENIX_1: {
-    chainID: CHAIN_ID_PHOENIX_1,
+  CHAIN_ID_PHOENIX_ONE: {
+    chainID: CHAIN_ID_PHOENIX_ONE,
     lcd: "https://phoenix-lcd.terra.dev",
     gasAdjustment: 1.75,
     gasPrices: { uluna: 0.015 },
@@ -50,8 +56,8 @@ export const NETWORKS = {
       block: "https://terrasco.pe/mainnet/block/{}",
     },
   },
-  CHAIN_ID_PISCO_1: {
-    chainID: CHAIN_ID_PISCO_1,
+  CHAIN_ID_PISCO_ONE: {
+    chainID: CHAIN_ID_PISCO_ONE,
     lcd: "https://pisco-lcd.terra.dev",
     gasAdjustment: 1.75,
     gasPrices: { uluna: 0.015 },
@@ -91,7 +97,31 @@ export const NETWORKS = {
 export const getChainIDByNetwork = (network?: string): string => {
   // default to mainnet
   if (!network) {
-    return CHAIN_ID_PHOENIX_1;
+    return CHAIN_ID_PHOENIX_ONE;
   }
   return NETWORK_TO_CHAIN_ID[network as keyof typeof NETWORK_TO_CHAIN_ID];
+};
+
+export const isValidNetwork = (network?: string): boolean => {
+  return (
+    network === NETWORK_MAINNET ||
+    network === NETWORK_TESTNET ||
+    network === NETWORK_LOCALNET
+  );
+};
+
+// get chain config from context, if unset, use mainnet
+export const getChainConfig = (): ChainConfig => {
+  const { currentChainId, currentNetwork, currentChain } =
+    useContext(ChainContext);
+
+  if (!currentChainId || !currentNetwork) {
+    if (currentChain == CHAIN_TERRA) {
+      return TERRA_MAINNET_CHAIN_CONFIG;
+    } else {
+      return NEUTRON_MAINNET_CHAIN_CONFIG;
+    }
+  }
+
+  return NETWORK_CONSTANTS[currentNetwork]![currentChainId]!;
 };

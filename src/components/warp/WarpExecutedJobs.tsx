@@ -1,23 +1,19 @@
 import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
+
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
-import { LCDClient } from "@terra-money/feather.js";
 import { LABEL_WARP_WORLD } from "@/utils/constants";
 
 type WarpExecutedJobsProps = {
-  lcd?: LCDClient;
-  chainID: string;
   ownerAddress?: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
 export const WarpExecutedJobs = ({
-  lcd,
-  chainID,
   ownerAddress,
   warpControllerAddress,
   warpJobLabel,
@@ -26,8 +22,6 @@ export const WarpExecutedJobs = ({
   const [warpExecutedJobCount, setWarpExecutedJobCount] = useState(0);
 
   const getWarpExecutedJobsResult = useWarpGetJobs({
-    lcd,
-    chainID,
     ownerAddress,
     warpControllerAddress,
     status: "Executed",

@@ -1,4 +1,3 @@
-import { DENOM_TO_TOKEN_NAME } from "@/utils/token";
 import {
   Flex,
   NumberInput,
@@ -8,23 +7,25 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 
+import { Token } from "@/utils/constants";
+
 type SwapProps = {
-  offerAssetAddress: string;
-  returnAssetAddress: string;
-  returnAmount: string;
+  offerToken: Token;
+  returnToken: Token;
+  returnTokenAmount: string;
   offerTokenBalance: number;
-  onChangeTokenOfferAmount: (
+  onChangeOfferTokenAmount: (
     valueAsString: string,
     valueAsNumber: number
   ) => void;
 };
 
 export const Swap = ({
-  offerAssetAddress,
-  returnAssetAddress,
-  returnAmount,
+  offerToken,
+  returnToken,
+  returnTokenAmount,
   offerTokenBalance,
-  onChangeTokenOfferAmount,
+  onChangeOfferTokenAmount,
 }: SwapProps) => {
   return (
     <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
@@ -34,7 +35,7 @@ export const Swap = ({
         min={0}
         step={1}
         precision={3}
-        onChange={onChangeTokenOfferAmount}
+        onChange={onChangeOfferTokenAmount}
         width={150}
       >
         <NumberInputField style={{ textAlign: "center" }} />
@@ -43,12 +44,12 @@ export const Swap = ({
           <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
-      {DENOM_TO_TOKEN_NAME[offerAssetAddress]}
+      {offerToken.name}
       {" to "}
-      <NumberInput value={returnAmount} precision={3} width={150}>
+      <NumberInput value={returnTokenAmount} precision={3} width={150}>
         <NumberInputField disabled={true} style={{ textAlign: "center" }} />
       </NumberInput>
-      {DENOM_TO_TOKEN_NAME[returnAssetAddress]}
+      {returnToken.name}
     </Flex>
   );
 };

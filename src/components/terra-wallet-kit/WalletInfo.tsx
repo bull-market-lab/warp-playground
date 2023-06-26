@@ -8,17 +8,13 @@ import {
   VStack,
   Text,
 } from "@chakra-ui/react";
-import {
-  useWallet,
-  ConnectResponse,
-  useLcdClient,
-} from "@terra-money/wallet-kit";
+import { useWallet, ConnectResponse } from "@terra-money/wallet-kit";
 import copy from "copy-to-clipboard";
 import { FC } from "react";
 
 import PopoverWrapper from "@/components/common/PopoverWrapper";
-import WalletNetwork from "@/components/common/WalletNetwork";
-import WalletIcon from "@/components/common/WalletIcon";
+import WalletNetwork from "@/components/terra-wallet-kit/WalletNetwork";
+import WalletIcon from "@/components/terra-wallet-kit/WalletIcon";
 import CopyIcon from "@/components/common/CopyIcon";
 import ExternalLinkIcon from "@/components/common/ExternalLinkIcon";
 import { truncateString } from "@/utils/formatHelpers";
@@ -31,13 +27,10 @@ type WalletInfoProps = {
 
 const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
   const { disconnect } = useWallet();
-  const lcd = useLcdClient();
   const chainID = getChainIDByNetwork(wallet.network);
   const myAddress = wallet.addresses[chainID];
 
   const balance = useBalance({
-    lcd,
-    chainID,
     ownerAddress: myAddress,
     tokenAddress: "uluna",
   });

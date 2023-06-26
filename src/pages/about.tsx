@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { NextPage } from "next";
 
-import { About } from "@/components/common/About";
+import { About } from "@/components/page/About";
 import { UsageWarning } from "@/components/common/UsageWarning";
 
 const AboutPage: NextPage = () => {

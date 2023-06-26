@@ -1,11 +1,6 @@
 import BigNumber from "bignumber.js";
 import { MsgExecuteContract } from "@terra-money/feather.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
-import {
-  CHAIN_ID_LOCALTERRA,
-  CHAIN_ID_PHOENIX_1,
-  CHAIN_ID_PISCO_1,
-} from "@/utils/network";
 
 /*
   job example
@@ -72,24 +67,6 @@ export type Job = {
   status: string;
 };
 
-export const WARP_CONSTANTS = {
-  [CHAIN_ID_PHOENIX_1]: {
-    controller:
-      "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj",
-    feeTokenAddress: "uluna",
-  },
-  [CHAIN_ID_PISCO_1]: {
-    controller:
-      "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt",
-    feeTokenAddress: "uluna",
-  },
-  [CHAIN_ID_LOCALTERRA]: {
-    controller:
-      "terra156fwsk56dgldh4l6dpvm2p3mheugm408lac9au4pc8gn4gqn0kfsy44rqr",
-    feeTokenAddress: "uluna",
-  },
-};
-
 export const constructJobUrl = (jobId: string) =>
   `https://app.warp.money/#/jobs/${jobId}`;
 
@@ -98,8 +75,8 @@ type ConstructHelperMsgsProps = {
   warpControllerAddress: string;
   warpFeeTokenAddress: string;
   warpTotalJobFee: string;
-  offerAssetAddress: string;
-  offerAmount: string;
+  offerTokenAddress: string;
+  offerTokenAmount: string;
 };
 
 // msg 1. increase allowance if it's sending cw20 token
@@ -109,18 +86,18 @@ export const constructHelperMsgs = ({
   warpControllerAddress,
   warpFeeTokenAddress,
   warpTotalJobFee,
-  offerAssetAddress,
-  offerAmount,
+  offerTokenAddress,
+  offerTokenAmount,
 }: ConstructHelperMsgsProps) => {
   let cwFunds: { cw20: { contract_addr: string; amount: string } }[] = [];
   let nativeFunds = {};
 
-  if (isNativeAsset(offerAssetAddress)) {
-    if (warpFeeTokenAddress === offerAssetAddress) {
+  if (isNativeAsset(offerTokenAddress)) {
+    if (warpFeeTokenAddress === offerTokenAddress) {
       nativeFunds = {
-        [offerAssetAddress]: convertTokenDecimals(
-          BigNumber(warpTotalJobFee).plus(offerAmount).toString(),
-          offerAssetAddress
+        [offerTokenAddress]: convertTokenDecimals(
+          BigNumber(warpTotalJobFee).plus(offerTokenAmount).toString(),
+          offerTokenAddress
         ),
       };
     } else {
@@ -129,9 +106,9 @@ export const constructHelperMsgs = ({
           warpTotalJobFee,
           warpFeeTokenAddress
         ),
-        [offerAssetAddress]: convertTokenDecimals(
-          offerAmount,
-          offerAssetAddress
+        [offerTokenAddress]: convertTokenDecimals(
+          offerTokenAmount,
+          offerTokenAddress
         ),
       };
     }
@@ -139,17 +116,20 @@ export const constructHelperMsgs = ({
     cwFunds = [
       {
         cw20: {
-          contract_addr: offerAssetAddress,
-          amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+          contract_addr: offerTokenAddress,
+          amount: convertTokenDecimals(offerTokenAmount, offerTokenAddress),
         },
       },
     ];
     nativeFunds = {
-      [warpFeeTokenAddress]: convertTokenDecimals(warpTotalJobFee, warpFeeTokenAddress),
+      [warpFeeTokenAddress]: convertTokenDecimals(
+        warpTotalJobFee,
+        warpFeeTokenAddress
+      ),
     };
   }
 
-  if (isNativeAsset(offerAssetAddress)) {
+  if (isNativeAsset(offerTokenAddress)) {
     return [
       new MsgExecuteContract(
         senderAddress,
@@ -164,10 +144,10 @@ export const constructHelperMsgs = ({
     ];
   } else {
     return [
-      new MsgExecuteContract(senderAddress, offerAssetAddress, {
+      new MsgExecuteContract(senderAddress, offerTokenAddress, {
         increase_allowance: {
           spender: warpControllerAddress,
-          amount: convertTokenDecimals(offerAmount, offerAssetAddress),
+          amount: convertTokenDecimals(offerTokenAmount, offerTokenAddress),
           expires: {
             never: {},
           },

@@ -1,28 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokenDecimals, isNativeAsset } from "@/utils/token";
-import { LCDClient } from "@terra-money/feather.js";
+import { ChainContext } from "@/contexts/ChainContext";
+import { useContext } from "react";
 
 type Cw20BalanceResponse = {
   balance: string;
 };
 
 type UseBalanceProps = {
-  lcd?: LCDClient;
-  chainID: string;
   ownerAddress?: string;
   tokenAddress?: string;
 };
 
 export default function useBalance({
-  lcd,
-  chainID,
   ownerAddress,
   tokenAddress,
 }: UseBalanceProps) {
+  const { lcd } = useContext(ChainContext);
   return useQuery(
-    ["balance", chainID, ownerAddress, tokenAddress],
+    ["balance", ownerAddress, tokenAddress],
     async () => {
-      if (!lcd || !chainID || !ownerAddress || !tokenAddress || !chainID) {
+      if (!lcd || !ownerAddress || !tokenAddress) {
         return 0;
       }
 
@@ -46,7 +44,7 @@ export default function useBalance({
       }
     },
     {
-      enabled: !!ownerAddress && !!tokenAddress && !!chainID && !!lcd,
+      enabled: !!ownerAddress && !!tokenAddress && !!lcd,
       initialData: 0,
       placeholderData: 0,
     }

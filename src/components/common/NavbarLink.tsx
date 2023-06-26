@@ -1,4 +1,4 @@
-import { Box, chakra, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { FC, MouseEventHandler } from "react";

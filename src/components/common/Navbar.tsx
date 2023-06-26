@@ -8,18 +8,17 @@ import {
   DrawerOverlay,
   DrawerContent,
 } from "@chakra-ui/react";
-import { useConnectedWallet } from "@terra-money/wallet-kit";
 import React, { FC } from "react";
 
 import BurgerIcon from "@/components/common/BurgerIcon";
 import CloseIcon from "@/components/common/CloseIcon";
-import WalletInfo from "@/components/common/WalletInfo";
-import WalletConnect from "@/components/common/WalletConnect";
+import { Wallet as TerraWallet } from "@/components/terra-wallet-kit/Wallet";
+import { Wallet as CosmosWallet } from "@/components/cosmos-kit/Wallet";
 import { NavbarLinks } from "./NavbarLinks";
 import { SidebarLinks } from "./SidebarLinks";
+import { ChainSelector } from "./ChainSelector";
 
 const Navbar: FC = () => {
-  const wallet = useConnectedWallet();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/35572#issuecomment-493942129
@@ -30,7 +29,8 @@ const Navbar: FC = () => {
       <Flex w="100%" justify="space-between" align="center">
         <NavbarLinks isBack={false} />
         <HStack justify="flex-end">
-          {wallet ? <WalletInfo wallet={wallet} /> : <WalletConnect />}
+          <ChainSelector />
+          <TerraWallet />
           <Button
             display={[null, null, "none", null]}
             variant="simple"

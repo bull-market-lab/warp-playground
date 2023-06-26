@@ -4,7 +4,7 @@ import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastT
 
 type WarpCancelJobProps = {
   senderAddress?: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
   jobId: string;
 };
 

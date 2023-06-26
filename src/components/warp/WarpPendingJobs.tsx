@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
-import { LCDClient } from "@terra-money/feather.js";
 
 import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
 import { Job } from "@/utils/warpHelpers";
@@ -10,16 +9,12 @@ import { WarpCancelJob } from "@/components/warp/WarpCancelJob";
 import { LABEL_WARP_WORLD } from "@/utils/constants";
 
 type WarpPendingJobsProps = {
-  lcd?: LCDClient;
-  chainID: string;
   ownerAddress?: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
 export const WarpPendingJobs = ({
-  lcd,
-  chainID,
   ownerAddress,
   warpControllerAddress,
   warpJobLabel,
@@ -28,8 +23,6 @@ export const WarpPendingJobs = ({
   const [warpPendingJobCount, setWarpPendingJobCount] = useState(0);
 
   const getWarpPendingJobsResult = useWarpGetJobs({
-    lcd,
-    chainID,
     ownerAddress,
     warpControllerAddress,
     status: "Pending",

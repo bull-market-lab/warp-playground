@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 type UseWarpCancelJobProps = {
   senderAddress?: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
   jobId: string;
 };
 
