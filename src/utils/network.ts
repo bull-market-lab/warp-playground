@@ -7,12 +7,15 @@ import {
   CHAIN_ID_PISCO_ONE,
   CHAIN_NEUTRON,
   CHAIN_TERRA,
+  Chain,
   ChainConfig,
+  ChainID,
   NETWORK_CONSTANTS,
   NETWORK_LOCALNET,
   NETWORK_MAINNET,
   NETWORK_TESTNET,
   NEUTRON_MAINNET_CHAIN_CONFIG,
+  Network,
   TERRA_MAINNET_CHAIN_CONFIG,
 } from "./constants";
 import { ChainContext } from "@/contexts/ChainContext";
@@ -111,10 +114,11 @@ export const isValidNetwork = (network?: string): boolean => {
 };
 
 // get chain config from context, if unset, use mainnet
-export const getChainConfig = (): ChainConfig => {
-  const { currentChainId, currentNetwork, currentChain } =
-    useContext(ChainContext);
-
+export const getChainConfig = (
+  currentChain: Chain,
+  currentChainId?: ChainID,
+  currentNetwork?: Network
+): ChainConfig => {
   if (!currentChainId || !currentNetwork) {
     if (currentChain == CHAIN_TERRA) {
       return TERRA_MAINNET_CHAIN_CONFIG;

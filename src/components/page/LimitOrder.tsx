@@ -30,9 +30,8 @@ import { ChainContext } from "@/contexts/ChainContext";
 import { getChainConfig } from "@/utils/network";
 
 export const LimitOrderPage = () => {
-  const { myAddress } = useContext(ChainContext);
-
-  const chainConfig = getChainConfig();
+  const { currentChainId, currentNetwork, currentChain, myAddress } = useContext(ChainContext);
+  const chainConfig = getChainConfig(currentChain, currentChainId, currentNetwork);
 
   const warpControllerAddress = chainConfig.warp.controllerAddress;
   const warpFeeToken = chainConfig.warp.feeToken;

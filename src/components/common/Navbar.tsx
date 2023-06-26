@@ -13,7 +13,6 @@ import React, { FC } from "react";
 import BurgerIcon from "@/components/common/BurgerIcon";
 import CloseIcon from "@/components/common/CloseIcon";
 import { Wallet as TerraWallet } from "@/components/terra-wallet-kit/Wallet";
-import { Wallet as CosmosWallet } from "@/components/cosmos-kit/Wallet";
 import { NavbarLinks } from "./NavbarLinks";
 import { SidebarLinks } from "./SidebarLinks";
 import { ChainSelector } from "./ChainSelector";
