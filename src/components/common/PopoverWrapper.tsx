@@ -18,14 +18,24 @@ type Props = {
   children: ReactNode;
 } & PopoverProps;
 
-const PopoverWrapper: FC<Props> = ({ title, triggerElement, children, ...props }) => {
+const PopoverWrapper: FC<Props> = ({
+  title,
+  triggerElement,
+  children,
+  ...props
+}) => {
   return (
     <Popover {...props}>
       <PopoverTrigger>{triggerElement()}</PopoverTrigger>
       <PopoverContent px="10">
         <Flex align="center" justify="space-between">
           <PopoverHeader>{title}</PopoverHeader>
-          <PopoverCloseButton position="static" width="2rem" height="2rem" borderRadius="full">
+          <PopoverCloseButton
+            position="static"
+            width="2rem"
+            height="2rem"
+            borderRadius="full"
+          >
             <CloseIcon w="2rem" h="2rem" />
           </PopoverCloseButton>
         </Flex>

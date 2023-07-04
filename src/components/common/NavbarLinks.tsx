@@ -1,15 +1,9 @@
 import { Flex, HStack } from "@chakra-ui/react";
-import React, { FC } from "react";
 
 import NavbarLink from "@/components/common/NavbarLink";
 import NavbarReturn from "@/components/common/NavbarReturn";
 
-type Props = {
-  isBack: boolean;
-  onClick?: React.MouseEventHandler;
-};
-
-export const NavbarLinks: FC<Props> = ({ isBack = false }) => {
+const NavbarLinks = ({ isBack = false }: { isBack: boolean }) => {
   return (
     <HStack
       display={["none", null, "block", null]}
@@ -19,11 +13,19 @@ export const NavbarLinks: FC<Props> = ({ isBack = false }) => {
     >
       {isBack ? <NavbarReturn /> : null}
       <Flex direction="row">
-        {isBack ? null : <NavbarLink text="DCA" href="/" />}
+        {isBack ? null : <NavbarLink text="About" href="/" />}
+        {isBack ? null : <NavbarLink text="DCA" href="/dca" />}
         {isBack ? null : <NavbarLink text="Limit Order" href="/limit_order" />}
-        {/* {isBack ? null : <NavbarLink text="Staking+" href="/staking" />} */}
-        {isBack ? null : <NavbarLink text="About" href="/about" />}
+        {isBack ? null : (
+          <NavbarLink
+            text="Staking+"
+            href="/staking"
+            underConstruction={true}
+          />
+        )}
       </Flex>
     </HStack>
   );
 };
+
+export default NavbarLinks;

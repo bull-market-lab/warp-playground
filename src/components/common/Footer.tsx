@@ -8,7 +8,11 @@ const Footer: FC = () => {
         <Box>
           <p style={{ marginBottom: "1rem", fontWeight: 800 }}>About</p>
           <p style={{ marginBottom: "1rem" }}>
-            <Link variant="footer" isExternal={true} href="https://github.com/llllllluc/warp-world">
+            <Link
+              variant="footer"
+              isExternal={true}
+              href="https://github.com/llllllluc/warp-world"
+            >
               GitHub
             </Link>
           </p>

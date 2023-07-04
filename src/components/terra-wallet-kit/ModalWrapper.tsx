@@ -17,7 +17,13 @@ type Props = {
   onClose: () => void;
 };
 
-const ModalWrapper: FC<Props> = ({ showHeader = true, children, isOpen, onClose, title = "" }) => {
+const ModalWrapper: FC<Props> = ({
+  showHeader = true,
+  children,
+  isOpen,
+  onClose,
+  title = "",
+}) => {
   return (
     <Modal
       isOpen={isOpen}

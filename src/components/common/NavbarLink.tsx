@@ -1,23 +1,21 @@
 import { Text } from "@chakra-ui/react";
-import NextLink from "next/link";
-import { useRouter } from "next/router";
-import { FC, MouseEventHandler } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MouseEventHandler } from "react";
 import * as csstype from "csstype";
 
-type Props = {
-  text: string;
-  href: string;
-  onClick?: MouseEventHandler<HTMLAnchorElement>;
-  underConstruction?: boolean;
-};
-
-const NavbarLink: FC<Props> = ({
+const NavbarLink = ({
   text,
   href,
-  onClick,
   underConstruction = false,
+  onClick,
+}: {
+  text: string;
+  href: string;
+  underConstruction?: boolean;
+  onClick?: MouseEventHandler;
 }) => {
-  const { asPath } = useRouter();
+  const pathname = usePathname();
 
   const defaultStyle = {
     fontSize: "24px",
@@ -29,7 +27,7 @@ const NavbarLink: FC<Props> = ({
         color: "rgba(210, 187, 166, 0.8)",
         pointerEvents: "none" as csstype.Property.PointerEvents, // need this or type error
       }
-    : asPath === href
+    : pathname === href
     ? {
         color: "brand.red",
         textDecoration: "underline",
@@ -44,7 +42,7 @@ const NavbarLink: FC<Props> = ({
       };
 
   return (
-    <NextLink href={href} passHref onClick={onClick}>
+    <Link href={underConstruction ? "#" : href} onClick={onClick}>
       <Text
         transition="0.2s all"
         p="2"
@@ -55,7 +53,7 @@ const NavbarLink: FC<Props> = ({
         {text}
         {underConstruction ? <sup>(soon)</sup> : null}
       </Text>
-    </NextLink>
+    </Link>
   );
 };
 

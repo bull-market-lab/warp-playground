@@ -7,9 +7,9 @@ export const constructJobVarNameForAstroportLimitOrder = (
   offerToken: Token,
   returnToken: Token
 ) =>
-  `swap-${BigNumber(offerTokenAmount).toFixed(3)}-${offerToken.name}-to-how-many-${
-    returnToken.name
-  }`;
+  `swap-${BigNumber(offerTokenAmount).toFixed(3)}-${
+    offerToken.name
+  }-to-how-many-${returnToken.name}`;
 
 export const constructJobDescriptionForAstroportLimitOrder = (
   offerTokenAmount: string,
@@ -17,9 +17,9 @@ export const constructJobDescriptionForAstroportLimitOrder = (
   returnToken: Token,
   minimumReturnTokenAmount: string
 ) =>
-  `swap ${BigNumber(offerTokenAmount).toFixed(3)} ${offerToken.name} to ${BigNumber(
-    minimumReturnTokenAmount
-  ).toFixed(3)} ${returnToken.name}`;
+  `swap ${BigNumber(offerTokenAmount).toFixed(3)} ${
+    offerToken.name
+  } to ${BigNumber(minimumReturnTokenAmount).toFixed(3)} ${returnToken.name}`;
 
 export const constructJobDescriptionForAstroportDcaOrder = (
   offerTokenAmount: string,

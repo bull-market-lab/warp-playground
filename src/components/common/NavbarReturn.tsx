@@ -1,18 +1,12 @@
-import { chakra, HStack, Text } from "@chakra-ui/react";
-import NextLink from "next/link";
-import { FC, MouseEventHandler } from "react";
+import { HStack, Text } from "@chakra-ui/react";
+import Link from "next/link";
 
 import ArrowLeftIcon from "./ArrowLeftIcon";
 
-type Props = {
-  onClick?: MouseEventHandler<HTMLAnchorElement>;
-};
-
-const NavbarReturn: FC<Props> = ({ onClick }) => {
+const NavbarReturn = ({ onClick }: { onClick?: React.MouseEventHandler }) => {
   return (
-    <NextLink href="/" passHref>
-      <chakra.div
-        as="a"
+    <Link href="/" onClick={onClick}>
+      <Text
         color="brand.darkerBrown"
         fill="brand.darkerBrown"
         _hover={{
@@ -21,7 +15,6 @@ const NavbarReturn: FC<Props> = ({ onClick }) => {
         }}
         transition="0.2s all"
         whiteSpace="nowrap"
-        onClick={onClick}
       >
         <HStack>
           <ArrowLeftIcon w="3rem" h="3rem" />
@@ -29,8 +22,8 @@ const NavbarReturn: FC<Props> = ({ onClick }) => {
             Back
           </Text>
         </HStack>
-      </chakra.div>
-    </NextLink>
+      </Text>
+    </Link>
   );
 };
 

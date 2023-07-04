@@ -89,7 +89,10 @@ export const useWarpCreateJobAstroportDcaOrder = ({
                   denom: offerToken.address,
                 },
               },
-              amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
+              amount: convertTokenDecimals(
+                offerTokenAmount,
+                offerToken.address
+              ),
             },
             max_spread: maxSpread,
             to: senderAddress,
@@ -125,7 +128,10 @@ export const useWarpCreateJobAstroportDcaOrder = ({
             ? [
                 {
                   denom: offerToken.address,
-                  amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
+                  amount: convertTokenDecimals(
+                    offerTokenAmount,
+                    offerToken.address
+                  ),
                 },
               ]
             : [],

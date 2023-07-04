@@ -1,27 +1,34 @@
 import { VStack } from "@chakra-ui/react";
-import React, { FC } from "react";
+import React from "react";
 
 import NavbarLink from "@/components/common/NavbarLink";
 import NavbarReturn from "@/components/common/NavbarReturn";
 
-type Props = {
+const SidebarLinks = ({
+  isBack = false,
+  onClick,
+}: {
   isBack: boolean;
   onClick?: React.MouseEventHandler;
-};
-export const SidebarLinks: FC<Props> = ({ isBack = false, onClick }) => {
+}) => {
   return (
     <VStack align="flex-start" mt="20">
-      {isBack ? <NavbarReturn onClick={onClick} /> : null}
-      {isBack ? null : <NavbarLink onClick={onClick} text="DCA" href="/" />}
+      {isBack ? <NavbarReturn /> : null}
+      {isBack ? null : <NavbarLink text="About" href="/" onClick={onClick} />}
+      {isBack ? null : <NavbarLink text="DCA" href="/dca" onClick={onClick} />}
       {isBack ? null : (
-        <NavbarLink onClick={onClick} text="Limit Order" href="/limit_order" />
+        <NavbarLink text="Limit Order" href="/limit_order" onClick={onClick} />
       )}
-      {/* {isBack ? null : (
-          <NavbarLink onClick={onClick} text="Staking+" href="/staking" />
-        )} */}
       {isBack ? null : (
-        <NavbarLink onClick={onClick} text="About" href="/about" />
+        <NavbarLink
+          text="Staking+"
+          href="/staking"
+          underConstruction={true}
+          onClick={onClick}
+        />
       )}
     </VStack>
   );
 };
+
+export default SidebarLinks;

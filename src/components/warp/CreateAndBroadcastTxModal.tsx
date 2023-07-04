@@ -83,9 +83,7 @@ export const CreateAndBroadcastTxModal = ({
     <Button
       colorScheme="blue"
       onClick={onCreateAndBroadcastTx}
-      isDisabled={
-        disabled || isProcessing || wallet.status !== "CONNECTED"
-      }
+      isDisabled={disabled || isProcessing || wallet.status !== "CONNECTED"}
     >
       {isProcessing ? "broadcasting tx..." : buttonText}
     </Button>
