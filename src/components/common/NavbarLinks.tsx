@@ -13,7 +13,7 @@ const NavbarLinks = ({ isBack = false }: { isBack: boolean }) => {
     >
       {isBack ? <NavbarReturn /> : null}
       <Flex direction="row">
-        {isBack ? null : <NavbarLink text="About" href="/" />}
+        {isBack ? null : <NavbarLink text="Home" href="/" />}
         {isBack ? null : <NavbarLink text="DCA" href="/dca" />}
         {isBack ? null : <NavbarLink text="Limit Order" href="/limit_order" />}
         {isBack ? null : (

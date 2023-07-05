@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 import UsageWarning from "@/components/common/UsageWarning";
-import About from "@/components/page/About";
+import Home from "@/components/page/Home";
 
 export const metadata: Metadata = {
   title: "Warp World",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const Page = () => {
   return (
     <>
-      <About />
+      <Home />
       <UsageWarning />
     </>
   );

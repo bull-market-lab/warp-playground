@@ -14,7 +14,7 @@ const SidebarLinks = ({
   return (
     <VStack align="flex-start" mt="20">
       {isBack ? <NavbarReturn /> : null}
-      {isBack ? null : <NavbarLink text="About" href="/" onClick={onClick} />}
+      {isBack ? null : <NavbarLink text="Home" href="/" onClick={onClick} />}
       {isBack ? null : <NavbarLink text="DCA" href="/dca" onClick={onClick} />}
       {isBack ? null : (
         <NavbarLink text="Limit Order" href="/limit_order" onClick={onClick} />

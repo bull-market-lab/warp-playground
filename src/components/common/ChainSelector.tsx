@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Select } from "@chakra-ui/react";
+import { Flex, Select } from "@chakra-ui/react";
 import { usePathname, useRouter } from "next/navigation";
 
 import ChainContext from "@/contexts/ChainContext";
@@ -17,9 +17,12 @@ export const ChainSelector = () => {
   };
 
   return (
-    <Select defaultValue={currentChain} onChange={handleSelectChange}>
-      <option value={CHAIN_TERRA}>Terra</option>
-      <option value={CHAIN_NEUTRON}>Neutron</option>
-    </Select>
+    <Flex direction="row" align="center" justify="center">
+      Current chain
+      <Select defaultValue={currentChain} onChange={handleSelectChange}>
+        <option value={CHAIN_TERRA}>Terra</option>
+        <option value={CHAIN_NEUTRON}>Neutron</option>
+      </Select>
+    </Flex>
   );
 };

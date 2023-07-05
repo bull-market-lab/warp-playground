@@ -29,7 +29,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
           <TerraWalletProvider defaultNetworks={DEFAULT_LCD_CONFIG}>
             <ChainContextProvider>
               <Flex minHeight="100vh" direction="column">
-                <Container maxW="900px" mx="auto" mb="20">
+                <Container maxW="1000px" mx="auto" mb="20">
                   <Navbar />
                   {children}
                 </Container>
