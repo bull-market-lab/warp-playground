@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Flex,
@@ -11,11 +13,11 @@ import { FC } from "react";
 import Header from "@/components/common/Header";
 import ExternalLinkIcon from "@/components/common/ExternalLinkIcon";
 
-function ExternalLinkIconWrapper() {
+const ExternalLinkIconWrapper = () => {
   return <ExternalLinkIcon ml="1" mr="6" transform="translateY(-2px)" />;
-}
+};
 
-export const About: FC = () => {
+const About: FC = () => {
   return (
     <>
       <Header text="About" />
@@ -75,3 +77,5 @@ export const About: FC = () => {
     </>
   );
 };
+
+export default About;

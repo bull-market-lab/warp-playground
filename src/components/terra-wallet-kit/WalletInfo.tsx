@@ -8,38 +8,27 @@ import {
   VStack,
   Text,
 } from "@chakra-ui/react";
-import {
-  useWallet,
-  ConnectResponse,
-  useLcdClient,
-} from "@terra-money/wallet-kit";
+import { useWallet } from "@terra-money/wallet-kit";
 import copy from "copy-to-clipboard";
-import { FC } from "react";
+import { useContext } from "react";
 
 import PopoverWrapper from "@/components/common/PopoverWrapper";
-import WalletNetwork from "@/components/common/WalletNetwork";
-import WalletIcon from "@/components/common/WalletIcon";
+import WalletNetwork from "@/components/terra-wallet-kit/WalletNetwork";
+import WalletIcon from "@/components/terra-wallet-kit/WalletIcon";
 import CopyIcon from "@/components/common/CopyIcon";
 import ExternalLinkIcon from "@/components/common/ExternalLinkIcon";
 import { truncateString } from "@/utils/formatHelpers";
 import useBalance from "@/hooks/useBalance";
-import { getChainIDByNetwork } from "@/utils/network";
+import ChainContext from "@/contexts/ChainContext";
+import { CHAIN_TERRA } from "@/utils/constants";
 
-type WalletInfoProps = {
-  wallet: ConnectResponse;
-};
-
-const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
+const WalletInfo = () => {
   const { disconnect } = useWallet();
-  const lcd = useLcdClient();
-  const chainID = getChainIDByNetwork(wallet.network);
-  const myAddress = wallet.addresses[chainID];
+  const { currentChainId, myAddress, currentChain } = useContext(ChainContext);
 
   const balance = useBalance({
-    lcd,
-    chainID,
     ownerAddress: myAddress,
-    tokenAddress: "uluna",
+    tokenAddress: currentChain === CHAIN_TERRA ? "uluna" : "untrn",
   });
 
   return (
@@ -47,7 +36,7 @@ const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
       title="My wallet"
       triggerElement={() => (
         <Button type="button" bg="none" p="0" _hover={{ bg: "none" }}>
-          <WalletNetwork chainID={chainID} />
+          <WalletNetwork chainID={currentChainId} />
           <Flex color="white" justify="center">
             <Box
               color="white"
@@ -75,7 +64,7 @@ const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
             >
               <HStack spacing="2">
                 <Text fontSize="md" color="white">
-                  Luna
+                  {currentChain === CHAIN_TERRA ? "Luna" : "Ntrn"}
                 </Text>
                 <Text fontSize="md" color="white">
                   {balance.data}
@@ -94,7 +83,7 @@ const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
           </Text>
         </VStack>
         <Flex mt={3} justify="left" verticalAlign="middle">
-          <Button onClick={() => copy(myAddress)} variant="simple">
+          <Button onClick={() => copy(myAddress || "")} variant="simple">
             <HStack>
               <CopyIcon width="1.5rem" height="1.5rem" />
               <Text
@@ -111,7 +100,11 @@ const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
           </Button>
           <Link
             isExternal
-            href={`https://finder.terra.money/${chainID}/address/${myAddress}`}
+            href={
+              currentChain === CHAIN_TERRA
+                ? `https://finder.terra.money/${currentChainId}/address/${myAddress}`
+                : `https://neutron.celat.one/${currentChainId}/accounts/${myAddress}`
+            }
             ml="6"
             my="auto"
             textUnderlineOffset="0.3rem"
@@ -119,7 +112,7 @@ const WalletInfo: FC<WalletInfoProps> = ({ wallet }: WalletInfoProps) => {
             <HStack>
               <ExternalLinkIcon width="1.5rem" height="1.5rem" />
               <Text textStyle="small" variant="dimmed">
-                View on Finder
+                View on explorer
               </Text>
             </HStack>
           </Link>

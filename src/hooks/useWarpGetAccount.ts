@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LCDClient } from "@terra-money/feather.js";
+import ChainContext from "@/contexts/ChainContext";
 
 type GetWarpAccountResponse = {
   account: {
@@ -10,22 +10,20 @@ type GetWarpAccountResponse = {
 };
 
 type UseWarpGetAccountProps = {
-  lcd?: LCDClient;
-  chainID: string;
   ownerAddress?: string;
   warpControllerAddress?: string;
 };
 
 export const useWarpGetAccount = ({
-  lcd,
-  chainID,
   ownerAddress,
   warpControllerAddress,
 }: UseWarpGetAccountProps) => {
+  const { lcd } = useContext(ChainContext);
+
   const accountResult = useQuery(
-    ["get-account", chainID, ownerAddress, warpControllerAddress],
+    ["get-account", ownerAddress, warpControllerAddress],
     async () => {
-      if (!lcd || !chainID || !ownerAddress || !warpControllerAddress) {
+      if (!lcd || !ownerAddress || !warpControllerAddress) {
         return null;
       }
 
@@ -42,7 +40,7 @@ export const useWarpGetAccount = ({
       };
     },
     {
-      enabled: !!lcd && !!warpControllerAddress && !!ownerAddress && !!chainID,
+      enabled: !!lcd && !!warpControllerAddress && !!ownerAddress,
     }
   );
   return useMemo(() => {

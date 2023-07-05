@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LCDClient } from "@terra-money/feather.js";
+import ChainContext from "@/contexts/ChainContext";
 
 type GetWarpConfigResponse = {
   config: {
@@ -20,20 +20,18 @@ type GetWarpConfigResponse = {
 };
 
 type UseWarpGetConfigProps = {
-  lcd?: LCDClient;
-  chainID: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
 };
 
 export const useWarpGetConfig = ({
-  lcd,
-  chainID,
   warpControllerAddress,
 }: UseWarpGetConfigProps) => {
+  const { lcd } = useContext(ChainContext);
+
   const configResult = useQuery(
-    ["get-config", chainID, warpControllerAddress],
+    ["get-config", warpControllerAddress],
     async () => {
-      if (!lcd || !chainID || !warpControllerAddress) {
+      if (!lcd || !warpControllerAddress) {
         return null;
       }
 
@@ -48,7 +46,7 @@ export const useWarpGetConfig = ({
       };
     },
     {
-      enabled: !!warpControllerAddress && !!chainID && !!lcd,
+      enabled: !!warpControllerAddress && !!lcd,
     }
   );
   return useMemo(() => {

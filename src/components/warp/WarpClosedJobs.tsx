@@ -1,7 +1,6 @@
 import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
-import { LCDClient } from "@terra-money/feather.js";
 
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
@@ -9,16 +8,12 @@ import { WarpJobLink } from "@/components/warp/WarpJobLink";
 import { LABEL_WARP_WORLD } from "@/utils/constants";
 
 type WarpClosedJobsProps = {
-  lcd?: LCDClient;
-  chainID: string;
   ownerAddress?: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
 export const WarpClosedJobs = ({
-  lcd,
-  chainID,
   ownerAddress,
   warpControllerAddress,
   warpJobLabel,
@@ -28,8 +23,6 @@ export const WarpClosedJobs = ({
 
   // TODO: cover all 3 status: Failed, Evicted, Cancelled
   const getWarpCancelledJobsResult = useWarpGetJobs({
-    lcd,
-    chainID,
     ownerAddress,
     warpControllerAddress,
     status: "Cancelled",

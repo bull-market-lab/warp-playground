@@ -1,8 +1,8 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
-import { LCDClient } from "@terra-money/feather.js";
+import ChainContext from "@/contexts/ChainContext";
 
 type AssetInfo =
   | {
@@ -23,38 +23,34 @@ type SimulateSwapResponse = {
 };
 
 type UseSimulateSwapProps = {
-  lcd?: LCDClient;
-  chainID: string;
   amount: string;
-  offerAssetAddress: string;
-  returnAssetAddress: string;
+  offerTokenAddress: string;
+  returnTokenAddress: string;
   poolAddress: string;
 };
 
 export const useSimulateSwap = ({
-  lcd,
-  chainID,
   amount,
-  offerAssetAddress,
-  returnAssetAddress,
+  offerTokenAddress,
+  returnTokenAddress,
   poolAddress,
 }: UseSimulateSwapProps) => {
+  const { lcd } = useContext(ChainContext);
+
   const simulateResult = useQuery(
     [
       "swap-simulate",
-      chainID,
       amount,
-      offerAssetAddress,
-      returnAssetAddress,
+      offerTokenAddress,
+      returnTokenAddress,
       poolAddress,
     ],
     async () => {
       if (
         !lcd ||
-        !chainID ||
         !amount ||
-        !offerAssetAddress ||
-        !returnAssetAddress ||
+        !offerTokenAddress ||
+        !returnTokenAddress ||
         !poolAddress
       ) {
         return null;
@@ -65,10 +61,10 @@ export const useSimulateSwap = ({
       }
 
       let assetInfo: AssetInfo = {
-        token: { contract_addr: offerAssetAddress },
+        token: { contract_addr: offerTokenAddress },
       };
-      if (isNativeAsset(offerAssetAddress)) {
-        assetInfo = { native_token: { denom: offerAssetAddress } };
+      if (isNativeAsset(offerTokenAddress)) {
+        assetInfo = { native_token: { denom: offerTokenAddress } };
       }
 
       const response: SimulateSwapResponse = await lcd.wasm.contractQuery(
@@ -76,7 +72,7 @@ export const useSimulateSwap = ({
         {
           simulation: {
             offer_asset: {
-              amount: convertTokenDecimals(amount, offerAssetAddress),
+              amount: convertTokenDecimals(amount, offerTokenAddress),
               info: assetInfo,
             },
           },
@@ -88,10 +84,10 @@ export const useSimulateSwap = ({
         amount: response.return_amount,
         commission: response.commission_amount,
         spread: response.spread_amount,
-        beliefPrice: BigNumber(convertTokenDecimals(amount, offerAssetAddress))
+        beliefPrice: BigNumber(convertTokenDecimals(amount, offerTokenAddress))
           .div(response.return_amount)
           .toString(),
-        price: BigNumber(convertTokenDecimals(amount, offerAssetAddress))
+        price: BigNumber(convertTokenDecimals(amount, offerTokenAddress))
           .div(response.return_amount)
           .toString(),
       };
@@ -99,10 +95,9 @@ export const useSimulateSwap = ({
     {
       enabled:
         !!lcd &&
-        !!chainID &&
         !!amount &&
-        !!offerAssetAddress &&
-        !!returnAssetAddress &&
+        !!offerTokenAddress &&
+        !!returnTokenAddress &&
         !!poolAddress,
     }
   );

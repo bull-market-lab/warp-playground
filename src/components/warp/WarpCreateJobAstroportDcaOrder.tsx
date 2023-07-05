@@ -1,17 +1,17 @@
 import { Flex } from "@chakra-ui/react";
 import { useWarpCreateJobAstroportDcaOrder } from "@/hooks/useWarpCreateJobAstroportDcaOrder";
 import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
+import { Token } from "@/utils/constants";
 
 type WarpCreateJobAstroportDcaOrderProps = {
   senderAddress?: string;
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
-  warpAccountAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
-  offerAssetAddress: string;
-  offerAmount: string;
-  returnAssetAddress: string;
+  offerToken: Token;
+  offerTokenAmount: string;
+  returnToken: Token;
   offerTokenBalance: number;
   // how many times to repeat the job, e.g. 10 means the job will run 10 times
   dcaCount: number;
@@ -27,12 +27,11 @@ export const WarpCreateJobAstroportDcaOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
-  warpAccountAddress,
   warpTotalJobFee,
   poolAddress,
-  offerAssetAddress,
-  offerAmount,
-  returnAssetAddress,
+  offerToken,
+  offerTokenAmount,
+  returnToken,
   offerTokenBalance,
   dcaCount,
   dcaInterval,
@@ -43,12 +42,11 @@ export const WarpCreateJobAstroportDcaOrder = ({
     senderAddress,
     warpFeeTokenAddress,
     warpControllerAddress,
-    warpAccountAddress,
     warpTotalJobFee,
     poolAddress,
-    offerAmount,
-    offerAssetAddress,
-    returnAssetAddress,
+    offerTokenAmount,
+    offerToken,
+    returnToken,
     dcaCount,
     dcaInterval,
     dcaStartTimestamp,
@@ -61,7 +59,8 @@ export const WarpCreateJobAstroportDcaOrder = ({
         msgs={createWarpJobAstroportDcaOrder.msgs}
         buttonText={"create DCA order"}
         disabled={
-          offerAmount === "0" || parseInt(offerAmount) > offerTokenBalance
+          offerTokenAmount === "0" ||
+          parseInt(offerTokenAmount) > offerTokenBalance
         }
       />
     </Flex>

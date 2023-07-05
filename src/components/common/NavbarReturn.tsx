@@ -1,18 +1,17 @@
-import { chakra, HStack, Text } from "@chakra-ui/react";
-import NextLink from "next/link";
-import { FC, MouseEventHandler } from "react";
+import { HStack, Text } from "@chakra-ui/react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-import ArrowLeftIcon from "./ArrowLeftIcon";
+import ArrowLeftIcon from "@/components/common/ArrowLeftIcon";
+import { CHAIN_TERRA } from "@/utils/constants";
 
-type Props = {
-  onClick?: MouseEventHandler<HTMLAnchorElement>;
-};
+const NavbarReturn = ({ onClick }: { onClick?: React.MouseEventHandler }) => {
+  const params = useSearchParams();
+  const selectedChain = params.get("chain")?.toLowerCase() ?? CHAIN_TERRA;
 
-const NavbarReturn: FC<Props> = ({ onClick }) => {
   return (
-    <NextLink href="/" passHref>
-      <chakra.div
-        as="a"
+    <Link href={`/?chain=${selectedChain}`} onClick={onClick}>
+      <Text
         color="brand.darkerBrown"
         fill="brand.darkerBrown"
         _hover={{
@@ -21,7 +20,6 @@ const NavbarReturn: FC<Props> = ({ onClick }) => {
         }}
         transition="0.2s all"
         whiteSpace="nowrap"
-        onClick={onClick}
       >
         <HStack>
           <ArrowLeftIcon w="3rem" h="3rem" />
@@ -29,8 +27,8 @@ const NavbarReturn: FC<Props> = ({ onClick }) => {
             Back
           </Text>
         </HStack>
-      </chakra.div>
-    </NextLink>
+      </Text>
+    </Link>
   );
 };
 

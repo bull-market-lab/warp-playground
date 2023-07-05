@@ -1,5 +1,6 @@
-import { useConnectedWallet, useWallet } from "@terra-money/wallet-kit";
-import { useEffect, useState } from "react";
+"use client";
+
+import { useContext, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
   NumberInput,
@@ -11,43 +12,29 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 
-import { POOLS } from "@/utils/pools";
 import useBalance from "@/hooks/useBalance";
-import { WARP_CONSTANTS } from "@/utils/warpHelpers";
-import { useWarpGetAccount } from "@/hooks/useWarpGetAccount";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
 import { SelectPool } from "@/components/warp/SelectPool";
 import { WarpJobs } from "@/components/warp/WarpJobs";
-import { CHAIN_ID_PHOENIX_1, getChainIDByNetwork } from "@/utils/network";
-import { DENOM_TO_TOKEN_NAME, TOKENS, getTokenDecimals } from "@/utils/token";
+import { getTokenDecimals } from "@/utils/token";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpCreateJobAstroportDcaOrder } from "@/components/warp/WarpCreateJobAstroportDcaOrder";
-import { LCDClient } from "@terra-money/feather.js";
 import {
   DAY_IN_SECONDS,
   DEFAULT_JOB_REWARD_AMOUNT,
   EVICTION_FEE,
   LABEL_ASTROPORT_DCA_ORDER,
+  Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
+import ChainContext from "@/contexts/ChainContext";
 
 export const DcaOrderPage = () => {
-  const wallet = useWallet();
-  const connectedWallet = useConnectedWallet();
-  const chainID = getChainIDByNetwork(connectedWallet?.network);
-  const myAddress = connectedWallet?.addresses[chainID] || "";
+  const { chainConfig, myAddress } = useContext(ChainContext);
 
-  const [lcd, setLcd] = useState<LCDClient>();
+  const warpControllerAddress = chainConfig.warp.controllerAddress;
+  const warpFeeToken = chainConfig.warp.feeToken;
 
-  const [warpAccountAddress, setWarpAccountAddress] = useState("");
-  const [warpControllerAddress, setWarpControllerAddress] = useState(
-    // @ts-ignore
-    WARP_CONSTANTS[chainID].controller
-  );
-  const [warpFeeTokenAddress, setWarpFeeTokenAddress] = useState(
-    // @ts-ignore
-    WARP_CONSTANTS[chainID].feeTokenAddress
-  );
   const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
     useState("5");
 
@@ -56,18 +43,17 @@ export const DcaOrderPage = () => {
   const [warpJobRewardFee, setWarpJobRewardFee] = useState("0");
   const [warpTotalJobFee, setWarpTotalJobFee] = useState("0");
 
-  const [poolAddress, setPoolAddress] = useState(
-    // @ts-ignore
-    POOLS[chainID]?.axlusdcNative!
+  const [poolAddress, setPoolAddress] = useState(chainConfig.pools[0].address);
+  const [offerToken, setOfferToken] = useState<Token>(
+    chainConfig.pools[0].token1
   );
-  // @ts-ignore
-  const [tokenOffer, setTokenOffer] = useState(TOKENS[chainID]?.axlusdc!);
-  // @ts-ignore
-  const [tokenReturn, setTokenReturn] = useState(TOKENS[chainID]?.native);
+  const [returnToken, setReturnToken] = useState<Token>(
+    chainConfig.pools[0].token2
+  );
 
-  const [tokenOfferAmount, setTokenOfferAmount] = useState("1");
-  const [totalTokenOfferAmount, setTotalTokenOfferAmount] = useState("2");
-  const [tokenReturnAmount, setTokenReturnAmount] = useState("0");
+  const [offerTokenAmount, setOfferTokenAmount] = useState("1");
+  const [totalOfferTokenAmount, setTotalOfferTokenAmount] = useState("2");
+  const [returnTokenAmount, setReturnTokenAmount] = useState("0");
 
   const [marketExchangeRate, setMarketExchangeRate] = useState("1");
 
@@ -81,66 +67,16 @@ export const DcaOrderPage = () => {
 
   const [maxSpread, setMaxSpread] = useState(1); // default 1%
 
-  useEffect(() => {
-    if (wallet.status === "CONNECTED") {
-      setLcd(new LCDClient(wallet.network));
-    } else {
-      setLcd(undefined);
-    }
-  }, [wallet.status]);
-
-  useEffect(() => {
-    if (chainID === CHAIN_ID_PHOENIX_1) {
-      // @ts-ignore
-      setTokenOffer(TOKENS[chainID]?.axlusdc!);
-      // @ts-ignore
-      setTokenReturn(TOKENS[chainID]?.native);
-      // @ts-ignore
-      setPoolAddress(POOLS[chainID]?.axlusdcNative!);
-    } else {
-      // @ts-ignore
-      setTokenOffer(TOKENS[chainID]?.astro);
-      // @ts-ignore
-      setTokenReturn(TOKENS[chainID]?.native);
-      // @ts-ignore
-      setPoolAddress(POOLS[chainID].astroNative);
-    }
-    // @ts-ignore
-    setWarpControllerAddress(WARP_CONSTANTS[chainID].controller);
-    // @ts-ignore
-    setWarpFeeTokenAddress(WARP_CONSTANTS[chainID].feeTokenAddress);
-  }, [chainID]);
-
-  const tokenOfferBalance = useBalance({
-    lcd,
-    chainID,
+  const offerTokenBalance = useBalance({
     ownerAddress: myAddress,
-    tokenAddress: tokenOffer,
+    tokenAddress: offerToken.address,
   });
-  const tokenReturnBalance = useBalance({
-    lcd,
-    chainID,
+  const returnTokenBalance = useBalance({
     ownerAddress: myAddress,
-    tokenAddress: tokenReturn,
+    tokenAddress: returnToken.address,
   });
-
-  const getWarpAccountAddressResult = useWarpGetAccount({
-    lcd,
-    chainID,
-    ownerAddress: myAddress,
-    warpControllerAddress,
-  }).accountResult.data;
-
-  useEffect(() => {
-    if (!getWarpAccountAddressResult) {
-      return;
-    }
-    setWarpAccountAddress(getWarpAccountAddressResult.account);
-  }, [getWarpAccountAddressResult]);
 
   const getWarpConfigResult = useWarpGetConfig({
-    lcd,
-    chainID,
     warpControllerAddress,
   }).configResult.data;
 
@@ -154,11 +90,9 @@ export const DcaOrderPage = () => {
   }, [getWarpConfigResult]);
 
   const simulateResult = useSimulateSwap({
-    lcd,
-    chainID,
-    amount: tokenOfferAmount,
-    offerAssetAddress: tokenOffer,
-    returnAssetAddress: tokenReturn,
+    amount: offerTokenAmount,
+    offerTokenAddress: offerToken.address,
+    returnTokenAddress: returnToken.address,
     poolAddress,
   }).simulateResult.data;
 
@@ -168,18 +102,18 @@ export const DcaOrderPage = () => {
     }
     setMarketExchangeRate(simulateResult.beliefPrice);
     // only set desired exchange rate if it's not set by user
-    setTokenReturnAmount(
+    setReturnTokenAmount(
       BigNumber(simulateResult.amount)
-        .div(getTokenDecimals(tokenReturn))
+        .div(getTokenDecimals(returnToken.address))
         .toString()
     );
-  }, [simulateResult, tokenReturn]);
+  }, [simulateResult, returnToken]);
 
   useEffect(() => {
-    setTotalTokenOfferAmount(
-      BigNumber(tokenOfferAmount).multipliedBy(dcaCount).toString()
+    setTotalOfferTokenAmount(
+      BigNumber(offerTokenAmount).multipliedBy(dcaCount).toString()
     );
-  }, [tokenOfferAmount, dcaCount]);
+  }, [offerTokenAmount, dcaCount]);
 
   useEffect(() => {
     setDaysUntilStart(
@@ -218,12 +152,12 @@ export const DcaOrderPage = () => {
     );
   }, [warpJobCreationFee, warpJobEvictionFee, warpJobRewardFee]);
 
-  const onChangeTokenOffer = (updatedTokenOfferAddress: string) => {
-    setTokenOffer(updatedTokenOfferAddress);
+  const onChangeOfferToken = (updatedOfferToken: Token) => {
+    setOfferToken(updatedOfferToken);
   };
 
-  const onChangeTokenReturn = (updatedTokenReturnAddress: string) => {
-    setTokenReturn(updatedTokenReturnAddress);
+  const onChangeReturnToken = (updatedReturnToken: Token) => {
+    setReturnToken(updatedReturnToken);
   };
 
   const onChangePoolAddress = (updatedPoolAddress: string) => {
@@ -256,30 +190,27 @@ export const DcaOrderPage = () => {
         style={{ marginTop: "10px" }}
       >
         <SelectPool
-          chainID={chainID}
-          onChangeTokenOffer={onChangeTokenOffer}
-          onChangeTokenReturn={onChangeTokenReturn}
+          onChangeOfferToken={onChangeOfferToken}
+          onChangeReturnToken={onChangeReturnToken}
           onChangePoolAddress={onChangePoolAddress}
         />
         <Flex align="center" justify="center" direction="row">
-          {/* <Box>Pool address: {poolAddress}</Box> */}
           <Box style={{ marginRight: "20px" }}>
-            {DENOM_TO_TOKEN_NAME[tokenOffer]} balance: {tokenOfferBalance.data}
+            {offerToken.name} balance: {offerTokenBalance.data}
           </Box>
           <Box>
-            {DENOM_TO_TOKEN_NAME[tokenReturn]} balance:{" "}
-            {tokenReturnBalance.data}
+            {returnToken.name} balance: {returnTokenBalance.data}
           </Box>
         </Flex>
       </Flex>
       <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
         each time swap
         <NumberInput
-          defaultValue={tokenOfferBalance.data}
+          defaultValue={offerTokenBalance.data}
           min={0}
           step={1}
           precision={3}
-          onChange={setTokenOfferAmount}
+          onChange={setOfferTokenAmount}
           width={150}
         >
           <NumberInputField style={{ textAlign: "center" }} />
@@ -288,13 +219,12 @@ export const DcaOrderPage = () => {
             <NumberDecrementStepper />
           </NumberInputStepper>
         </NumberInput>
-        {DENOM_TO_TOKEN_NAME[tokenOffer]} {" to "}
-        {DENOM_TO_TOKEN_NAME[tokenReturn]}
+        {offerToken.name} to {returnToken.name}
       </Flex>
       <Flex style={{ marginTop: "10px" }}>
         <Box>
-          current market rate 1 {DENOM_TO_TOKEN_NAME[tokenReturn]} ={" "}
-          {marketExchangeRate} {DENOM_TO_TOKEN_NAME[tokenOffer]}
+          current market rate 1 {returnToken.name} = {marketExchangeRate}{" "}
+          {offerToken.name}
         </Box>
       </Flex>
       <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
@@ -368,20 +298,18 @@ export const DcaOrderPage = () => {
         </Flex>
       </Flex> */}
       <Flex align="center" justify="center" style={{ marginTop: "10px" }}>
-        In total you will swap {totalTokenOfferAmount}{" "}
-        {DENOM_TO_TOKEN_NAME[tokenOffer]} {" to "}
-        {DENOM_TO_TOKEN_NAME[tokenReturn]}
+        In total you will swap {totalOfferTokenAmount} {offerToken.name} to{" "}
+        {returnToken.name}
         <WarpCreateJobAstroportDcaOrder
           senderAddress={myAddress}
-          warpFeeTokenAddress={warpFeeTokenAddress}
+          warpFeeTokenAddress={warpFeeToken.address}
           warpControllerAddress={warpControllerAddress}
-          warpAccountAddress={warpAccountAddress}
           warpTotalJobFee={warpTotalJobFee}
           poolAddress={poolAddress}
-          offerAssetAddress={tokenOffer}
-          offerAmount={tokenOfferAmount}
-          returnAssetAddress={tokenReturn}
-          offerTokenBalance={tokenOfferBalance.data}
+          offerToken={offerToken}
+          offerTokenAmount={offerTokenAmount}
+          returnToken={returnToken}
+          offerTokenBalance={offerTokenBalance.data}
           dcaCount={dcaCount}
           dcaInterval={dcaInterval}
           dcaStartTimestamp={dcaStartTimestamp}
@@ -393,11 +321,9 @@ export const DcaOrderPage = () => {
         warpJobEvictionFee={warpJobEvictionFee}
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
-        warpFeeTokenAddress={warpFeeTokenAddress}
+        warpFeeToken={warpFeeToken}
       />
       <WarpJobs
-        lcd={lcd}
-        chainID={chainID}
         myAddress={myAddress}
         warpControllerAddress={warpControllerAddress}
         warpJobLabel={LABEL_ASTROPORT_DCA_ORDER}

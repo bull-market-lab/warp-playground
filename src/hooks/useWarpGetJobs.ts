@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/utils/warpHelpers";
-import { LCDClient } from "@terra-money/feather.js";
+import ChainContext from "@/contexts/ChainContext";
 
 type GetWarpJobsResponse = {
   jobs: Job[];
@@ -9,30 +9,22 @@ type GetWarpJobsResponse = {
 };
 
 type UseWarpGetJobsProps = {
-  lcd?: LCDClient;
-  chainID: string;
   ownerAddress?: string;
-  warpControllerAddress: string;
+  warpControllerAddress?: string;
   status: string;
 };
 
 export const useWarpGetJobs = ({
-  lcd,
-  chainID,
   ownerAddress,
   warpControllerAddress,
   status,
 }: UseWarpGetJobsProps) => {
+  const { lcd } = useContext(ChainContext);
+
   const jobsResult = useQuery(
-    [`get-jobs`, status, chainID, ownerAddress, warpControllerAddress],
+    [`get-jobs`, status, ownerAddress, warpControllerAddress],
     async () => {
-      if (
-        !lcd ||
-        !chainID ||
-        !ownerAddress ||
-        !warpControllerAddress ||
-        !status
-      ) {
+      if (!lcd || !ownerAddress || !warpControllerAddress || !status) {
         return null;
       }
 
@@ -53,12 +45,7 @@ export const useWarpGetJobs = ({
       };
     },
     {
-      enabled:
-        !!warpControllerAddress &&
-        !!ownerAddress &&
-        !!chainID &&
-        !!status &&
-        !!lcd,
+      enabled: !!warpControllerAddress && !!ownerAddress && !!status && !!lcd,
     }
   );
   return useMemo(() => {

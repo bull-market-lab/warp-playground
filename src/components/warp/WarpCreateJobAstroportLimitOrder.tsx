@@ -1,18 +1,19 @@
 import { Flex } from "@chakra-ui/react";
+
 import { useWarpCreateJobAstroportLimitOrder } from "@/hooks/useWarpCreateJobAstroportLimitOrder";
 import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
+import { Token } from "@/utils/constants";
 
 type WarpCreateJobAstroportLimitOrderProps = {
   senderAddress?: string;
   warpFeeTokenAddress: string;
   warpControllerAddress: string;
-  warpAccountAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
-  offerAssetAddress: string;
-  offerAmount: string;
-  returnAssetAddress: string;
-  minimumReturnAmount: string;
+  offerToken: Token;
+  offerTokenAmount: string;
+  returnToken: Token;
+  minimumReturnTokenAmount: string;
   offerTokenBalance: number;
   expiredAfterDays: number;
 };
@@ -21,13 +22,12 @@ export const WarpCreateJobAstroportLimitOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
-  warpAccountAddress,
   warpTotalJobFee,
   poolAddress,
-  offerAssetAddress,
-  offerAmount,
-  returnAssetAddress,
-  minimumReturnAmount,
+  offerToken,
+  offerTokenAmount,
+  returnToken,
+  minimumReturnTokenAmount,
   offerTokenBalance,
   expiredAfterDays,
 }: WarpCreateJobAstroportLimitOrderProps) => {
@@ -35,13 +35,12 @@ export const WarpCreateJobAstroportLimitOrder = ({
     senderAddress,
     warpFeeTokenAddress,
     warpControllerAddress,
-    warpAccountAddress,
     warpTotalJobFee,
     poolAddress,
-    offerAmount,
-    minimumReturnAmount,
-    offerAssetAddress,
-    returnAssetAddress,
+    offerTokenAmount,
+    minimumReturnTokenAmount,
+    offerToken,
+    returnToken,
     expiredAfterDays,
   });
 
@@ -51,7 +50,8 @@ export const WarpCreateJobAstroportLimitOrder = ({
         msgs={createWarpJobAstroportLimitOrder.msgs}
         buttonText={"create limit order"}
         disabled={
-          offerAmount === "0" || parseInt(offerAmount) > offerTokenBalance
+          offerTokenAmount === "0" ||
+          parseInt(offerTokenAmount) > offerTokenBalance
         }
       />
     </Flex>
