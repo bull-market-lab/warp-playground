@@ -30,8 +30,6 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentChain, setCurrentChain] = useState<Chain>(
     selectedChain === CHAIN_TERRA ? CHAIN_TERRA : CHAIN_NEUTRON
   );
-  //   const [currentNetwork, setCurrentNetwork] =
-  //     useState<Network>(NETWORK_MAINNET);
   const [currentChainId, setCurrentChainId] = useState<ChainID>(
     selectedChain === CHAIN_TERRA ? CHAIN_ID_PHOENIX_ONE : CHAIN_ID_NEUTRON_ONE
   );
@@ -91,24 +89,6 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       )}, update my address to ${updatedWalletAddress}`
     );
   }, [currentChain, currentChainId, connectedWallet]);
-
-  //   // update current network when connected wallet's network changed
-  //   useEffect(() => {
-  //     let updatedNetwork: Network = currentNetwork;
-  //     if (connectedWallet && connectedWallet?.network) {
-  //       if (!isValidNetwork(connectedWallet?.network)) {
-  //         alert(
-  //           `Invalid network ${connectedWallet?.network} selected. Please check your wallet settings.`
-  //         );
-  //       } else {
-  //         updatedNetwork = connectedWallet?.network as Network;
-  //       }
-  //     }
-  //     setCurrentNetwork(updatedNetwork);
-  //     console.log(
-  //       `wallet connected network changed to ${updatedNetwork}, update current network to ${updatedNetwork}`
-  //     );
-  //   }, [connectedWallet]);
 
   /* 
   update current chain id when current chain or current network changes
@@ -192,7 +172,6 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         currentChain,
         currentChainId,
-        // currentNetwork,
         chainConfig,
         lcd,
         myAddress,
