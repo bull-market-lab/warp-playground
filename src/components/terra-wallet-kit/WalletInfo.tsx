@@ -21,6 +21,7 @@ import { truncateString } from "@/utils/formatHelpers";
 import useBalance from "@/hooks/useBalance";
 import ChainContext from "@/contexts/ChainContext";
 import { CHAIN_TERRA } from "@/utils/constants";
+import BigNumber from "bignumber.js";
 
 const WalletInfo = () => {
   const { disconnect } = useWallet();
@@ -64,10 +65,10 @@ const WalletInfo = () => {
             >
               <HStack spacing="2">
                 <Text fontSize="md" color="white">
-                  {currentChain === CHAIN_TERRA ? "Luna" : "Ntrn"}
+                  {currentChain === CHAIN_TERRA ? "LUNA" : "NTRN"}
                 </Text>
                 <Text fontSize="md" color="white">
-                  {balance.data}
+                  {BigNumber(balance.data).toFixed(3).toString()}
                 </Text>
               </HStack>
             </Center>

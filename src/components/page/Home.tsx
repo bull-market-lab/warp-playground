@@ -17,7 +17,7 @@ const ExternalLinkIconWrapper = () => {
   return <ExternalLinkIcon ml="1" mr="6" transform="translateY(-2px)" />;
 };
 
-const About: FC = () => {
+const Home: FC = () => {
   return (
     <>
       <Header text="About" />
@@ -27,25 +27,27 @@ const About: FC = () => {
           powered by Warp Protocol.
         </Text>
         <Text mb="3">
-          By combining Warp with different protocols, users can do more that is
-          not possible before.
+          By combining Warp with different protocols, users can many things that
+          are not possible before.
         </Text>
-        <Text>Combining with Astroport:</Text>
+        <Text>Combining with dex like Astroport:</Text>
         <UnorderedList mb="6">
-          <ListItem>Users can place limit order.</ListItem>
-          <ListItem>Users can create dollar cost averaging strategy.</ListItem>
+          <ListItem>(feature is LIVE ✅) Users can place limit order.</ListItem>
+          <ListItem>
+            (feature is LIVE ✅) Users can create dollar cost averaging
+            strategy.
+          </ListItem>
         </UnorderedList>
         <Text>Combining with Authz:</Text>
         <UnorderedList mb="6">
           <ListItem>
-            Users can auto claim and compound their staking reward everyday.
+            (feature is under development 🚧) Users can auto claim and compound
+            their staking reward everyday.
           </ListItem>
           <ListItem>
-            Users can program how they want to do with their vested token, e.g.
-            sell vesting token on Astroport on a daily basic. Previously without
-            Warp, users have to sell manually everyday, with Warp, user only
-            needs to authorize their warp accounts to sell vesting token and
-            create a recurring warp job doing that.
+            (feature is under development 🚧) Users can program how they want to
+            spend their vested token, e.g. automatically sell vested token on
+            Astroport on a daily basic.
           </ListItem>
         </UnorderedList>
         <hr />
@@ -78,4 +80,4 @@ const About: FC = () => {
   );
 };
 
-export default About;
+export default Home;
