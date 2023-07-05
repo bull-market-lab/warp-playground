@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/utils/warpHelpers";
-import { ChainContext } from "@/contexts/ChainContext";
+import ChainContext from "@/contexts/ChainContext";
 
 type GetWarpJobsResponse = {
   jobs: Job[];

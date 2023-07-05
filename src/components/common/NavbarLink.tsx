@@ -1,8 +1,9 @@
 import { Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { MouseEventHandler } from "react";
 import * as csstype from "csstype";
+import { CHAIN_TERRA } from "@/utils/constants";
 
 const NavbarLink = ({
   text,
@@ -15,6 +16,8 @@ const NavbarLink = ({
   underConstruction?: boolean;
   onClick?: MouseEventHandler;
 }) => {
+  const params = useSearchParams();
+  const selectedChain = params.get("chain")?.toLowerCase() ?? CHAIN_TERRA;
   const pathname = usePathname();
 
   const defaultStyle = {
@@ -42,7 +45,14 @@ const NavbarLink = ({
       };
 
   return (
-    <Link href={underConstruction ? "#" : href} onClick={onClick}>
+    <Link
+      href={
+        underConstruction
+          ? `/?chain=${selectedChain}`
+          : `${href}/?chain=${selectedChain}`
+      }
+      onClick={onClick}
+    >
       <Text
         transition="0.2s all"
         p="2"

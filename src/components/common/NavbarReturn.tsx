@@ -1,11 +1,16 @@
 import { HStack, Text } from "@chakra-ui/react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-import ArrowLeftIcon from "./ArrowLeftIcon";
+import ArrowLeftIcon from "@/components/common/ArrowLeftIcon";
+import { CHAIN_TERRA } from "@/utils/constants";
 
 const NavbarReturn = ({ onClick }: { onClick?: React.MouseEventHandler }) => {
+  const params = useSearchParams();
+  const selectedChain = params.get("chain")?.toLowerCase() ?? CHAIN_TERRA;
+
   return (
-    <Link href="/" onClick={onClick}>
+    <Link href={`/?chain=${selectedChain}`} onClick={onClick}>
       <Text
         color="brand.darkerBrown"
         fill="brand.darkerBrown"

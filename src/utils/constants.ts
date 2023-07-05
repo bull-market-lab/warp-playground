@@ -18,14 +18,15 @@ export const LABEL_WARP_WORLD = "Warp World";
 export const LABEL_ASTROPORT_LIMIT_ORDER = "Limit Order";
 export const LABEL_ASTROPORT_DCA_ORDER = "DCA Order";
 
-export const CHAIN_TERRA = "Terra";
-export const CHAIN_NEUTRON = "Neutron";
+export const CHAIN_TERRA = "terra";
+export const CHAIN_NEUTRON = "neutron";
 
 export const CHAIN_ID_PHOENIX_ONE = "phoenix-1";
 export const CHAIN_ID_PISCO_ONE = "pisco-1";
 export const CHAIN_ID_LOCALTERRA = "localterra";
 export const CHAIN_ID_NEUTRON_ONE = "neutron-1";
 export const CHAIN_ID_PION_ONE = "pion-1";
+export const CHAIN_ID_UNSUPPORTED = "unsupported";
 
 export const NETWORK_MAINNET = "mainnet";
 export const NETWORK_TESTNET = "testnet";
@@ -43,7 +44,8 @@ export type ChainID =
   | typeof CHAIN_ID_PISCO_ONE
   | typeof CHAIN_ID_LOCALTERRA
   | typeof CHAIN_ID_NEUTRON_ONE
-  | typeof CHAIN_ID_PION_ONE;
+  | typeof CHAIN_ID_PION_ONE
+  | typeof CHAIN_ID_UNSUPPORTED;
 
 export type Token = {
   name: string;

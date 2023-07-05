@@ -21,8 +21,8 @@ const SidebarLinks = ({
       )}
       {isBack ? null : (
         <NavbarLink
-          text="Staking+"
-          href="/staking"
+          text="Vesting"
+          href="/vesting"
           underConstruction={true}
           onClick={onClick}
         />

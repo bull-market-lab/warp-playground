@@ -17,11 +17,7 @@ const NavbarLinks = ({ isBack = false }: { isBack: boolean }) => {
         {isBack ? null : <NavbarLink text="DCA" href="/dca" />}
         {isBack ? null : <NavbarLink text="Limit Order" href="/limit_order" />}
         {isBack ? null : (
-          <NavbarLink
-            text="Staking+"
-            href="/staking"
-            underConstruction={true}
-          />
+          <NavbarLink text="Vesting" href="/vesting" underConstruction={true} />
         )}
       </Flex>
     </HStack>

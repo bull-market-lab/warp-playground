@@ -1,9 +1,8 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { Select, Flex } from "@chakra-ui/react";
 
 import { Token } from "@/utils/constants";
-import { getChainConfig } from "@/utils/network";
-import { ChainContext } from "@/contexts/ChainContext";
+import ChainContext from "@/contexts/ChainContext";
 
 type SelectPoolProps = {
   onChangeOfferToken: (updatedOfferToken: Token) => void;
@@ -16,13 +15,8 @@ export const SelectPool = ({
   onChangeReturnToken,
   onChangePoolAddress,
 }: SelectPoolProps) => {
-  const { currentChainId, currentNetwork, currentChain } =
-    useContext(ChainContext);
-  const pools = getChainConfig(
-    currentChain,
-    currentChainId,
-    currentNetwork
-  ).pools;
+  const { chainConfig } = useContext(ChainContext);
+  const pools = chainConfig.pools;
 
   type SelectedValue = {
     poolAddress: string;
@@ -53,9 +47,8 @@ export const SelectPool = ({
       >
         {pools.map((pool, idx) => {
           return (
-            <>
+            <React.Fragment key={idx}>
               <option
-                key={idx * 2}
                 value={JSON.stringify({
                   poolAddress: pool.address,
                   offerToken: pool.token1,
@@ -65,7 +58,6 @@ export const SelectPool = ({
                 swap {pool.token1.name} to {pool.token2.name}
               </option>
               <option
-                key={idx * 2 + 1}
                 value={JSON.stringify({
                   poolAddress: pool.address,
                   offerToken: pool.token2,
@@ -74,7 +66,7 @@ export const SelectPool = ({
               >
                 swap {pool.token2.name} to {pool.token1.name}
               </option>
-            </>
+            </React.Fragment>
           );
         })}
       </Select>

@@ -27,17 +27,10 @@ import {
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
-import { ChainContext } from "@/contexts/ChainContext";
-import { getChainConfig } from "@/utils/network";
+import ChainContext from "@/contexts/ChainContext";
 
 export const DcaOrderPage = () => {
-  const { currentChainId, currentNetwork, currentChain, myAddress } =
-    useContext(ChainContext);
-  const chainConfig = getChainConfig(
-    currentChain,
-    currentChainId,
-    currentNetwork
-  );
+  const { chainConfig, myAddress } = useContext(ChainContext);
 
   const warpControllerAddress = chainConfig.warp.controllerAddress;
   const warpFeeToken = chainConfig.warp.feeToken;
