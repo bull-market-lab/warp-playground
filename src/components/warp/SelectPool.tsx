@@ -52,7 +52,7 @@ export const SelectPool = ({
                 value={JSON.stringify({
                   poolAddress: pool.address,
                   offerToken: pool.token1,
-                  ReturnToken: pool.token2,
+                  returnToken: pool.token2,
                 })}
               >
                 swap {pool.token1.name} to {pool.token2.name}
@@ -61,7 +61,7 @@ export const SelectPool = ({
                 value={JSON.stringify({
                   poolAddress: pool.address,
                   offerToken: pool.token2,
-                  ReturnToken: pool.token1,
+                  returnToken: pool.token1,
                 })}
               >
                 swap {pool.token2.name} to {pool.token1.name}

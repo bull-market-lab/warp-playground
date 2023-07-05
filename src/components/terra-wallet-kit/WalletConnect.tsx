@@ -98,7 +98,7 @@ const WalletConnectButton: FC = () => {
       onClick={onOpen}
     >
       <HStack spacing="3">
-        <TerraIcon width="1.25rem" height="1.25rem" />
+        {/* <TerraIcon width="1.25rem" height="1.25rem" /> */}
         <Text fontSize="md">Connect your wallet</Text>
       </HStack>
       <ModalWrapper

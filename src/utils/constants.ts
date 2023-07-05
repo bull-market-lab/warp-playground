@@ -200,11 +200,11 @@ export const NEUTRON_MAINNET_CHAIN_CONFIG = {
       token1: {
         name: "axlUSDC",
         address:
-          "ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4",
+          "ibc/F082B65C88E4B6D5EF1DB243CDA1D331D002759E938A0F5CD3FFDC5D53B3E349",
       },
       token2: {
-        name: "LUNA",
-        address: "uluna",
+        name: "NTRN",
+        address: "untrn",
       },
     },
     {
@@ -212,14 +212,13 @@ export const NEUTRON_MAINNET_CHAIN_CONFIG = {
       address:
         "terra1w579ysjvpx7xxhckxewk8sykxz70gm48wpcuruenl29rhe6p6raslhj0m6",
       token1: {
-        name: "axlUSDC",
+        name: "ATOM",
         address:
-          "ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4",
+          "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9",
       },
       token2: {
-        name: "ASTRO",
-        address:
-          "terra1nsuqsk6kh58ulczatwev87ttq2z6r3pusulg9r24mfj2fvtzd4uq3exn26",
+        name: "NTRN",
+        address: "untrn",
       },
     },
   ],
@@ -240,31 +239,31 @@ export const NEUTRON_TESTNET_CHAIN_CONFIG = {
   },
   pools: [
     {
-      name: "NTRN-ATOM",
+      name: "axlUSDC-NTRN",
       address:
-        "terra1udsua9w6jljwxwgwsegvt6v657rg3ayfvemupnes7lrggd28s0wq7g8azm",
+        "terra1fd68ah02gr2y8ze7tm9te7m70zlmc7vjyyhs6xlhsdmqqcjud4dql4wpxr",
       token1: {
-        name: "LUNA",
-        address: "uluna",
+        name: "axlUSDC",
+        address:
+          "ibc/F082B65C88E4B6D5EF1DB243CDA1D331D002759E938A0F5CD3FFDC5D53B3E349",
       },
       token2: {
-        name: "ASTRO",
-        address:
-          "terra167dsqkh2alurx997wmycw9ydkyu54gyswe3ygmrs4lwume3vmwks8ruqnv",
+        name: "NTRN",
+        address: "untrn",
       },
     },
     {
-      name: "NTRN-axlUSDC",
+      name: "ATOM-NTRN",
       address:
-        "terra1udsua9w6jljwxwgwsegvt6v657rg3ayfvemupnes7lrggd28s0wq7g8azm",
+        "terra1w579ysjvpx7xxhckxewk8sykxz70gm48wpcuruenl29rhe6p6raslhj0m6",
       token1: {
-        name: "LUNA",
-        address: "uluna",
+        name: "ATOM",
+        address:
+          "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9",
       },
       token2: {
-        name: "ASTRO",
-        address:
-          "terra167dsqkh2alurx997wmycw9ydkyu54gyswe3ygmrs4lwume3vmwks8ruqnv",
+        name: "NTRN",
+        address: "untrn",
       },
     },
   ],
