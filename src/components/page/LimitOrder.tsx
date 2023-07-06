@@ -15,7 +15,7 @@ import {
 
 import useBalance from "@/hooks/useBalance";
 import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
-import { SelectPool } from "@/components/warp/SelectPool";
+import SelectPool from "@/components/warp/SelectPool";
 import { WarpJobs } from "@/components/warp/WarpJobs";
 import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
 import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJobAstroportLimitOrder";
@@ -53,6 +53,11 @@ export const LimitOrderPage = () => {
   const [returnToken, setReturnToken] = useState<Token>(
     chainConfig.pools[0].token2
   );
+
+  useEffect(() => {
+    setOfferToken(chainConfig.pools[0].token1);
+    setReturnToken(chainConfig.pools[0].token2);
+  }, [chainConfig]);
 
   const [offerTokenAmount, setOfferTokenAmount] = useState("1");
   const [returnTokenAmount, setReturnTokenAmount] = useState("1");
