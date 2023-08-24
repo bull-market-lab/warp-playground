@@ -1,6 +1,6 @@
-# Warp World
+# Warp Playground
 
-UI for everyone to harness the power of [warp protocol](https://warp.money/).
+UI to showcase the power of [warp protocol](https://warp.money/).
 
 ## Credit
 

@@ -10,8 +10,8 @@ import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
       "id": "64",
       "owner": "terra12t7aleqrmrgq2wtzrlxu4hf8lldrg5vk5zrgmn",
       "last_update_time": "1684727046",
-      "name": "warp-world-astroport-limit-swap",
-      "description": "warp-world-astroport-limit-swap",
+      "name": "warp-playground-astroport-limit-swap",
+      "description": "warp-playground-astroport-limit-swap",
       "labels": [],
       "status": "Executed",
       "condition": {

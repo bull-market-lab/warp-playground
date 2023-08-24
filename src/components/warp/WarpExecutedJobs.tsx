@@ -5,7 +5,7 @@ import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
 import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
-import { LABEL_WARP_WORLD } from "@/utils/constants";
+import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpExecutedJobsProps = {
   ownerAddress?: string;
@@ -33,7 +33,7 @@ export const WarpExecutedJobs = ({
     }
     const jobs = getWarpExecutedJobsResult.jobs.filter(
       (job) =>
-        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(LABEL_WARP_PLAYGROUND) &&
         job.labels.includes(warpJobLabel)
     );
     setWarpExecutedJobCount(jobs.length);

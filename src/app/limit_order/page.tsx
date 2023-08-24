@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { LimitOrderPage } from "@/components/page/LimitOrder";
 
 export const metadata: Metadata = {
-  title: "Warp World | Limit Order",
+  title: "Warp Playground | Limit Order",
   description: "Limit Order into your favorite crypto assets",
 };
 

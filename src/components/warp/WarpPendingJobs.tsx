@@ -6,7 +6,7 @@ import { Job } from "@/utils/warpHelpers";
 import { WarpJobLink } from "@/components/warp/WarpJobLink";
 import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
 import { WarpCancelJob } from "@/components/warp/WarpCancelJob";
-import { LABEL_WARP_WORLD } from "@/utils/constants";
+import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpPendingJobsProps = {
   ownerAddress?: string;
@@ -34,7 +34,7 @@ export const WarpPendingJobs = ({
     }
     const jobs = getWarpPendingJobsResult.jobs.filter(
       (job) =>
-        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(LABEL_WARP_PLAYGROUND) &&
         job.labels.includes(warpJobLabel)
     );
     setWarpPendingJobCount(jobs.length);

@@ -11,7 +11,7 @@ const Footer: FC = () => {
             <Link
               variant="footer"
               isExternal={true}
-              href="https://github.com/llllllluc/warp-world"
+              href="https://github.com/llllllluc/warp-playground"
             >
               GitHub
             </Link>

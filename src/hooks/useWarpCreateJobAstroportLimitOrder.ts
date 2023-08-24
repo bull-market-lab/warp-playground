@@ -10,8 +10,8 @@ import {
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
   LABEL_ASTROPORT_LIMIT_ORDER,
-  LABEL_WARP_WORLD,
-  NAME_WARP_WORLD_ASTROPORT_LIMIT_ORDER,
+  LABEL_WARP_PLAYGROUND,
+  NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER,
   Token,
 } from "@/utils/constants";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
@@ -195,14 +195,14 @@ export const useWarpCreateJobAstroportLimitOrder = ({
       warpControllerAddress,
       {
         create_job: {
-          name: NAME_WARP_WORLD_ASTROPORT_LIMIT_ORDER,
+          name: NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER,
           description: constructJobDescriptionForAstroportLimitOrder(
             offerTokenAmount,
             offerToken,
             returnToken,
             minimumReturnTokenAmount
           ),
-          labels: [LABEL_WARP_WORLD, LABEL_ASTROPORT_LIMIT_ORDER],
+          labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_LIMIT_ORDER],
           recurring: false,
           requeue_on_evict: expiredAfterDays > 1,
           reward: convertTokenDecimals(

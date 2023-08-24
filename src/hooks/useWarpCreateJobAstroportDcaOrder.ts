@@ -8,8 +8,8 @@ import { constructJobDescriptionForAstroportDcaOrder } from "@/utils/naming";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
   LABEL_ASTROPORT_DCA_ORDER,
-  LABEL_WARP_WORLD,
-  NAME_WARP_WORLD_ASTROPORT_DCA_ORDER,
+  LABEL_WARP_PLAYGROUND,
+  NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
   Token,
 } from "@/utils/constants";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
@@ -235,7 +235,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       warpControllerAddress,
       {
         create_job: {
-          name: NAME_WARP_WORLD_ASTROPORT_DCA_ORDER,
+          name: NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
           description: constructJobDescriptionForAstroportDcaOrder(
             offerTokenAmount,
             offerToken,
@@ -243,7 +243,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
             dcaCount,
             dcaInterval
           ),
-          labels: [LABEL_WARP_WORLD, LABEL_ASTROPORT_DCA_ORDER],
+          labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_DCA_ORDER],
           recurring: true,
           requeue_on_evict: false,
           reward: convertTokenDecimals(
