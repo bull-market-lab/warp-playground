@@ -7,9 +7,9 @@ import {
   TabPanel,
 } from "@chakra-ui/react";
 
-import { WarpClosedJobs } from "@/components/warp/WarpClosedJobs";
-import { WarpExecutedJobs } from "@/components/warp/WarpExecutedJobs";
-import { WarpPendingJobs } from "@/components/warp/WarpPendingJobs";
+import WarpClosedJobs from "@/components/warp/WarpClosedJobs";
+import WarpExecutedJobs from "@/components/warp/WarpExecutedJobs";
+import WarpPendingJobs from "@/components/warp/WarpPendingJobs";
 
 type WarpJobsProps = {
   myAddress?: string;
@@ -17,7 +17,7 @@ type WarpJobsProps = {
   warpJobLabel: string;
 };
 
-export const WarpJobs = ({
+const WarpJobs = ({
   myAddress,
   warpControllerAddress,
   warpJobLabel,
@@ -68,3 +68,5 @@ export const WarpJobs = ({
     </Flex>
   );
 };
+
+export default WarpJobs;

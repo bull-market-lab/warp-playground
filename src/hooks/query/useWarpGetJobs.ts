@@ -1,7 +1,7 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/utils/warpHelpers";
-import ChainContext from "@/contexts/ChainContext";
+import useLcd from "../useLcd";
 
 type GetWarpJobsResponse = {
   jobs: Job[];
@@ -14,12 +14,12 @@ type UseWarpGetJobsProps = {
   status: string;
 };
 
-export const useWarpGetJobs = ({
+const useWarpGetJobs = ({
   ownerAddress,
   warpControllerAddress,
   status,
 }: UseWarpGetJobsProps) => {
-  const { lcd } = useContext(ChainContext);
+  const { lcd } = useLcd();
 
   const jobsResult = useQuery(
     [`get-jobs`, status, ownerAddress, warpControllerAddress],
@@ -52,3 +52,5 @@ export const useWarpGetJobs = ({
     return { jobsResult };
   }, [jobsResult]);
 };
+
+export default useWarpGetJobs;

@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokenDecimals, isNativeAsset } from "@/utils/token";
-import ChainContext from "@/contexts/ChainContext";
-import { useContext } from "react";
-import { Alert } from "@chakra-ui/react";
+import useLcd from "../useLcd";
 
 type Cw20BalanceResponse = {
   balance: string;
@@ -13,11 +11,8 @@ type UseBalanceProps = {
   tokenAddress?: string;
 };
 
-export default function useBalance({
-  ownerAddress,
-  tokenAddress,
-}: UseBalanceProps) {
-  const { lcd } = useContext(ChainContext);
+const useBalance = ({ ownerAddress, tokenAddress }: UseBalanceProps) => {
+  const { lcd } = useLcd();
   return useQuery(
     ["balance", ownerAddress, tokenAddress],
     async () => {
@@ -55,4 +50,6 @@ export default function useBalance({
       placeholderData: 0,
     }
   );
-}
+};
+
+export default useBalance;

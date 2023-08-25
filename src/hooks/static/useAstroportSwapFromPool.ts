@@ -14,7 +14,7 @@ type UseSwapProps = {
   slippage?: string;
 };
 
-export const useSwap = ({
+const useSwap = ({
   senderAddress,
   amount,
   exchangeRate,
@@ -94,3 +94,5 @@ export const useSwap = ({
     return { msgs };
   }, [msgs]);
 };
+
+export default useSwap;

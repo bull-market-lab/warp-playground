@@ -1,7 +1,7 @@
 import { Flex } from "@chakra-ui/react";
 
-import { useWarpCreateJobAstroportLimitOrder } from "@/hooks/useWarpCreateJobAstroportLimitOrder";
-import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
+import useWarpCreateJobAstroportLimitOrder from "@/hooks/static/useWarpCreateJobAstroportLimitOrder";
+import CreateAndBroadcastTxModal from "@/components/warp/CreateAndBroadcastTxModal";
 import { Token } from "@/utils/constants";
 
 type WarpCreateJobAstroportLimitOrderProps = {
@@ -18,7 +18,7 @@ type WarpCreateJobAstroportLimitOrderProps = {
   expiredAfterDays: number;
 };
 
-export const WarpCreateJobAstroportLimitOrder = ({
+const WarpCreateJobAstroportLimitOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
@@ -57,3 +57,5 @@ export const WarpCreateJobAstroportLimitOrder = ({
     </Flex>
   );
 };
+
+export default WarpCreateJobAstroportLimitOrder;

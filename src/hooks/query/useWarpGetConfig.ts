@@ -1,6 +1,6 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import ChainContext from "@/contexts/ChainContext";
+import useLcd from "../useLcd";
 
 type GetWarpConfigResponse = {
   config: {
@@ -23,10 +23,8 @@ type UseWarpGetConfigProps = {
   warpControllerAddress?: string;
 };
 
-export const useWarpGetConfig = ({
-  warpControllerAddress,
-}: UseWarpGetConfigProps) => {
-  const { lcd } = useContext(ChainContext);
+const useWarpGetConfig = ({ warpControllerAddress }: UseWarpGetConfigProps) => {
+  const { lcd } = useLcd();
 
   const configResult = useQuery(
     ["get-config", warpControllerAddress],
@@ -53,3 +51,5 @@ export const useWarpGetConfig = ({
     return { configResult };
   }, [configResult]);
 };
+
+export default useWarpGetConfig;

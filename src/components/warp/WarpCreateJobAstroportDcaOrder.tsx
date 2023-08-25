@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
-import { useWarpCreateJobAstroportDcaOrder } from "@/hooks/useWarpCreateJobAstroportDcaOrder";
-import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
+import useWarpCreateJobAstroportDcaOrder from "@/hooks/static/useWarpCreateJobAstroportDcaOrder";
+import CreateAndBroadcastTxModal from "@/components/warp/CreateAndBroadcastTxModal";
 import { Token } from "@/utils/constants";
 
 type WarpCreateJobAstroportDcaOrderProps = {
@@ -23,7 +23,7 @@ type WarpCreateJobAstroportDcaOrderProps = {
   maxSpread: string;
 };
 
-export const WarpCreateJobAstroportDcaOrder = ({
+const WarpCreateJobAstroportDcaOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
@@ -66,3 +66,5 @@ export const WarpCreateJobAstroportDcaOrder = ({
     </Flex>
   );
 };
+
+export default WarpCreateJobAstroportDcaOrder;

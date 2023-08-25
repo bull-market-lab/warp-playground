@@ -30,7 +30,7 @@ type UseWarpCreateJobAstroportLimitOrderProps = {
   expiredAfterDays: number;
 };
 
-export const useWarpCreateJobAstroportLimitOrder = ({
+const useWarpCreateJobAstroportLimitOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
@@ -234,3 +234,5 @@ export const useWarpCreateJobAstroportLimitOrder = ({
     return { msgs };
   }, [msgs]);
 };
+
+export default useWarpCreateJobAstroportLimitOrder;

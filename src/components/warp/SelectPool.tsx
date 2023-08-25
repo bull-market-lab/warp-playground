@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Select, Flex } from "@chakra-ui/react";
 
 import { Token } from "@/utils/constants";
-import ChainContext from "@/contexts/ChainContext";
+import useCurrentChainConfig from "@/hooks/useCurrentChainConfig";
 
 const SelectPool = ({
   onChangeOfferToken,
@@ -13,8 +13,8 @@ const SelectPool = ({
   onChangeReturnToken: (updatedReturnToken: Token) => void;
   onChangePoolAddress: (updatedPoolAddress: string) => void;
 }) => {
-  const { chainConfig } = useContext(ChainContext);
-  const pools = chainConfig.pools;
+  const { currentChainConfig } = useCurrentChainConfig();
+  const pools = currentChainConfig.pools;
 
   type SelectedValue = {
     poolAddress: string;

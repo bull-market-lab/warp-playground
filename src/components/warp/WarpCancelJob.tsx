@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
-import { useWarpCancelJob } from "@/hooks/useWarpCancelJob";
-import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
+import useWarpCancelJob from "@/hooks/static/useWarpCancelJob";
+import CreateAndBroadcastTxModal from "@/components/warp/CreateAndBroadcastTxModal";
 
 type WarpCancelJobProps = {
   senderAddress?: string;
@@ -8,7 +8,7 @@ type WarpCancelJobProps = {
   jobId: string;
 };
 
-export const WarpCancelJob = ({
+const WarpCancelJob = ({
   senderAddress,
   warpControllerAddress,
   jobId,
@@ -29,3 +29,5 @@ export const WarpCancelJob = ({
     </Flex>
   );
 };
+
+export default WarpCancelJob;

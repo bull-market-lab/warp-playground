@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
   NumberInput,
@@ -13,13 +13,13 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 
-import useBalance from "@/hooks/useBalance";
-import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
+import useBalance from "@/hooks/query/useBalance";
+import useWarpGetConfig from "@/hooks/query/useWarpGetConfig";
 import SelectPool from "@/components/warp/SelectPool";
-import { WarpJobs } from "@/components/warp/WarpJobs";
-import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
-import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJobAstroportLimitOrder";
-import { Swap } from "@/components/warp/Swap";
+import WarpJobs from "@/components/warp/WarpJobs";
+import useSimulateSwap from "@/hooks/query/useAstroportSimulateSwapFromPool";
+import WarpCreateJobAstroportLimitOrder from "@/components/warp/WarpCreateJobAstroportLimitOrder";
+import Swap from "@/components/warp/Swap";
 import { getTokenDecimals } from "@/utils/token";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
@@ -28,13 +28,15 @@ import {
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
-import ChainContext from "@/contexts/ChainContext";
+import useCurrentChainConfig from "@/hooks/useCurrentChainConfig";
+import useMyAddress from "@/hooks/useMyAddress";
 
 export const LimitOrderPage = () => {
-  const { chainConfig, myAddress } = useContext(ChainContext);
+  const { myAddress } = useMyAddress();
+  const { currentChainConfig } = useCurrentChainConfig();
 
-  const warpControllerAddress = chainConfig.warp.controllerAddress;
-  const warpFeeToken = chainConfig.warp.feeToken;
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
+  const warpFeeToken = currentChainConfig.warp.feeToken;
 
   const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
     useState("5");
@@ -46,18 +48,20 @@ export const LimitOrderPage = () => {
   );
   const [warpTotalJobFee, setWarpTotalJobFee] = useState("0");
 
-  const [poolAddress, setPoolAddress] = useState(chainConfig.pools[0].address);
+  const [poolAddress, setPoolAddress] = useState(
+    currentChainConfig.pools[0].address
+  );
   const [offerToken, setOfferToken] = useState<Token>(
-    chainConfig.pools[0].token1
+    currentChainConfig.pools[0].token1
   );
   const [returnToken, setReturnToken] = useState<Token>(
-    chainConfig.pools[0].token2
+    currentChainConfig.pools[0].token2
   );
 
   useEffect(() => {
-    setOfferToken(chainConfig.pools[0].token1);
-    setReturnToken(chainConfig.pools[0].token2);
-  }, [chainConfig]);
+    setOfferToken(currentChainConfig.pools[0].token1);
+    setReturnToken(currentChainConfig.pools[0].token2);
+  }, [currentChainConfig]);
 
   const [offerTokenAmount, setOfferTokenAmount] = useState("1");
   const [returnTokenAmount, setReturnTokenAmount] = useState("1");

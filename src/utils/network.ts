@@ -94,6 +94,28 @@ export const DEFAULT_LCD_CONFIG = {
   //     block: "https://finder.terra.money/localterra/blocks/{}",
   //   },
   // },
+  CHAIN_ID_PION_ONE: {
+    chainID: CHAIN_ID_PION_ONE,
+    lcd: "https://rest-palvus.pion-1.ntrn.tech/",
+    gasAdjustment: 1.75,
+    gasPrices: { untrn: 0.015 },
+    prefix: "neutron",
+    coinType: "118",
+    baseAsset: "untrn",
+    name: "Neutron Testnet",
+    alliance: false,
+  },
+  CHAIN_ID_OSMO_TEST_FIVE: {
+    chainID: CHAIN_ID_OSMO_TEST_FIVE,
+    lcd: "https://lcd.osmotest5.osmosis.zone",
+    gasAdjustment: 1.75,
+    gasPrices: { uosmo: 0.015 },
+    prefix: "osmo",
+    coinType: "118",
+    baseAsset: "uosmo",
+    name: "Osmosis Testnet",
+    alliance: false,
+  },
 };
 
 const getTerraChainIDByNetwork = (network?: string): string => {

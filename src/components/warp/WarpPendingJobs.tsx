@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
 
-import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
+import useWarpGetJobs from "@/hooks/query/useWarpGetJobs";
 import { Job } from "@/utils/warpHelpers";
-import { WarpJobLink } from "@/components/warp/WarpJobLink";
-import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
-import { WarpCancelJob } from "@/components/warp/WarpCancelJob";
+import WarpJobLink from "@/components/warp/WarpJobLink";
+import WarpJobDetail from "@/components/warp/WarpJobDetail";
+import WarpCancelJob from "@/components/warp/WarpCancelJob";
 import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpPendingJobsProps = {
@@ -14,7 +14,7 @@ type WarpPendingJobsProps = {
   warpJobLabel: string;
 };
 
-export const WarpPendingJobs = ({
+const WarpPendingJobs = ({
   ownerAddress,
   warpControllerAddress,
   warpJobLabel,
@@ -124,3 +124,5 @@ export const WarpPendingJobs = ({
     </>
   );
 };
+
+export default WarpPendingJobs;

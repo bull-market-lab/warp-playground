@@ -1,6 +1,6 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import ChainContext from "@/contexts/ChainContext";
+import useLcd from "../useLcd";
 
 type GetWarpAccountResponse = {
   account: {
@@ -14,11 +14,11 @@ type UseWarpGetAccountProps = {
   warpControllerAddress?: string;
 };
 
-export const useWarpGetAccount = ({
+const useWarpGetAccount = ({
   ownerAddress,
   warpControllerAddress,
 }: UseWarpGetAccountProps) => {
-  const { lcd } = useContext(ChainContext);
+  const { lcd } = useLcd();
 
   const accountResult = useQuery(
     ["get-account", ownerAddress, warpControllerAddress],
@@ -47,3 +47,5 @@ export const useWarpGetAccount = ({
     return { accountResult };
   }, [accountResult]);
 };
+
+export default useWarpGetAccount;

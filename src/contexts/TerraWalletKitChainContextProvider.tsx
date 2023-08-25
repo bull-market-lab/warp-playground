@@ -17,8 +17,9 @@ import {
   CHAIN_TERRA,
   CHAIN_OSMOSIS,
   CHAIN_ID_OSMO_TEST_FIVE,
+  OSMOSIS_TESTNET_CHAIN_CONFIG,
 } from "@/utils/constants";
-import ChainContext from "@/contexts/ChainContext";
+import ChainContext from "@/contexts/TerraWalletKitChainContext";
 
 const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
   const params = useSearchParams();
@@ -30,7 +31,7 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentChainId, setCurrentChainId] = useState<ChainID>(
     selectedChain === CHAIN_TERRA ? CHAIN_ID_PISCO_ONE : CHAIN_ID_PION_ONE
   );
-  const [chainConfig, setChainConfig] = useState<ChainConfig>(
+  const [currentChainConfig, setCurrentChainConfig] = useState<ChainConfig>(
     TERRA_TESTNET_CHAIN_CONFIG
   );
   const [lcd, setLCD] = useState<LCDClient>();
@@ -131,28 +132,20 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
     );
   }, [currentChain, connectedWallet]);
 
-  // update chain config when connected wallet's network changes or current chain id changes
+  // update chain config when current chain changes
   useEffect(() => {
-    let updatedChainConfig: ChainConfig = chainConfig;
+    let updatedChainConfig: ChainConfig = currentChainConfig;
     if (currentChain === CHAIN_TERRA) {
-      if (connectedWallet?.network === NETWORK_TESTNET) {
-        updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
-      } else {
-        // default to testnet config
-        updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
-      }
+      updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
     } else if (currentChain === CHAIN_NEUTRON) {
-      if (connectedWallet?.network === NETWORK_TESTNET) {
-        updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
-      } else {
-        // default to testnet config
-        updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
-      }
+      updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
+    } else if (currentChain == CHAIN_OSMOSIS) {
+      updatedChainConfig = OSMOSIS_TESTNET_CHAIN_CONFIG;
     } else {
       // default to terra testnet config
       updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
     }
-    setChainConfig(updatedChainConfig);
+    setCurrentChainConfig(updatedChainConfig);
     console.log(
       `current chain changed to ${currentChain}, update chain config to ${JSON.stringify(
         updatedChainConfig,
@@ -160,14 +153,14 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
         2
       )}`
     );
-  }, [currentChain, connectedWallet]);
+  }, [currentChain]);
 
   return (
     <ChainContext.Provider
       value={{
         currentChain,
         currentChainId,
-        chainConfig,
+        currentChainConfig,
         lcd,
         myAddress,
       }}

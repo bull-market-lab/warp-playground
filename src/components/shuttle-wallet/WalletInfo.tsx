@@ -1,4 +1,4 @@
-import { useWallet } from "@terra-money/wallet-kit";
+import { useShuttle } from "@delphi-labs/shuttle-react";
 
 import WalletInfoBase from "@/components/wallet/WalletInfoBase";
 import useCurrentChainId from "@/hooks/useCurrentChainId";
@@ -6,7 +6,8 @@ import useCurrentChain from "@/hooks/useCurrentChain";
 import useMyAddress from "@/hooks/useMyAddress";
 
 const WalletInfo = () => {
-  const { disconnect } = useWallet();
+  const { disconnect } = useShuttle();
+
   const { currentChainId } = useCurrentChainId();
   const { currentChain } = useCurrentChain();
   const { myAddress } = useMyAddress();

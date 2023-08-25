@@ -7,7 +7,7 @@ type UseWarpCancelJobProps = {
   jobId: string;
 };
 
-export const useWarpCancelJob = ({
+const useWarpCancelJob = ({
   senderAddress,
   warpControllerAddress,
   jobId,
@@ -27,3 +27,5 @@ export const useWarpCancelJob = ({
     return { msgs };
   }, [msgs]);
 };
+
+export default useWarpCancelJob;

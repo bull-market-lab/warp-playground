@@ -35,7 +35,7 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
   maxSpread: string;
 };
 
-export const useWarpCreateJobAstroportDcaOrder = ({
+const useWarpCreateJobAstroportDcaOrder = ({
   senderAddress,
   warpFeeTokenAddress,
   warpControllerAddress,
@@ -277,3 +277,5 @@ export const useWarpCreateJobAstroportDcaOrder = ({
     return { msgs };
   }, [msgs]);
 };
+
+export default useWarpCreateJobAstroportDcaOrder;

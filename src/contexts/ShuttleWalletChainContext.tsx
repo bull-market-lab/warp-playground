@@ -13,17 +13,17 @@ import { CHAIN_TERRA } from "@/utils/constants";
 type ChainContextType = {
   currentChain: Chain;
   currentChainId: ChainID;
+  currentChainConfig: ChainConfig;
   lcd?: LCDClient;
   myAddress?: string;
-  chainConfig: ChainConfig;
 };
 
 const ChainContext = createContext<ChainContextType>({
   currentChain: CHAIN_TERRA,
   currentChainId: CHAIN_ID_PISCO_ONE,
+  currentChainConfig: TERRA_TESTNET_CHAIN_CONFIG,
   lcd: undefined,
   myAddress: undefined,
-  chainConfig: TERRA_TESTNET_CHAIN_CONFIG,
 });
 
 export default ChainContext;

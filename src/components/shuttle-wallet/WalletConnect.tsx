@@ -4,56 +4,20 @@ import {
   HStack,
   Flex,
   Spacer,
-  Image,
   Text,
 } from "@chakra-ui/react";
-import { useWallet } from "@terra-money/wallet-kit";
 import { FC } from "react";
+import { useShuttle } from "@delphi-labs/shuttle-react";
 
 import ModalWrapper from "@/components/common/ModalWrapper";
-import TerraIcon from "@/components/terra-wallet-kit/TerraIcon";
-
-type WalletOptions = {
-  id: string;
-  isInstalled?: boolean;
-  name: string;
-  icon: string;
-  website?: string;
-  walletAction: () => void;
-};
+import useCurrentChainId from "@/hooks/useCurrentChainId";
 
 const WalletConnectButton: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { connect, availableWallets } = useWallet();
+  const { connect, extensionProviders } = useShuttle();
+  const { currentChainId } = useCurrentChainId();
 
-  const wallets: WalletOptions[] = [
-    ...availableWallets
-      .filter(({ isInstalled }) => isInstalled === true)
-      .map(({ id, isInstalled, name, icon, website }) => ({
-        id,
-        isInstalled,
-        name,
-        icon,
-        website,
-        walletAction: () => {
-          connect(id);
-        },
-      })),
-    // ...availableInstallations
-    //   .filter(({ type }) => type !== ConnectType.READONLY)
-    //   .map(({ type, icon, name, url, identifier }) => ({
-    //     type,
-    //     identifier,
-    //     name: "Install " + name,
-    //     icon,
-    //     isInstalled: false,
-    //     walletAction: () => {
-    //       window.open(url, "_blank");
-    //     },
-    //   })),
-  ];
-
-  const buttons = wallets.map((wallet, index) => (
+  const buttons = extensionProviders.map((extensionProvider, index) => (
     <Button
       key={index}
       w="100%"
@@ -69,13 +33,16 @@ const WalletConnectButton: FC = () => {
       }}
       onClick={() => {
         onClose();
-        wallet.walletAction();
+        connect({
+          extensionProviderId: extensionProvider.id,
+          chainId: currentChainId,
+        });
       }}
     >
       <Flex w="100%" align="center">
-        <Text>{wallet.name}</Text>
+        <Text>{extensionProvider.name}</Text>
         <Spacer />
-        <Image src={wallet.icon} htmlWidth="24" alt="" />
+        {/* <Image src={extensionProvider.icon} htmlWidth="24" alt="" /> */}
       </Flex>
     </Button>
   ));
@@ -98,7 +65,6 @@ const WalletConnectButton: FC = () => {
       onClick={onOpen}
     >
       <HStack spacing="3">
-        <TerraIcon width="1.25rem" height="1.25rem" />
         <Text fontSize="md">Connect your wallet</Text>
       </HStack>
       <ModalWrapper
