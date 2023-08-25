@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button } from "@chakra-ui/react";
 import { useWallet, useConnectedWallet } from "@terra-money/wallet-kit";
 import { Msg } from "@terra-money/feather.js";
-import { getChainIDByNetwork } from "@/utils/network";
+import { getChainIDByChainAndNetwork } from "@/utils/network";
+import ChainContext from "@/contexts/ChainContext";
 
 type CreateAndBroadcastTxModalProps = {
   msgs: Msg[];
@@ -18,8 +19,12 @@ export const CreateAndBroadcastTxModal = ({
   const wallet = useWallet();
   const connectedWallet = useConnectedWallet();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { currentChain } = useContext(ChainContext);
 
-  const chainID = getChainIDByNetwork(connectedWallet?.network);
+  const chainID = getChainIDByChainAndNetwork(
+    currentChain,
+    connectedWallet?.network
+  );
 
   const onCreateAndBroadcastTx = () => {
     setIsProcessing(true);

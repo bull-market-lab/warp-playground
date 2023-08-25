@@ -7,20 +7,17 @@ import {
   CHAIN_ID_PISCO_ONE,
   CHAIN_ID_UNSUPPORTED,
   ChainConfig,
-  NETWORK_MAINNET,
   NETWORK_TESTNET,
-  NEUTRON_MAINNET_CHAIN_CONFIG,
   NEUTRON_TESTNET_CHAIN_CONFIG,
-  TERRA_MAINNET_CHAIN_CONFIG,
   TERRA_TESTNET_CHAIN_CONFIG,
+  CHAIN_NEUTRON,
+  CHAIN_ID_PION_ONE,
+  Chain,
+  ChainID,
+  CHAIN_TERRA,
+  CHAIN_OSMOSIS,
+  CHAIN_ID_OSMO_TEST_FIVE,
 } from "@/utils/constants";
-import { CHAIN_NEUTRON } from "@/utils/constants";
-import { CHAIN_ID_PHOENIX_ONE } from "@/utils/constants";
-import { CHAIN_ID_NEUTRON_ONE } from "@/utils/constants";
-import { CHAIN_ID_PION_ONE } from "@/utils/constants";
-import { Chain } from "@/utils/constants";
-import { ChainID } from "@/utils/constants";
-import { CHAIN_TERRA } from "@/utils/constants";
 import ChainContext from "@/contexts/ChainContext";
 
 const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -31,10 +28,10 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
     selectedChain === CHAIN_TERRA ? CHAIN_TERRA : CHAIN_NEUTRON
   );
   const [currentChainId, setCurrentChainId] = useState<ChainID>(
-    selectedChain === CHAIN_TERRA ? CHAIN_ID_PHOENIX_ONE : CHAIN_ID_NEUTRON_ONE
+    selectedChain === CHAIN_TERRA ? CHAIN_ID_PISCO_ONE : CHAIN_ID_PION_ONE
   );
   const [chainConfig, setChainConfig] = useState<ChainConfig>(
-    TERRA_MAINNET_CHAIN_CONFIG
+    TERRA_TESTNET_CHAIN_CONFIG
   );
   const [lcd, setLCD] = useState<LCDClient>();
   const [myAddress, setMyAddress] = useState<string>();
@@ -108,18 +105,20 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
     switch (currentChain) {
       case CHAIN_TERRA:
         updatedChainId =
-          connectedWallet?.network === NETWORK_MAINNET
-            ? CHAIN_ID_PHOENIX_ONE
-            : connectedWallet?.network === NETWORK_TESTNET
+          connectedWallet?.network === NETWORK_TESTNET
             ? CHAIN_ID_PISCO_ONE
             : CHAIN_ID_UNSUPPORTED;
         break;
       case CHAIN_NEUTRON:
         updatedChainId =
-          connectedWallet?.network === NETWORK_MAINNET
-            ? CHAIN_ID_NEUTRON_ONE
-            : connectedWallet?.network === NETWORK_TESTNET
+          connectedWallet?.network === NETWORK_TESTNET
             ? CHAIN_ID_PION_ONE
+            : CHAIN_ID_UNSUPPORTED;
+        break;
+      case CHAIN_OSMOSIS:
+        updatedChainId =
+          connectedWallet?.network === NETWORK_TESTNET
+            ? CHAIN_ID_OSMO_TEST_FIVE
             : CHAIN_ID_UNSUPPORTED;
         break;
       default:
@@ -136,26 +135,22 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let updatedChainConfig: ChainConfig = chainConfig;
     if (currentChain === CHAIN_TERRA) {
-      if (connectedWallet?.network === NETWORK_MAINNET) {
-        updatedChainConfig = TERRA_MAINNET_CHAIN_CONFIG;
-      } else if (connectedWallet?.network === NETWORK_TESTNET) {
+      if (connectedWallet?.network === NETWORK_TESTNET) {
         updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
       } else {
-        // default to mainnet config
-        updatedChainConfig = TERRA_MAINNET_CHAIN_CONFIG;
+        // default to testnet config
+        updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
       }
     } else if (currentChain === CHAIN_NEUTRON) {
-      if (connectedWallet?.network === NETWORK_MAINNET) {
-        updatedChainConfig = NEUTRON_MAINNET_CHAIN_CONFIG;
-      } else if (connectedWallet?.network === NETWORK_TESTNET) {
+      if (connectedWallet?.network === NETWORK_TESTNET) {
         updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
       } else {
-        // default to mainnet config
-        updatedChainConfig = NEUTRON_MAINNET_CHAIN_CONFIG;
+        // default to testnet config
+        updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
       }
     } else {
-      // default to terra mainnet config
-      updatedChainConfig = TERRA_MAINNET_CHAIN_CONFIG;
+      // default to terra testnet config
+      updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
     }
     setChainConfig(updatedChainConfig);
     console.log(
