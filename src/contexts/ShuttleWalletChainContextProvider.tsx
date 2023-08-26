@@ -10,12 +10,9 @@ import {
   Chain,
   ChainID,
   CHAIN_TERRA,
-  CHAIN_OSMOSIS,
-  CHAIN_ID_OSMO_TEST_FIVE,
   ChainConfig,
   TERRA_TESTNET_CHAIN_CONFIG,
   NEUTRON_TESTNET_CHAIN_CONFIG,
-  OSMOSIS_TESTNET_CHAIN_CONFIG,
 } from "@/utils/constants";
 import ChainContext from "@/contexts/ShuttleWalletChainContext";
 import { LCDClient } from "@terra-money/feather.js";
@@ -26,18 +23,16 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
   const selectedChain = params.get("chain")?.toLowerCase() ?? CHAIN_TERRA;
 
   const [currentChain, setCurrentChain] = useState<Chain>(
-    selectedChain === CHAIN_TERRA
-      ? CHAIN_TERRA
-      : selectedChain === CHAIN_NEUTRON
-      ? CHAIN_NEUTRON
-      : CHAIN_OSMOSIS
+    selectedChain === CHAIN_TERRA ? CHAIN_TERRA : CHAIN_NEUTRON
+    // : selectedChain === CHAIN_NEUTRON
+    // ? CHAIN_NEUTRON
+    // : CHAIN_OSMOSIS
   );
   const [currentChainId, setCurrentChainId] = useState<ChainID>(
-    selectedChain === CHAIN_TERRA
-      ? CHAIN_ID_PISCO_ONE
-      : selectedChain === CHAIN_NEUTRON
-      ? CHAIN_ID_PION_ONE
-      : CHAIN_ID_OSMO_TEST_FIVE
+    selectedChain === CHAIN_TERRA ? CHAIN_ID_PISCO_ONE : CHAIN_ID_PION_ONE
+    // : selectedChain === CHAIN_NEUTRON
+    // ? CHAIN_ID_PION_ONE
+    // : CHAIN_ID_OSMO_TEST_FIVE
   );
   const [currentChainConfig, setCurrentChainConfig] = useState<ChainConfig>(
     TERRA_TESTNET_CHAIN_CONFIG
@@ -83,9 +78,9 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       case CHAIN_NEUTRON:
         updatedChainId = CHAIN_ID_PION_ONE;
         break;
-      case CHAIN_OSMOSIS:
-        updatedChainId = CHAIN_ID_OSMO_TEST_FIVE;
-        break;
+      // case CHAIN_OSMOSIS:
+      //   updatedChainId = CHAIN_ID_OSMO_TEST_FIVE;
+      //   break;
       default:
         updatedChainId = CHAIN_ID_UNSUPPORTED;
         break;
@@ -100,8 +95,8 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
     } else if (currentChain === CHAIN_NEUTRON) {
       updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
-    } else if (currentChain == CHAIN_OSMOSIS) {
-      updatedChainConfig = OSMOSIS_TESTNET_CHAIN_CONFIG;
+      // } else if (currentChain == CHAIN_OSMOSIS) {
+      //   updatedChainConfig = OSMOSIS_TESTNET_CHAIN_CONFIG;
     } else {
       // default to terra testnet config
       updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;

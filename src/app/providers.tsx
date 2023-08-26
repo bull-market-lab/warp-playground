@@ -12,11 +12,7 @@ import {
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import theme from "@/theme/theme";
-import {
-  NEUTRON_TESTNET,
-  OSMOSIS_TESTNET,
-  TERRA_TESTNET,
-} from "@/utils/shuttleNetworks";
+import { NEUTRON_TESTNET, TERRA_TESTNET } from "@/utils/shuttleNetworks";
 import ChainContextProvider from "@/contexts/ShuttleWalletChainContextProvider";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
@@ -26,7 +22,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 
   const extensionProviders = [
     new KeplrExtensionProvider({
-      networks: [OSMOSIS_TESTNET, TERRA_TESTNET, NEUTRON_TESTNET],
+      // networks: [OSMOSIS_TESTNET, TERRA_TESTNET, NEUTRON_TESTNET],
+      networks: [TERRA_TESTNET, NEUTRON_TESTNET],
     }),
   ];
 

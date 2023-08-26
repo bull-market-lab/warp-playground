@@ -20,7 +20,7 @@ export const LABEL_ASTROPORT_DCA_ORDER = "DCA Order";
 
 export const CHAIN_TERRA = "terra";
 export const CHAIN_NEUTRON = "neutron";
-export const CHAIN_OSMOSIS = "osmosis";
+// export const CHAIN_OSMOSIS = "osmosis";
 
 // export const CHAIN_ID_PHOENIX_ONE = "phoenix-1";
 export const CHAIN_ID_PISCO_ONE = "pisco-1";
@@ -28,17 +28,15 @@ export const CHAIN_ID_PISCO_ONE = "pisco-1";
 // export const CHAIN_ID_NEUTRON_ONE = "neutron-1";
 export const CHAIN_ID_PION_ONE = "pion-1";
 // export const CHAIN_ID_OSMOSIS_ONE = "osmosis-1";
-export const CHAIN_ID_OSMO_TEST_FIVE = "osmo-test-5";
+// export const CHAIN_ID_OSMO_TEST_FIVE = "osmo-test-5";
 export const CHAIN_ID_UNSUPPORTED = "unsupported";
 
 // export const NETWORK_MAINNET = "mainnet";
 export const NETWORK_TESTNET = "testnet";
 // export const NETWORK_LOCALNET = "localterra";
 
-export type Chain =
-  | typeof CHAIN_TERRA
-  | typeof CHAIN_NEUTRON
-  | typeof CHAIN_OSMOSIS;
+export type Chain = typeof CHAIN_TERRA | typeof CHAIN_NEUTRON;
+// | typeof CHAIN_OSMOSIS;
 
 export type Network =
   // | typeof NETWORK_MAINNET
@@ -51,7 +49,7 @@ export type ChainID =
   // | typeof CHAIN_ID_LOCALTERRA
   // | typeof CHAIN_ID_NEUTRON_ONE
   | typeof CHAIN_ID_PION_ONE
-  | typeof CHAIN_ID_OSMO_TEST_FIVE
+  // | typeof CHAIN_ID_OSMO_TEST_FIVE
   | typeof CHAIN_ID_UNSUPPORTED;
 
 export type Token = {
@@ -131,7 +129,7 @@ export const TERRA_TESTNET_CHAIN_CONFIG = {
   },
   warp: {
     controllerAddress:
-      "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt",
+      "terra1hhvfpkrdwtesznpd6kudqzcdudvr9edl78ktkcucz6q5vj0k2vwqeqj59h",
     feeToken: {
       name: "LUNA",
       address: "uluna",
@@ -253,7 +251,7 @@ export const NEUTRON_TESTNET_CHAIN_CONFIG = {
   },
   warp: {
     controllerAddress:
-      "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt",
+      "neutron1ccgyxc0l5z8hgmvcwcfsvuvzx2rnhmptt8gaqzvjwtlsyeq4nr6s4h7w3s",
     feeToken: {
       name: "NTRN",
       address: "untrn",
@@ -263,11 +261,11 @@ export const NEUTRON_TESTNET_CHAIN_CONFIG = {
     {
       name: "axlUSDC-NTRN",
       address:
-        "terra1fd68ah02gr2y8ze7tm9te7m70zlmc7vjyyhs6xlhsdmqqcjud4dql4wpxr",
+        "neutron1udz38ekgxfhgpdnlhjv0h4533rdk5r43a7kcxfunk9nrgwnsc2hqjllny5",
       token1: {
         name: "axlUSDC",
         address:
-          "ibc/F082B65C88E4B6D5EF1DB243CDA1D331D002759E938A0F5CD3FFDC5D53B3E349",
+          "ibc/F91EA2C0A23697A1048E08C2F787E3A58AC6F706A1CD2257A504925158CFC0F3",
       },
       token2: {
         name: "NTRN",
@@ -291,50 +289,50 @@ export const NEUTRON_TESTNET_CHAIN_CONFIG = {
   ],
 };
 
-export const OSMOSIS_TESTNET_CHAIN_CONFIG = {
-  nativeToken: {
-    name: "OSMO",
-    address: "uosmo",
-  },
-  warp: {
-    controllerAddress:
-      "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt",
-    feeToken: {
-      name: "OSMO",
-      address: "uosmo",
-    },
-  },
-  pools: [
-    {
-      name: "axlUSDC-OSMO",
-      address:
-        "terra1fd68ah02gr2y8ze7tm9te7m70zlmc7vjyyhs6xlhsdmqqcjud4dql4wpxr",
-      token1: {
-        name: "axlUSDC",
-        address:
-          "ibc/F082B65C88E4B6D5EF1DB243CDA1D331D002759E938A0F5CD3FFDC5D53B3E349",
-      },
-      token2: {
-        name: "OSMO",
-        address: "uosmo",
-      },
-    },
-    // {
-    //   name: "ATOM-NTRN",
-    //   address:
-    //     "terra1w579ysjvpx7xxhckxewk8sykxz70gm48wpcuruenl29rhe6p6raslhj0m6",
-    //   token1: {
-    //     name: "ATOM",
-    //     address:
-    //       "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9",
-    //   },
-    //   token2: {
-    //     name: "NTRN",
-    //     address: "untrn",
-    //   },
-    // },
-  ],
-};
+// export const OSMOSIS_TESTNET_CHAIN_CONFIG = {
+//   nativeToken: {
+//     name: "OSMO",
+//     address: "uosmo",
+//   },
+//   warp: {
+//     controllerAddress:
+//       "osmo1sj7qw3ujg47l2a4wwu2plag2nsa3a3kaupy4qlv9yxlrxk57papqgf5vd8",
+//     feeToken: {
+//       name: "OSMO",
+//       address: "uosmo",
+//     },
+//   },
+//   pools: [
+//     {
+//       name: "axlUSDC-OSMO",
+//       address:
+//         "osmo183uu809nq80xuh0r86dkadq9djza6ln5cf5hmszt6zcfdy454chq3dcgm4",
+//       token1: {
+//         name: "axlUSDC",
+//         address:
+//           "ibc/6F34E1BD664C36CE49ACC28E60D62559A5F96C4F9A6CCE4FC5A67B2852E24CFE",
+//       },
+//       token2: {
+//         name: "OSMO",
+//         address: "uosmo",
+//       },
+//     },
+//     // {
+//     //   name: "ATOM-NTRN",
+//     //   address:
+//     //     "terra1w579ysjvpx7xxhckxewk8sykxz70gm48wpcuruenl29rhe6p6raslhj0m6",
+//     //   token1: {
+//     //     name: "ATOM",
+//     //     address:
+//     //       "ibc/C4CFF46FD6DE35CA4CF4CE031E643C8FDC9BA4B99AE598E9B0ED98FE3A2319F9",
+//     //   },
+//     //   token2: {
+//     //     name: "NTRN",
+//     //     address: "untrn",
+//     //   },
+//     // },
+//   ],
+// };
 
 export const NETWORK_CONSTANTS: NetworkConstants = {
   // [NETWORK_MAINNET]: {
@@ -344,7 +342,7 @@ export const NETWORK_CONSTANTS: NetworkConstants = {
   [NETWORK_TESTNET]: {
     [CHAIN_ID_PISCO_ONE]: TERRA_TESTNET_CHAIN_CONFIG,
     [CHAIN_ID_PION_ONE]: NEUTRON_TESTNET_CHAIN_CONFIG,
-    [CHAIN_ID_OSMO_TEST_FIVE]: OSMOSIS_TESTNET_CHAIN_CONFIG,
+    // [CHAIN_ID_OSMO_TEST_FIVE]: OSMOSIS_TESTNET_CHAIN_CONFIG,
   },
   // [NETWORK_LOCALNET]: {
   //   [CHAIN_ID_LOCALTERRA]: TERRA_LOCALNET_CHAIN_CONFIG,

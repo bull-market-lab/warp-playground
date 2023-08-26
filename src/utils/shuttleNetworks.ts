@@ -20,20 +20,20 @@ export const TERRA_TESTNET: Network = {
   gasPrice: "0.015uluna",
 };
 
-export const OSMOSIS_TESTNET: Network = {
-  name: "Osmosis Testnet",
-  chainId: "osmo-test-5",
-  chainPrefix: "osmosis",
-  rpc: "https://rpc.osmotest5.osmosis.zone",
-  rest: "https://lcd.osmotest5.osmosis.zone",
-  defaultCurrency: {
-    coinDenom: "OSMO",
-    coinMinimalDenom: "uosmo",
-    coinDecimals: 6,
-    coinGeckoId: "osmosis",
-  },
-  gasPrice: "0.015uosmo",
-};
+// export const OSMOSIS_TESTNET: Network = {
+//   name: "Osmosis Testnet",
+//   chainId: "osmo-test-5",
+//   chainPrefix: "osmosis",
+//   rpc: "https://rpc.osmotest5.osmosis.zone",
+//   rest: "https://lcd.osmotest5.osmosis.zone",
+//   defaultCurrency: {
+//     coinDenom: "OSMO",
+//     coinMinimalDenom: "uosmo",
+//     coinDecimals: 6,
+//     coinGeckoId: "osmosis",
+//   },
+//   gasPrice: "0.015uosmo",
+// };
 
 export const NEUTRON_TESTNET: Network = {
   name: "Neutron Testnet",
@@ -51,7 +51,8 @@ export const NEUTRON_TESTNET: Network = {
 
 export const DEFAULT_MAINNET = TERRA_TESTNET;
 
-export const networks = [TERRA_TESTNET, OSMOSIS_TESTNET, NEUTRON_TESTNET];
+// export const networks = [TERRA_TESTNET, OSMOSIS_TESTNET, NEUTRON_TESTNET];
+export const networks = [TERRA_TESTNET, NEUTRON_TESTNET];
 
 export function getNetworkByChainId(chainId: string): Network {
   const network = networks.find((network) => network.chainId === chainId);
@@ -67,13 +68,11 @@ export function fromNetworkToNativeDenom(chainId: string): string {
       return "uluna";
     case "pisco-1":
       return "uluna";
-    case "injective-1":
-      return "inj";
-    case "injective-888":
       return "inj";
     case "osmosis-1":
       return "uosmo";
-    case "mars-1":
+    case "osmo-test-5":
+      return "uosmo";
       return "umars";
     case "neutron-1":
       return "untrn";
@@ -90,11 +89,9 @@ export function fromNetworkToNativeSymbol(chainId: string): string {
   switch (denom) {
     case "uluna":
       return "LUNA";
-    case "inj":
       return "INJ";
     case "uosmo":
       return "OSMO";
-    case "umars":
       return "MARS";
     case "untrn":
       return "NTRN";

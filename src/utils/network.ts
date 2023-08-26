@@ -1,9 +1,7 @@
 import {
-  CHAIN_ID_OSMO_TEST_FIVE,
   CHAIN_ID_PION_ONE,
   CHAIN_ID_PISCO_ONE,
   CHAIN_NEUTRON,
-  CHAIN_OSMOSIS,
   CHAIN_TERRA,
   Chain,
   NETWORK_TESTNET,
@@ -22,7 +20,7 @@ export const AVAILABLE_CHAIN_IDS = [
   // CHAIN_ID_NEUTRON_ONE,
   CHAIN_ID_PION_ONE,
   // CHAIN_ID_OSMOSIS_ONE,
-  CHAIN_ID_OSMO_TEST_FIVE,
+  // CHAIN_ID_OSMO_TEST_FIVE,
 ];
 
 export const TERRA_NETWORK_TO_CHAIN_ID = {
@@ -35,9 +33,9 @@ export const NEUTRON_NETWORK_TO_CHAIN_ID = {
   testnet: CHAIN_ID_PION_ONE,
 };
 
-export const OSMOSIS_NETWORK_TO_CHAIN_ID = {
-  testnet: CHAIN_ID_OSMO_TEST_FIVE,
-};
+// export const OSMOSIS_NETWORK_TO_CHAIN_ID = {
+//   testnet: CHAIN_ID_OSMO_TEST_FIVE,
+// };
 
 export const DEFAULT_LCD_CONFIG = {
   // CHAIN_ID_PHOENIX_ONE: {
@@ -105,17 +103,17 @@ export const DEFAULT_LCD_CONFIG = {
     name: "Neutron Testnet",
     alliance: false,
   },
-  CHAIN_ID_OSMO_TEST_FIVE: {
-    chainID: CHAIN_ID_OSMO_TEST_FIVE,
-    lcd: "https://lcd.osmotest5.osmosis.zone",
-    gasAdjustment: 1.75,
-    gasPrices: { uosmo: 0.015 },
-    prefix: "osmo",
-    coinType: "118",
-    baseAsset: "uosmo",
-    name: "Osmosis Testnet",
-    alliance: false,
-  },
+  // CHAIN_ID_OSMO_TEST_FIVE: {
+  //   chainID: CHAIN_ID_OSMO_TEST_FIVE,
+  //   lcd: "https://lcd.osmotest5.osmosis.zone",
+  //   gasAdjustment: 1.75,
+  //   gasPrices: { uosmo: 0.015 },
+  //   prefix: "osmo",
+  //   coinType: "118",
+  //   baseAsset: "uosmo",
+  //   name: "Osmosis Testnet",
+  //   alliance: false,
+  // },
 };
 
 const getTerraChainIDByNetwork = (network?: string): string => {
@@ -136,14 +134,14 @@ const getNeutronChainIDByNetwork = (network?: string): string => {
   ];
 };
 
-const getOsmosisChainIDByNetwork = (network?: string): string => {
-  if (!network) {
-    return CHAIN_ID_OSMO_TEST_FIVE;
-  }
-  return OSMOSIS_NETWORK_TO_CHAIN_ID[
-    network as keyof typeof OSMOSIS_NETWORK_TO_CHAIN_ID
-  ];
-};
+// const getOsmosisChainIDByNetwork = (network?: string): string => {
+//   if (!network) {
+//     return CHAIN_ID_OSMO_TEST_FIVE;
+//   }
+//   return OSMOSIS_NETWORK_TO_CHAIN_ID[
+//     network as keyof typeof OSMOSIS_NETWORK_TO_CHAIN_ID
+//   ];
+// };
 
 export const getChainIDByChainAndNetwork = (
   chain: Chain,
@@ -153,8 +151,8 @@ export const getChainIDByChainAndNetwork = (
     return getTerraChainIDByNetwork(network);
   } else if (chain === CHAIN_NEUTRON) {
     return getNeutronChainIDByNetwork(network);
-  } else if (chain === CHAIN_OSMOSIS) {
-    return getOsmosisChainIDByNetwork(network);
+    // } else if (chain === CHAIN_OSMOSIS) {
+    //   return getOsmosisChainIDByNetwork(network);
   } else {
     // default to terra testnet
     return CHAIN_ID_PISCO_ONE;

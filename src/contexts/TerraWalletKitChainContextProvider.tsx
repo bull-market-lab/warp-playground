@@ -15,9 +15,6 @@ import {
   Chain,
   ChainID,
   CHAIN_TERRA,
-  CHAIN_OSMOSIS,
-  CHAIN_ID_OSMO_TEST_FIVE,
-  OSMOSIS_TESTNET_CHAIN_CONFIG,
 } from "@/utils/constants";
 import ChainContext from "@/contexts/TerraWalletKitChainContext";
 
@@ -116,12 +113,12 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
             ? CHAIN_ID_PION_ONE
             : CHAIN_ID_UNSUPPORTED;
         break;
-      case CHAIN_OSMOSIS:
-        updatedChainId =
-          connectedWallet?.network === NETWORK_TESTNET
-            ? CHAIN_ID_OSMO_TEST_FIVE
-            : CHAIN_ID_UNSUPPORTED;
-        break;
+      // case CHAIN_OSMOSIS:
+      //   updatedChainId =
+      //     connectedWallet?.network === NETWORK_TESTNET
+      //       ? CHAIN_ID_OSMO_TEST_FIVE
+      //       : CHAIN_ID_UNSUPPORTED;
+      //   break;
       default:
         updatedChainId = CHAIN_ID_UNSUPPORTED;
         break;
@@ -139,8 +136,8 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
     } else if (currentChain === CHAIN_NEUTRON) {
       updatedChainConfig = NEUTRON_TESTNET_CHAIN_CONFIG;
-    } else if (currentChain == CHAIN_OSMOSIS) {
-      updatedChainConfig = OSMOSIS_TESTNET_CHAIN_CONFIG;
+      // } else if (currentChain == CHAIN_OSMOSIS) {
+      //   updatedChainConfig = OSMOSIS_TESTNET_CHAIN_CONFIG;
     } else {
       // default to terra testnet config
       updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
