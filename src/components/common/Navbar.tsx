@@ -12,10 +12,10 @@ import React, { FC } from "react";
 
 import BurgerIcon from "@/components/common/BurgerIcon";
 import CloseIcon from "@/components/common/CloseIcon";
-import { Wallet as ShuttleWallet } from "@/components/shuttle-wallet/Wallet";
 import NavbarLinks from "@/components/common/NavbarLinks";
 import SidebarLinks from "@/components/common/SidebarLinks";
 import { ChainSelector } from "@/components/common/ChainSelector";
+import Wallet from "@/components/wallet/Wallet";
 
 const Navbar: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,7 +29,7 @@ const Navbar: FC = () => {
         <NavbarLinks isBack={false} />
         <ChainSelector />
         <HStack justify="flex-end">
-          <ShuttleWallet />
+          <Wallet />
           <Button
             display={[null, null, "none", null]}
             variant="simple"

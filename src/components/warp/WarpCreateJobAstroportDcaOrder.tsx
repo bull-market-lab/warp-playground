@@ -1,7 +1,8 @@
 import { Flex } from "@chakra-ui/react";
+
 import useWarpCreateJobAstroportDcaOrder from "@/hooks/static/useWarpCreateJobAstroportDcaOrder";
-import CreateAndBroadcastTxModal from "@/components/warp/CreateAndBroadcastTxModal";
 import { Token } from "@/utils/constants";
+import CreateAndBroadcastTxModal from "./CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportDcaOrderProps = {
   senderAddress?: string;

@@ -1,8 +1,8 @@
 import { Flex } from "@chakra-ui/react";
 
 import useWarpCreateJobAstroportLimitOrder from "@/hooks/static/useWarpCreateJobAstroportLimitOrder";
-import CreateAndBroadcastTxModal from "@/components/warp/CreateAndBroadcastTxModal";
 import { Token } from "@/utils/constants";
+import CreateAndBroadcastTxModal from "./CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportLimitOrderProps = {
   senderAddress?: string;

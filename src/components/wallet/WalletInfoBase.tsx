@@ -23,7 +23,7 @@ type WalletInfoBaseProps = {
   currentChain: string;
   currentChainId: string;
   myAddress?: string;
-  disconnect: () => void;
+  disconnect: () => void | Promise<void>;
 };
 
 const WalletInfoBase = ({
