@@ -9,22 +9,14 @@ import WarpCancelJob from "@/components/warp/WarpCancelJob";
 import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpPendingJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-const WarpPendingJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpPendingJobsProps) => {
+const WarpPendingJobs = ({ warpJobLabel }: WarpPendingJobsProps) => {
   const [warpPendingJobs, setWarpPendingJobs] = useState<Job[]>([]);
   const [warpPendingJobCount, setWarpPendingJobCount] = useState(0);
 
   const getWarpPendingJobsResult = useWarpGetJobs({
-    ownerAddress,
-    warpControllerAddress,
     status: "Pending",
   }).jobsResult.data;
 
@@ -58,11 +50,7 @@ const WarpPendingJobs = ({
             <WarpJobDetail job={job} />
           </Td>
           <Td borderBottom="none" py="6" minW="200px" borderRightRadius="2xl">
-            <WarpCancelJob
-              senderAddress={ownerAddress}
-              jobId={job.id}
-              warpControllerAddress={warpControllerAddress}
-            />
+            <WarpCancelJob jobId={job.id} />
           </Td>
         </Tr>
       ))

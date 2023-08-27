@@ -13,12 +13,9 @@ import {
   Token,
 } from "@/utils/constants";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
+import useMyWallet from "../useMyWallet";
 
 type UseWarpCreateJobAstroportDcaOrderProps = {
-  senderAddress?: string;
-  // token denom used to pay for warp fee, now is always uluna
-  warpFeeTokenAddress: string;
-  warpControllerAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
   // total offer amount, each order will be offerTokenAmount / dcaCount
@@ -36,9 +33,6 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
 };
 
 const useWarpCreateJobAstroportDcaOrder = ({
-  senderAddress,
-  warpFeeTokenAddress,
-  warpControllerAddress,
   warpTotalJobFee,
   poolAddress,
   offerTokenAmount,
@@ -49,6 +43,10 @@ const useWarpCreateJobAstroportDcaOrder = ({
   dcaStartTimestamp,
   maxSpread,
 }: UseWarpCreateJobAstroportDcaOrderProps) => {
+  const { currentChainConfig, myAddress: senderAddress } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
+  const warpFeeTokenAddress = currentChainConfig.warp.feeToken.address;
+
   // we need to set max spread carefully as this is a market order
   // use default spread 1% for now
   // const maxSpread = "0.01";
@@ -56,8 +54,6 @@ const useWarpCreateJobAstroportDcaOrder = ({
   const msgs = useMemo(() => {
     if (
       !senderAddress ||
-      !warpFeeTokenAddress ||
-      !warpControllerAddress ||
       !warpTotalJobFee ||
       !poolAddress ||
       !offerTokenAmount ||
@@ -71,14 +67,103 @@ const useWarpCreateJobAstroportDcaOrder = ({
       return [];
     }
 
-    const helperMsgs = constructHelperMsgs({
-      senderAddress,
-      warpControllerAddress,
-      warpFeeTokenAddress,
-      warpTotalJobFee,
-      offerTokenAddress: offerToken.address,
-      offerTokenAmount: BigNumber(offerTokenAmount).times(dcaCount).toString(),
-    });
+    /// =========== vars ===========
+
+    const jobVarNameNextExecution = "dca-execution";
+    const jobVarNextExecution = {
+      static: {
+        kind: "uint", // NOTE: it's better to use uint instead of timestamp to keep it consistent with condition
+        name: jobVarNameNextExecution,
+        encode: false,
+        value: dcaStartTimestamp.toString(),
+        update_fn: {
+          // update value to current timestamp + dcaInterval, i.e. make next execution 1 day later
+          on_success: {
+            uint: {
+              expr: {
+                left: {
+                  simple: dcaInterval.toString(),
+                },
+                op: "add",
+                right: {
+                  env: "time",
+                },
+              },
+            },
+          },
+          // TODO: high priority think about swap fail (e.g. max spread too low) and how to handle it
+          // on error, do nothing for now, this will stop creating new jobs
+          // on_error: {
+          // }
+        },
+      },
+    };
+
+    const jobVarNameAlreadyRunCounter = "dca-already-run-counter";
+    const jobVarAlreadyRunCounter = {
+      static: {
+        kind: "int",
+        name: jobVarNameAlreadyRunCounter,
+        encode: false,
+        value: (0).toString(), // initial counter value is 0
+        update_fn: {
+          // increment counter
+          on_success: {
+            int: {
+              expr: {
+                left: {
+                  ref: `$warp.variable.${jobVarNameAlreadyRunCounter}`,
+                },
+                op: "add",
+                right: {
+                  simple: (1).toString(),
+                },
+              },
+            },
+          },
+          // on error, do nothing for now, this will stop creating new jobs
+          // on_error: {
+          // }
+        },
+      },
+    };
+
+    /// =========== condition ===========
+
+    const condition = {
+      and: [
+        {
+          expr: {
+            uint: {
+              // NOTE: we must use uint instead of timestamp here as timestamp can only compare current time with var
+              // there is no left side of expression
+              left: {
+                env: "time",
+              },
+              op: "gt",
+              right: {
+                ref: `$warp.variable.${jobVarNameNextExecution}`,
+              },
+            },
+          },
+        },
+        {
+          expr: {
+            int: {
+              left: {
+                ref: `$warp.variable.${jobVarNameAlreadyRunCounter}`,
+              },
+              op: "lt",
+              right: {
+                simple: dcaCount.toString(),
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    /// =========== job msgs ===========
 
     const astroportSwapMsg = isNativeAsset(offerToken.address)
       ? {
@@ -138,97 +223,17 @@ const useWarpCreateJobAstroportDcaOrder = ({
         },
       },
     };
-    const swapJsonString = JSON.stringify(swap);
 
-    const jobVarNameNextExecution = "dca-execution";
-    const jobVarNextExecution = {
-      static: {
-        kind: "uint", // NOTE: it's better to use uint instead of timestamp to keep it consistent with condition
-        name: jobVarNameNextExecution,
-        value: dcaStartTimestamp.toString(),
-        update_fn: {
-          // update value to current timestamp + dcaInterval, i.e. make next execution 1 day later
-          on_success: {
-            uint: {
-              expr: {
-                left: {
-                  simple: dcaInterval.toString(),
-                },
-                op: "add",
-                right: {
-                  env: "time",
-                },
-              },
-            },
-          },
-          // TODO: high priority think about swap fail (e.g. max spread too low) and how to handle it
-          // on error, do nothing for now, this will stop creating new jobs
-          // on_error: {
-          // }
-        },
-      },
-    };
+    /// =========== cosmos msgs ===========
 
-    const jobVarNameAlreadyRunCounter = "dca-already-run-counter";
-    const jobVarAlreadyRunCounter = {
-      static: {
-        kind: "int",
-        name: jobVarNameAlreadyRunCounter,
-        value: (0).toString(), // initial counter value is 0
-        update_fn: {
-          // increment counter
-          on_success: {
-            int: {
-              expr: {
-                left: {
-                  ref: `$warp.variable.${jobVarNameAlreadyRunCounter}`,
-                },
-                op: "add",
-                right: {
-                  simple: (1).toString(),
-                },
-              },
-            },
-          },
-          // on error, do nothing for now, this will stop creating new jobs
-          // on_error: {
-          // }
-        },
-      },
-    };
-
-    const condition = {
-      and: [
-        {
-          expr: {
-            uint: {
-              // NOTE: we must use uint instead of timestamp here as timestamp can only compare current time with var
-              // there is no left side of expression
-              left: {
-                env: "time",
-              },
-              op: "gt",
-              right: {
-                ref: `$warp.variable.${jobVarNameNextExecution}`,
-              },
-            },
-          },
-        },
-        {
-          expr: {
-            int: {
-              left: {
-                ref: `$warp.variable.${jobVarNameAlreadyRunCounter}`,
-              },
-              op: "lt",
-              right: {
-                simple: dcaCount.toString(),
-              },
-            },
-          },
-        },
-      ],
-    };
+    const helperMsgs = constructHelperMsgs({
+      senderAddress,
+      warpControllerAddress,
+      warpFeeTokenAddress,
+      warpTotalJobFee,
+      offerTokenAddress: offerToken.address,
+      offerTokenAmount: BigNumber(offerTokenAmount).times(dcaCount).toString(),
+    });
 
     const createJob = new MsgExecuteContract(
       senderAddress,
@@ -250,9 +255,9 @@ const useWarpCreateJobAstroportDcaOrder = ({
             DEFAULT_JOB_REWARD_AMOUNT,
             warpFeeTokenAddress
           ),
-          condition: condition,
-          msgs: [swapJsonString],
-          vars: [jobVarAlreadyRunCounter, jobVarNextExecution],
+          vars: JSON.stringify([jobVarAlreadyRunCounter, jobVarNextExecution]),
+          condition: JSON.stringify(condition),
+          msgs: JSON.stringify([swap]),
         },
       }
     );

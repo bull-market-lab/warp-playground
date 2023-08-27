@@ -30,10 +30,7 @@ import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
 import useMyWallet from "@/hooks/useMyWallet";
 
 export const DcaOrderPage = () => {
-  const { myAddress, currentChainConfig } = useMyWallet();
-
-  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
-  const warpFeeToken = currentChainConfig.warp.feeToken;
+  const { currentChainConfig } = useMyWallet();
 
   const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
     useState("5");
@@ -75,17 +72,13 @@ export const DcaOrderPage = () => {
   const [maxSpread, setMaxSpread] = useState(1); // default 1%
 
   const offerTokenBalance = useBalance({
-    ownerAddress: myAddress,
     tokenAddress: offerToken.address,
   });
   const returnTokenBalance = useBalance({
-    ownerAddress: myAddress,
     tokenAddress: returnToken.address,
   });
 
-  const getWarpConfigResult = useWarpGetConfig({
-    warpControllerAddress,
-  }).configResult.data;
+  const getWarpConfigResult = useWarpGetConfig().configResult.data;
 
   useEffect(() => {
     if (!getWarpConfigResult) {
@@ -308,9 +301,6 @@ export const DcaOrderPage = () => {
         In total you will swap {totalOfferTokenAmount} {offerToken.name} to{" "}
         {returnToken.name}
         <WarpCreateJobAstroportDcaOrder
-          senderAddress={myAddress}
-          warpFeeTokenAddress={warpFeeToken.address}
-          warpControllerAddress={warpControllerAddress}
           warpTotalJobFee={warpTotalJobFee}
           poolAddress={poolAddress}
           offerToken={offerToken}
@@ -328,13 +318,8 @@ export const DcaOrderPage = () => {
         warpJobEvictionFee={warpJobEvictionFee}
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
-        warpFeeToken={warpFeeToken}
       />
-      <WarpJobs
-        myAddress={myAddress}
-        warpControllerAddress={warpControllerAddress}
-        warpJobLabel={LABEL_ASTROPORT_DCA_ORDER}
-      />
+      <WarpJobs warpJobLabel={LABEL_ASTROPORT_DCA_ORDER} />
     </Flex>
   );
 };

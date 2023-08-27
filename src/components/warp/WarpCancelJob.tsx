@@ -4,19 +4,11 @@ import useWarpCancelJob from "@/hooks/static/useWarpCancelJob";
 import CreateAndBroadcastTxModal from "./CreateAndBroadcastTxModal";
 
 type WarpCancelJobProps = {
-  senderAddress?: string;
-  warpControllerAddress?: string;
   jobId: string;
 };
 
-const WarpCancelJob = ({
-  senderAddress,
-  warpControllerAddress,
-  jobId,
-}: WarpCancelJobProps) => {
+const WarpCancelJob = ({ jobId }: WarpCancelJobProps) => {
   const cancelJob = useWarpCancelJob({
-    senderAddress,
-    warpControllerAddress,
     jobId,
   });
 

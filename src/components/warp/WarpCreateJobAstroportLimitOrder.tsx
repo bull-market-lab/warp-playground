@@ -5,9 +5,6 @@ import { Token } from "@/utils/constants";
 import CreateAndBroadcastTxModal from "./CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportLimitOrderProps = {
-  senderAddress?: string;
-  warpFeeTokenAddress: string;
-  warpControllerAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
   offerToken: Token;
@@ -19,9 +16,6 @@ type WarpCreateJobAstroportLimitOrderProps = {
 };
 
 const WarpCreateJobAstroportLimitOrder = ({
-  senderAddress,
-  warpFeeTokenAddress,
-  warpControllerAddress,
   warpTotalJobFee,
   poolAddress,
   offerToken,
@@ -32,9 +26,6 @@ const WarpCreateJobAstroportLimitOrder = ({
   expiredAfterDays,
 }: WarpCreateJobAstroportLimitOrderProps) => {
   const createWarpJobAstroportLimitOrder = useWarpCreateJobAstroportLimitOrder({
-    senderAddress,
-    warpFeeTokenAddress,
-    warpControllerAddress,
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,

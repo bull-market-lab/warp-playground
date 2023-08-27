@@ -1,5 +1,5 @@
 // import { useShuttle } from "@delphi-labs/shuttle-react";
-import { useConnectedWallet, useWallet } from "@terra-money/wallet-kit";
+import { useWallet } from "@terra-money/wallet-kit";
 // import { useChain } from "@cosmos-kit/react";
 import { useContext } from "react";
 

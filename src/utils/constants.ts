@@ -70,6 +70,9 @@ export type ChainConfig = {
     controllerAddress: string;
     feeToken: Token;
   };
+  mars: {
+    redBankAddress: string;
+  };
   pools: Pool[];
 };
 
@@ -134,6 +137,10 @@ export const TERRA_TESTNET_CHAIN_CONFIG = {
       name: "LUNA",
       address: "uluna",
     },
+  },
+  mars: {
+    // mars is not deployed on terra :(
+    redBankAddress: "",
   },
   pools: [
     {
@@ -256,6 +263,11 @@ export const NEUTRON_TESTNET_CHAIN_CONFIG = {
       name: "NTRN",
       address: "untrn",
     },
+  },
+  mars: {
+    // mars is not deployed on terra :(
+    redBankAddress:
+      "neutron1q53jr6wwus0c6g5had2zs6fzzachu5zun0c6etxuyarh5w7phxpq4wf39z",
   },
   pools: [
     {

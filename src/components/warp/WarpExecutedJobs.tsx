@@ -8,22 +8,14 @@ import WarpJobDetail from "@/components/warp/WarpJobDetail";
 import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpExecutedJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-const WarpExecutedJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpExecutedJobsProps) => {
+const WarpExecutedJobs = ({ warpJobLabel }: WarpExecutedJobsProps) => {
   const [warpExecutedJobs, setWarpExecutedJobs] = useState<Job[]>([]);
   const [warpExecutedJobCount, setWarpExecutedJobCount] = useState(0);
 
   const getWarpExecutedJobsResult = useWarpGetJobs({
-    ownerAddress,
-    warpControllerAddress,
     status: "Executed",
   }).jobsResult.data;
 

@@ -1,10 +1,10 @@
 # Warp Playground
 
-UI to showcase the power of [warp protocol](https://warp.money/).
+UI to showcase the power of [Warp Protocol](https://warp.money/).
 
 ## Credit
 
-Lots of styling and layout is copied from [steak](https://liquidstaking.app/). Credit goes to steak author [larry0x](https://github.com/larry0x)
+Majority of styling and layout is copied from [steak](https://liquidstaking.app/). Credit goes to steak author [larry0x](https://github.com/larry0x)
 
 ---
 

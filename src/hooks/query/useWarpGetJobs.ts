@@ -9,17 +9,12 @@ type GetWarpJobsResponse = {
 };
 
 type UseWarpGetJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   status: string;
 };
 
-const useWarpGetJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  status,
-}: UseWarpGetJobsProps) => {
-  const { lcd } = useMyWallet();
+const useWarpGetJobs = ({ status }: UseWarpGetJobsProps) => {
+  const { lcd, myAddress: ownerAddress, currentChainConfig } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const jobsResult = useQuery(
     [`get-jobs`, status, ownerAddress, warpControllerAddress],

@@ -8,23 +8,15 @@ import WarpJobLink from "@/components/warp/WarpJobLink";
 import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpClosedJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-const WarpClosedJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpClosedJobsProps) => {
+const WarpClosedJobs = ({ warpJobLabel }: WarpClosedJobsProps) => {
   const [warpCancelledJobs, setWarpCancelledJobs] = useState<Job[]>([]);
   const [warpCancelledJobCount, setWarpCancelledJobCount] = useState(0);
 
   // TODO: cover all 3 status: Failed, Evicted, Cancelled
   const getWarpCancelledJobsResult = useWarpGetJobs({
-    ownerAddress,
-    warpControllerAddress,
     status: "Cancelled",
   }).jobsResult.data;
 

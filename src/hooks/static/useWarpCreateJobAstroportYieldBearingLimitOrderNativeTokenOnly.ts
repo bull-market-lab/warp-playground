@@ -16,6 +16,7 @@ import useMyWallet from "../useMyWallet";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
   warpTotalJobFee: string;
+  warpAccountAddress: string;
   poolAddress: string;
   offerTokenAmount: string;
   minimumReturnTokenAmount: string;
@@ -24,8 +25,9 @@ type UseWarpCreateJobAstroportLimitOrderProps = {
   expiredAfterDays: number;
 };
 
-const useWarpCreateJobAstroportLimitOrder = ({
+const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
   warpTotalJobFee,
+  warpAccountAddress,
   poolAddress,
   offerTokenAmount,
   minimumReturnTokenAmount,
@@ -34,6 +36,7 @@ const useWarpCreateJobAstroportLimitOrder = ({
   expiredAfterDays,
 }: UseWarpCreateJobAstroportLimitOrderProps) => {
   const { currentChainConfig, myAddress: senderAddress } = useMyWallet();
+  const marsRedBankAddress = currentChainConfig.mars.redBankAddress;
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
   const warpFeeTokenAddress = currentChainConfig.warp.feeToken.address;
 
@@ -44,6 +47,7 @@ const useWarpCreateJobAstroportLimitOrder = ({
   const msgs = useMemo(() => {
     if (
       !warpTotalJobFee ||
+      !warpAccountAddress ||
       !poolAddress ||
       !offerTokenAmount ||
       !minimumReturnTokenAmount ||
@@ -96,6 +100,67 @@ const useWarpCreateJobAstroportLimitOrder = ({
       },
     };
 
+    const queryMarsBalanceMsg = {
+      user_collateral: {
+        user: warpAccountAddress,
+        denom: offerToken.address,
+      },
+    };
+    const jobVarNameMarsBalance = "usdc_balance_in_mars";
+    const jobVarMarsBalance = {
+      query: {
+        kind: "amount",
+        name: jobVarNameMarsBalance,
+        reinitialize: false,
+        encode: false,
+        init_fn: {
+          query: {
+            wasm: {
+              smart: {
+                msg: toBase64(queryMarsBalanceMsg),
+                contract_addr: marsRedBankAddress,
+              },
+            },
+          },
+          selector: "$.amount",
+        },
+      },
+    };
+
+    const astroportNativeSwapMsg = {
+      swap: {
+        offer_asset: {
+          info: {
+            native_token: {
+              denom: offerToken.address,
+            },
+          },
+          amount: `$warp.variable.${jobVarNameMarsBalance}`,
+          // amount: swapAmount,
+        },
+        /*
+          Belief Price + Max Spread
+          If belief_price is provided in combination with max_spread, 
+          the pool will check the difference between the return amount (using belief_price) and the real pool price.
+          The belief_price +/- the max_spread is the range of possible acceptable prices for this swap.
+          */
+        // belief_price: beliefPrice,
+        // max_spread: '0.005',
+        max_spread: maxSpread,
+        // to: '...', // default to sender, need to set explicitly cause default is sub account
+        to: senderAddress,
+      },
+    };
+    const jobVarNameAstroportSwapMsg = "astroport_swap_msg";
+    const jobVarAstroportSwapMsg = {
+      static: {
+        kind: "string",
+        name: jobVarNameAstroportSwapMsg,
+        encode: true,
+        value: JSON.stringify(astroportNativeSwapMsg),
+      },
+    };
+
     /// =========== condition ===========
 
     const condition = {
@@ -117,61 +182,33 @@ const useWarpCreateJobAstroportLimitOrder = ({
 
     /// =========== job msgs ===========
 
-    const astroportSwapMsg = isNativeAsset(offerToken.address)
-      ? {
-          swap: {
-            offer_asset: {
-              info: {
-                native_token: {
-                  denom: offerToken.address,
-                },
-              },
-              amount: convertTokenDecimals(
-                offerTokenAmount,
-                offerToken.address
-              ),
-            },
-            max_spread: maxSpread,
-            to: senderAddress,
-          },
-        }
-      : {
-          send: {
-            contract: poolAddress,
-            amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
-            msg: toBase64({
-              swap: {
-                ask_asset_info: {
-                  native_token: {
-                    denom: offerToken.address,
-                  },
-                },
-                // offer_asset
-                // "belief_price": beliefPrice,
-                max_spread: maxSpread,
-                to: senderAddress,
-              },
-            }),
-          },
-        };
+    const withdrawFromMarsMsg = {
+      withdraw: {
+        // amount unset will default to withdraw full amount
+        denom: offerToken.address,
+      },
+    };
+    const withdrawFromMars = {
+      wasm: {
+        execute: {
+          contract_addr: marsRedBankAddress,
+          msg: toBase64(withdrawFromMarsMsg),
+          funds: [],
+        },
+      },
+    };
+
     const swap = {
       wasm: {
         execute: {
-          contract_addr: isNativeAsset(offerToken.address)
-            ? poolAddress
-            : offerToken.address,
-          msg: toBase64(astroportSwapMsg),
-          funds: isNativeAsset(offerToken.address)
-            ? [
-                {
-                  denom: offerToken.address,
-                  amount: convertTokenDecimals(
-                    offerTokenAmount,
-                    offerToken.address
-                  ),
-                },
-              ]
-            : [],
+          contract_addr: poolAddress,
+          msg: `$warp.variable.${jobVarNameAstroportSwapMsg}`,
+          funds: [
+            {
+              denom: offerToken.address,
+              amount: `$warp.variable.${jobVarNameMarsBalance}`,
+            },
+          ],
         },
       },
     };
@@ -206,9 +243,13 @@ const useWarpCreateJobAstroportLimitOrder = ({
             DEFAULT_JOB_REWARD_AMOUNT,
             warpFeeTokenAddress
           ),
-          vars: JSON.stringify([jobVarPrice]),
+          vars: JSON.stringify([
+            jobVarPrice,
+            jobVarMarsBalance,
+            jobVarAstroportSwapMsg,
+          ]),
           condition: JSON.stringify(condition),
-          msgs: JSON.stringify([swap]),
+          msgs: JSON.stringify([withdrawFromMars, swap]),
         },
       }
     );
@@ -232,4 +273,4 @@ const useWarpCreateJobAstroportLimitOrder = ({
   }, [msgs]);
 };
 
-export default useWarpCreateJobAstroportLimitOrder;
+export default useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly;

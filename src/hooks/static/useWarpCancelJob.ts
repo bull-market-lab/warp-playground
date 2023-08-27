@@ -1,27 +1,25 @@
 import { MsgExecuteContract } from "@terra-money/feather.js";
 import { useMemo } from "react";
+import useMyWallet from "../useMyWallet";
 
 type UseWarpCancelJobProps = {
-  senderAddress?: string;
-  warpControllerAddress?: string;
   jobId: string;
 };
 
-const useWarpCancelJob = ({
-  senderAddress,
-  warpControllerAddress,
-  jobId,
-}: UseWarpCancelJobProps) => {
+const useWarpCancelJob = ({ jobId }: UseWarpCancelJobProps) => {
+  const { myAddress, currentChainConfig } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
+
   const msgs = useMemo(() => {
-    if (!warpControllerAddress || !jobId || !senderAddress) {
+    if (!warpControllerAddress || !jobId || !myAddress) {
       return [];
     }
     return [
-      new MsgExecuteContract(senderAddress, warpControllerAddress, {
+      new MsgExecuteContract(myAddress, warpControllerAddress, {
         delete_job: { id: jobId },
       }),
     ];
-  }, [senderAddress, warpControllerAddress, jobId]);
+  }, [myAddress, warpControllerAddress, jobId]);
 
   return useMemo(() => {
     return { msgs };

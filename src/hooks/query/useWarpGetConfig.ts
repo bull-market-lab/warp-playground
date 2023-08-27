@@ -19,12 +19,9 @@ type GetWarpConfigResponse = {
   };
 };
 
-type UseWarpGetConfigProps = {
-  warpControllerAddress?: string;
-};
-
-const useWarpGetConfig = ({ warpControllerAddress }: UseWarpGetConfigProps) => {
-  const { lcd } = useMyWallet();
+const useWarpGetConfig = () => {
+  const { lcd, currentChainConfig } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const configResult = useQuery(
     ["get-config", warpControllerAddress],

@@ -10,20 +10,18 @@ type GetWarpAccountResponse = {
 };
 
 type UseWarpGetAccountProps = {
-  ownerAddress?: string;
   warpControllerAddress?: string;
 };
 
 const useWarpGetAccount = ({
-  ownerAddress,
   warpControllerAddress,
 }: UseWarpGetAccountProps) => {
-  const { lcd } = useMyWallet();
+  const { lcd, myAddress } = useMyWallet();
 
   const accountResult = useQuery(
-    ["get-account", ownerAddress, warpControllerAddress],
+    ["get-account", myAddress, warpControllerAddress],
     async () => {
-      if (!lcd || !ownerAddress || !warpControllerAddress) {
+      if (!lcd || !myAddress || !warpControllerAddress) {
         return null;
       }
 
@@ -31,7 +29,7 @@ const useWarpGetAccount = ({
         warpControllerAddress,
         {
           query_account: {
-            owner: ownerAddress,
+            owner: myAddress,
           },
         }
       );
@@ -40,7 +38,7 @@ const useWarpGetAccount = ({
       };
     },
     {
-      enabled: !!lcd && !!warpControllerAddress && !!ownerAddress,
+      enabled: !!lcd && !!warpControllerAddress && !!myAddress,
     }
   );
   return useMemo(() => {

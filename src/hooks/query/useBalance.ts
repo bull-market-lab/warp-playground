@@ -7,12 +7,12 @@ type Cw20BalanceResponse = {
 };
 
 type UseBalanceProps = {
-  ownerAddress?: string;
   tokenAddress?: string;
 };
 
-const useBalance = ({ ownerAddress, tokenAddress }: UseBalanceProps) => {
-  const { lcd } = useMyWallet();
+const useBalance = ({ tokenAddress }: UseBalanceProps) => {
+  const { lcd, myAddress: ownerAddress } = useMyWallet();
+
   return useQuery(
     ["balance", ownerAddress, tokenAddress],
     async () => {

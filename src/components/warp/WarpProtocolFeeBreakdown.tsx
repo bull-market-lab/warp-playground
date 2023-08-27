@@ -1,8 +1,5 @@
-import {
-  DEFAULT_JOB_REWARD_AMOUNT,
-  EVICTION_FEE,
-  Token,
-} from "@/utils/constants";
+import useMyWallet from "@/hooks/useMyWallet";
+import { DEFAULT_JOB_REWARD_AMOUNT, EVICTION_FEE } from "@/utils/constants";
 import {
   Box,
   Card,
@@ -20,7 +17,6 @@ type WarpProtocolFeeBreakdownProps = {
   warpJobEvictionFee: string;
   warpJobRewardFee: string;
   warpTotalJobFee: string;
-  warpFeeToken: Token;
 };
 
 export const WarpProtocolFeeBreakdown = ({
@@ -28,8 +24,10 @@ export const WarpProtocolFeeBreakdown = ({
   warpJobEvictionFee,
   warpJobRewardFee,
   warpTotalJobFee,
-  warpFeeToken,
 }: WarpProtocolFeeBreakdownProps) => {
+  const { currentChainConfig } = useMyWallet();
+  const warpFeeToken = currentChainConfig.warp.feeToken;
+
   return (
     <Flex style={{ marginTop: "10px" }}>
       <Card>
