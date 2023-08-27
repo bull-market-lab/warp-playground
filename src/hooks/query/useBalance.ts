@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokenDecimals, isNativeAsset } from "@/utils/token";
-import useLcd from "../useLcd";
+import useMyWallet from "../useMyWallet";
 
 type Cw20BalanceResponse = {
   balance: string;
@@ -12,7 +12,7 @@ type UseBalanceProps = {
 };
 
 const useBalance = ({ ownerAddress, tokenAddress }: UseBalanceProps) => {
-  const { lcd } = useLcd();
+  const { lcd } = useMyWallet();
   return useQuery(
     ["balance", ownerAddress, tokenAddress],
     async () => {

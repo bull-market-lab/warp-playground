@@ -14,7 +14,7 @@
 //   TERRA_TESTNET_CHAIN_CONFIG,
 //   NEUTRON_TESTNET_CHAIN_CONFIG,
 // } from "@/utils/constants";
-// import ChainContext from "@/contexts/ShuttleWalletChainContext";
+// import ChainContext from "@/contexts/ChainContext";
 // import { LCDClient } from "@terra-money/feather.js";
 // import { DEFAULT_LCD_CONFIG } from "@/utils/network";
 

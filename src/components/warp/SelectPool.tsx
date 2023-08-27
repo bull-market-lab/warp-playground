@@ -2,7 +2,7 @@ import React from "react";
 import { Select, Flex } from "@chakra-ui/react";
 
 import { Token } from "@/utils/constants";
-import useCurrentChainConfig from "@/hooks/useCurrentChainConfig";
+import useMyWallet from "@/hooks/useMyWallet";
 
 const SelectPool = ({
   onChangeOfferToken,
@@ -13,7 +13,7 @@ const SelectPool = ({
   onChangeReturnToken: (updatedReturnToken: Token) => void;
   onChangePoolAddress: (updatedPoolAddress: string) => void;
 }) => {
-  const { currentChainConfig } = useCurrentChainConfig();
+  const { currentChainConfig } = useMyWallet();
   const pools = currentChainConfig.pools;
 
   type SelectedValue = {

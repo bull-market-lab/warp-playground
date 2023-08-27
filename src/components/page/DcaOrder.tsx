@@ -27,12 +27,10 @@ import {
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
-import useMyAddress from "@/hooks/useMyAddress";
-import useCurrentChainConfig from "@/hooks/useCurrentChainConfig";
+import useMyWallet from "@/hooks/useMyWallet";
 
 export const DcaOrderPage = () => {
-  const { myAddress } = useMyAddress();
-  const { currentChainConfig } = useCurrentChainConfig();
+  const { myAddress, currentChainConfig } = useMyWallet();
 
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
   const warpFeeToken = currentChainConfig.warp.feeToken;

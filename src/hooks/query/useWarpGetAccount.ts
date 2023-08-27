@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import useLcd from "../useLcd";
+import useMyWallet from "../useMyWallet";
 
 type GetWarpAccountResponse = {
   account: {
@@ -18,7 +18,7 @@ const useWarpGetAccount = ({
   ownerAddress,
   warpControllerAddress,
 }: UseWarpGetAccountProps) => {
-  const { lcd } = useLcd();
+  const { lcd } = useMyWallet();
 
   const accountResult = useQuery(
     ["get-account", ownerAddress, warpControllerAddress],

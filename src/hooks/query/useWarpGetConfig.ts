@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import useLcd from "../useLcd";
+import useMyWallet from "../useMyWallet";
 
 type GetWarpConfigResponse = {
   config: {
@@ -24,7 +24,7 @@ type UseWarpGetConfigProps = {
 };
 
 const useWarpGetConfig = ({ warpControllerAddress }: UseWarpGetConfigProps) => {
-  const { lcd } = useLcd();
+  const { lcd } = useMyWallet();
 
   const configResult = useQuery(
     ["get-config", warpControllerAddress],

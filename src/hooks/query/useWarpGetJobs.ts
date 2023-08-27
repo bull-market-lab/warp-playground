@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/utils/warpHelpers";
-import useLcd from "../useLcd";
+import useMyWallet from "../useMyWallet";
 
 type GetWarpJobsResponse = {
   jobs: Job[];
@@ -19,7 +19,7 @@ const useWarpGetJobs = ({
   warpControllerAddress,
   status,
 }: UseWarpGetJobsProps) => {
-  const { lcd } = useLcd();
+  const { lcd } = useMyWallet();
 
   const jobsResult = useQuery(
     [`get-jobs`, status, ownerAddress, warpControllerAddress],

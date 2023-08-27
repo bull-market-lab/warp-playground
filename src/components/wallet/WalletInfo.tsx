@@ -18,20 +18,12 @@ import ExternalLinkIcon from "@/components/common/ExternalLinkIcon";
 import { truncateString } from "@/utils/formatHelpers";
 import useBalance from "@/hooks/query/useBalance";
 import { CHAIN_TERRA } from "@/utils/constants";
+import useMyWallet from "@/hooks/useMyWallet";
+import WalletIcon from "./WalletIcon";
 
-type WalletInfoBaseProps = {
-  currentChain: string;
-  currentChainId: string;
-  myAddress?: string;
-  disconnect: () => void | Promise<void>;
-};
+const WalletInfo = () => {
+  const { currentChainId, currentChain, myAddress, disconnect } = useMyWallet();
 
-const WalletInfoBase = ({
-  currentChain,
-  currentChainId,
-  myAddress,
-  disconnect,
-}: WalletInfoBaseProps) => {
   const balance = useBalance({
     ownerAddress: myAddress,
     tokenAddress: currentChain === CHAIN_TERRA ? "uluna" : "untrn",
@@ -54,7 +46,7 @@ const WalletInfoBase = ({
               mr="0.5"
             >
               <HStack spacing="3">
-                {/* <WalletIcon w="1.25rem" h="1.25rem" /> */}
+                <WalletIcon w="1.25rem" h="1.25rem" />
                 <Text fontSize="md" color="white">
                   {truncateString(myAddress)}
                 </Text>
@@ -133,4 +125,4 @@ const WalletInfoBase = ({
   );
 };
 
-export default WalletInfoBase;
+export default WalletInfo;

@@ -1,6 +1,6 @@
 import { Msg } from "@terra-money/feather.js";
-import CreateAndBroadcastTxModalUsingCosmosKit from "./CreateAndBroadcastTxModalUsingCosmosKit";
-// import CreateAndBroadcastTxModalUsingTerraWalletKit from "./CreateAndBroadcastTxModalUsingTerraWalletKit";
+// import CreateAndBroadcastTxModalUsingCosmosKit from "./CreateAndBroadcastTxModalUsingCosmosKit";
+import CreateAndBroadcastTxModalUsingTerraWalletKit from "./CreateAndBroadcastTxModalUsingTerraWalletKit";
 
 type CreateAndBroadcastTxModalProps = {
   msgs: Msg[];
@@ -14,7 +14,7 @@ const CreateAndBroadcastTxModal = ({
   disabled,
 }: CreateAndBroadcastTxModalProps) => {
   return (
-    <CreateAndBroadcastTxModalUsingCosmosKit
+    <CreateAndBroadcastTxModalUsingTerraWalletKit
       msgs={msgs}
       buttonText={buttonText}
       disabled={disabled}

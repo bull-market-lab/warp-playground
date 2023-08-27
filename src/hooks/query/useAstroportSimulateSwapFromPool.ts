@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
-import useLcd from "../useLcd";
+import useMyWallet from "../useMyWallet";
 
 type AssetInfo =
   | {
@@ -35,7 +35,7 @@ const useSimulateSwap = ({
   returnTokenAddress,
   poolAddress,
 }: UseSimulateSwapProps) => {
-  const { lcd } = useLcd();
+  const { lcd } = useMyWallet();
 
   const simulateResult = useQuery(
     [
