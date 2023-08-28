@@ -16,10 +16,10 @@ const SidebarLinks = ({
       {isBack ? <NavbarReturn /> : null}
       {isBack ? null : <NavbarLink text="Home" href="/" onClick={onClick} />}
       {isBack ? null : (
-        <NavbarLink text="DCA Order" href="/dca_order" onClick={onClick} />
+        <NavbarLink text="Limit Order" href="/limit_order" onClick={onClick} />
       )}
       {isBack ? null : (
-        <NavbarLink text="Limit Order" href="/limit_order" onClick={onClick} />
+        <NavbarLink text="DCA Order" href="/dca_order" onClick={onClick} />
       )}
       {isBack ? null : (
         <NavbarLink

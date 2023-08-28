@@ -14,7 +14,7 @@ import BurgerIcon from "@/components/common/BurgerIcon";
 import CloseIcon from "@/components/common/CloseIcon";
 import NavbarLinks from "@/components/common/NavbarLinks";
 import SidebarLinks from "@/components/common/SidebarLinks";
-import { ChainSelector } from "@/components/common/ChainSelector";
+import ChainSelector from "@/components/common/ChainSelector";
 import Wallet from "@/components/wallet/Wallet";
 
 const Navbar: FC = () => {
@@ -28,7 +28,7 @@ const Navbar: FC = () => {
       <Flex w="100%" justify="space-between" align="center">
         <NavbarLinks isBack={false} />
         <ChainSelector />
-        <HStack justify="flex-end">
+        <HStack>
           <Wallet />
           <Button
             display={[null, null, "none", null]}

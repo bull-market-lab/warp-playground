@@ -15,11 +15,11 @@ import {
 
 import useBalance from "@/hooks/query/useBalance";
 import useWarpGetConfig from "@/hooks/query/useWarpGetConfig";
-import SelectPool from "@/components/warp/SelectPool";
+import SelectPool from "@/components/swap/SelectPool";
 import WarpJobs from "@/components/warp/WarpJobs";
 import useSimulateSwap from "@/hooks/query/useAstroportSimulateSwapFromPool";
 import WarpCreateJobAstroportLimitOrder from "@/components/warp/WarpCreateJobAstroportLimitOrder";
-import Swap from "@/components/warp/Swap";
+import Swap from "@/components/swap/Swap";
 import { getTokenDecimals } from "@/utils/token";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
@@ -29,6 +29,7 @@ import {
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
 import useMyWallet from "@/hooks/useMyWallet";
+import WarpAccount from "../warp/WarpAccount";
 
 export const LimitOrderPage = () => {
   const { currentChainConfig } = useMyWallet();
@@ -54,6 +55,7 @@ export const LimitOrderPage = () => {
   );
 
   useEffect(() => {
+    setPoolAddress(currentChainConfig.pools[0].address);
     setOfferToken(currentChainConfig.pools[0].token1);
     setReturnToken(currentChainConfig.pools[0].token2);
   }, [currentChainConfig]);
@@ -165,6 +167,7 @@ export const LimitOrderPage = () => {
 
   return (
     <Flex align="center" justify="center" direction="column">
+      <WarpAccount />
       <Flex
         align="center"
         justify="center"
@@ -241,17 +244,17 @@ export const LimitOrderPage = () => {
           </NumberInputStepper>
         </NumberInput>
         <Box>{expiredAfterDays > 1 ? "days " : "day "}</Box>
-        <WarpCreateJobAstroportLimitOrder
-          warpTotalJobFee={warpTotalJobFee}
-          poolAddress={poolAddress}
-          offerToken={offerToken}
-          offerTokenAmount={offerTokenAmount}
-          returnToken={returnToken}
-          minimumReturnTokenAmount={returnTokenAmount}
-          offerTokenBalance={offerTokenBalance.data}
-          expiredAfterDays={expiredAfterDays}
-        />
       </Flex>
+      <WarpCreateJobAstroportLimitOrder
+        warpTotalJobFee={warpTotalJobFee}
+        poolAddress={poolAddress}
+        offerToken={offerToken}
+        offerTokenAmount={offerTokenAmount}
+        returnToken={returnToken}
+        minimumReturnTokenAmount={returnTokenAmount}
+        offerTokenBalance={offerTokenBalance.data}
+        expiredAfterDays={expiredAfterDays}
+      />
       <WarpProtocolFeeBreakdown
         warpJobCreationFee={warpJobCreationFee}
         warpJobEvictionFee={warpJobEvictionFee}

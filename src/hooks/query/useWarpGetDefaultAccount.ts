@@ -2,37 +2,30 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useMyWallet from "../useMyWallet";
 
-type GetWarpAccountResponse = {
+type WarpGetDefaultAccountResponse = {
   account: {
     owner: string;
     account: string;
   };
 };
 
-type UseWarpGetAccountProps = {
-  warpControllerAddress?: string;
-};
-
-const useWarpGetAccount = ({
-  warpControllerAddress,
-}: UseWarpGetAccountProps) => {
-  const { lcd, myAddress } = useMyWallet();
+const useWarpGetDefaultAccount = () => {
+  const { lcd, myAddress, currentChainConfig } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const accountResult = useQuery(
-    ["get-account", myAddress, warpControllerAddress],
+    ["get-default-account", myAddress, warpControllerAddress],
     async () => {
       if (!lcd || !myAddress || !warpControllerAddress) {
         return null;
       }
 
-      const response: GetWarpAccountResponse = await lcd.wasm.contractQuery(
-        warpControllerAddress,
-        {
+      const response: WarpGetDefaultAccountResponse =
+        await lcd.wasm.contractQuery(warpControllerAddress, {
           query_account: {
             owner: myAddress,
           },
-        }
-      );
+        });
       return {
         account: response.account.account,
       };
@@ -46,4 +39,4 @@ const useWarpGetAccount = ({
   }, [accountResult]);
 };
 
-export default useWarpGetAccount;
+export default useWarpGetDefaultAccount;

@@ -1,8 +1,11 @@
-import { Flex } from "@chakra-ui/react";
-
 import useWarpCreateJobAstroportLimitOrder from "@/hooks/static/useWarpCreateJobAstroportLimitOrder";
-import { Token } from "@/utils/constants";
-import CreateAndBroadcastTxModal from "./CreateAndBroadcastTxModal";
+import { CHAIN_NEUTRON, Token } from "@/utils/constants";
+import CreateAndBroadcastTxModal from "../tx/CreateAndBroadcastTxModal";
+import useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly from "@/hooks/static/useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly";
+import { Checkbox, Flex } from "@chakra-ui/react";
+import { ChangeEvent, useEffect, useState } from "react";
+import useMyWallet from "@/hooks/useMyWallet";
+import { Msg } from "@terra-money/feather.js";
 
 type WarpCreateJobAstroportLimitOrderProps = {
   warpTotalJobFee: string;
@@ -25,7 +28,18 @@ const WarpCreateJobAstroportLimitOrder = ({
   offerTokenBalance,
   expiredAfterDays,
 }: WarpCreateJobAstroportLimitOrderProps) => {
-  const createWarpJobAstroportLimitOrder = useWarpCreateJobAstroportLimitOrder({
+  const { currentChain } = useMyWallet();
+  const yieldBearingLimitOrderMsgs =
+    useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly({
+      warpTotalJobFee,
+      poolAddress,
+      offerTokenAmount,
+      minimumReturnTokenAmount,
+      offerToken,
+      returnToken,
+      expiredAfterDays,
+    }).msgs;
+  const limitOrderMsgs = useWarpCreateJobAstroportLimitOrder({
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,
@@ -33,12 +47,38 @@ const WarpCreateJobAstroportLimitOrder = ({
     offerToken,
     returnToken,
     expiredAfterDays,
-  });
+  }).msgs;
+  const [msgs, setMsgs] = useState<Msg[]>([]);
+
+  const [enableYieldBearing, setEnableYieldBearing] = useState(
+    currentChain === CHAIN_NEUTRON
+  );
+
+  const onChangeCheckBox = (e: ChangeEvent<HTMLInputElement>) => {
+    setEnableYieldBearing(e.target.checked);
+  };
+
+  useEffect(() => {
+    if (enableYieldBearing) {
+      setMsgs(yieldBearingLimitOrderMsgs);
+    } else {
+      setMsgs(limitOrderMsgs);
+    }
+  }, [enableYieldBearing, yieldBearingLimitOrderMsgs, limitOrderMsgs]);
 
   return (
     <Flex>
+      {currentChain === CHAIN_NEUTRON && (
+        <Checkbox
+          defaultChecked={enableYieldBearing}
+          onChange={onChangeCheckBox}
+        >
+          enable yield bearing limit order (only support native token)
+        </Checkbox>
+      )}
       <CreateAndBroadcastTxModal
-        msgs={createWarpJobAstroportLimitOrder.msgs}
+        // msgs={msgs}
+        msgs={limitOrderMsgs}
         buttonText={"create limit order"}
         disabled={
           offerTokenAmount === "0" ||

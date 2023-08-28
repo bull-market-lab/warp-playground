@@ -25,7 +25,6 @@ const WalletInfo = () => {
   const { currentChainId, currentChain, myAddress, disconnect } = useMyWallet();
 
   const balance = useBalance({
-    ownerAddress: myAddress,
     tokenAddress: currentChain === CHAIN_TERRA ? "uluna" : "untrn",
   });
 
@@ -34,7 +33,7 @@ const WalletInfo = () => {
       title="My wallet"
       triggerElement={() => (
         <Button type="button" bg="none" p="0" _hover={{ bg: "none" }}>
-          <WalletNetwork chainID={currentChainId} />
+          {/* <WalletNetwork chainID={currentChainId} /> */}
           <Flex color="white" justify="center">
             <Box
               color="white"

@@ -41,9 +41,9 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
   // update current chain when selected chain in router parameter changes
   useEffect(() => {
     setCurrentChain(selectedChain as Chain);
-    console.log(
-      `selected chain changed to ${selectedChain}, update current chain to ${selectedChain}`
-    );
+    // console.log(
+    //   `selected chain changed to ${selectedChain}, update current chain to ${selectedChain}`
+    // );
   }, [selectedChain]);
 
   // update lcd when wallet connection status or lcd config changed
@@ -60,13 +60,13 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
         setLCD(undefined);
         break;
     }
-    console.log(
-      `wallet connection status changed to ${connectionStatus} lcd config changed to ${JSON.stringify(
-        lcdConfig,
-        null,
-        2
-      )}, update lcd`
-    );
+    // console.log(
+    //   `wallet connection status changed to ${connectionStatus} lcd config changed to ${JSON.stringify(
+    //     lcdConfig,
+    //     null,
+    //     2
+    //   )}, update lcd`
+    // );
   }, [connectionStatus, lcdConfig, connectedWallet]);
 
   // update my address when current chain or connected wallet changed
@@ -76,13 +76,13 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       updatedWalletAddress = connectedWallet?.addresses[currentChainId];
     }
     setMyAddress(updatedWalletAddress);
-    console.log(
-      `current chain changed to ${currentChain}, current chain id changed to ${currentChainId}, connected wallet changed to ${JSON.stringify(
-        connectedWallet?.addresses,
-        null,
-        2
-      )}, update my address to ${updatedWalletAddress}`
-    );
+    // console.log(
+    //   `current chain changed to ${currentChain}, current chain id changed to ${currentChainId}, connected wallet changed to ${JSON.stringify(
+    //     connectedWallet?.addresses,
+    //     null,
+    //     2
+    //   )}, update my address to ${updatedWalletAddress}`
+    // );
   }, [currentChain, currentChainId, connectedWallet]);
 
   /*
@@ -124,9 +124,9 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
         break;
     }
     setCurrentChainId(updatedChainId);
-    console.log(
-      `current chain changed to ${currentChain}, current network changed to ${connectedWallet?.network}, update current chain id to ${updatedChainId}`
-    );
+    // console.log(
+    //   `current chain changed to ${currentChain}, current network changed to ${connectedWallet?.network}, update current chain id to ${updatedChainId}`
+    // );
   }, [currentChain, connectedWallet]);
 
   // update chain config when current chain changes
@@ -143,13 +143,13 @@ const ChainContextProvider = ({ children }: { children: React.ReactNode }) => {
       updatedChainConfig = TERRA_TESTNET_CHAIN_CONFIG;
     }
     setCurrentChainConfig(updatedChainConfig);
-    console.log(
-      `current chain changed to ${currentChain}, update chain config to ${JSON.stringify(
-        updatedChainConfig,
-        null,
-        2
-      )}`
-    );
+    // console.log(
+    //   `current chain changed to ${currentChain}, update chain config to ${JSON.stringify(
+    //     updatedChainConfig,
+    //     null,
+    //     2
+    //   )}`
+    // );
   }, [currentChain]);
 
   return (

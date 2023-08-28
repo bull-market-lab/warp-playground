@@ -14,7 +14,7 @@ import {
 
 import useBalance from "@/hooks/query/useBalance";
 import useWarpGetConfig from "@/hooks/query/useWarpGetConfig";
-import SelectPool from "@/components/warp/SelectPool";
+import SelectPool from "@/components/swap/SelectPool";
 import WarpJobs from "@/components/warp/WarpJobs";
 import { getTokenDecimals } from "@/utils/token";
 import useSimulateSwap from "@/hooks/query/useAstroportSimulateSwapFromPool";
@@ -28,6 +28,7 @@ import {
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
 import useMyWallet from "@/hooks/useMyWallet";
+import WarpAccount from "../warp/WarpAccount";
 
 export const DcaOrderPage = () => {
   const { currentChainConfig } = useMyWallet();
@@ -183,6 +184,7 @@ export const DcaOrderPage = () => {
       direction="column"
       style={{ marginTop: "10px" }}
     >
+      <WarpAccount />
       <Flex
         align="center"
         justify="center"

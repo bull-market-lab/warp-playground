@@ -11,17 +11,17 @@ type UseBalanceProps = {
 };
 
 const useBalance = ({ tokenAddress }: UseBalanceProps) => {
-  const { lcd, myAddress: ownerAddress } = useMyWallet();
+  const { lcd, myAddress } = useMyWallet();
 
   return useQuery(
-    ["balance", ownerAddress, tokenAddress],
+    ["balance", myAddress, tokenAddress],
     async () => {
-      if (!lcd || !ownerAddress || !tokenAddress) {
+      if (!lcd || !myAddress || !tokenAddress) {
         return 0;
       }
 
       if (isNativeAsset(tokenAddress)) {
-        const [coins, pagination] = await lcd.bank.balance(ownerAddress);
+        const [coins, pagination] = await lcd.bank.balance(myAddress);
         // console.log("coins", coins, pagination);
         // TODO: handle pagination
         const coin = coins
@@ -37,7 +37,7 @@ const useBalance = ({ tokenAddress }: UseBalanceProps) => {
           tokenAddress,
           {
             balance: {
-              address: ownerAddress,
+              address: myAddress,
             },
           }
         );
@@ -45,7 +45,7 @@ const useBalance = ({ tokenAddress }: UseBalanceProps) => {
       }
     },
     {
-      enabled: !!ownerAddress && !!tokenAddress && !!lcd,
+      enabled: !!myAddress && !!tokenAddress && !!lcd,
       initialData: 0,
       placeholderData: 0,
     }

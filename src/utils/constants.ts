@@ -132,7 +132,7 @@ export const TERRA_TESTNET_CHAIN_CONFIG = {
   },
   warp: {
     controllerAddress:
-      "terra1hhvfpkrdwtesznpd6kudqzcdudvr9edl78ktkcucz6q5vj0k2vwqeqj59h",
+      "terra1e0n7xuzku608f2am0pqgdjavjy4xvejg4x5z8akeaqzzgnztuaksn4klum",
     feeToken: {
       name: "LUNA",
       address: "uluna",

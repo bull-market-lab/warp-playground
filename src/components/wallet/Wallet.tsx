@@ -4,7 +4,6 @@ import useMyWallet from "@/hooks/useMyWallet";
 
 const Wallet = () => {
   const { connectionStatus } = useMyWallet();
-  console.log("connectionStatus", connectionStatus);
   return connectionStatus === "CONNECTED" ? <WalletInfo /> : <WalletConnect />;
 };
 

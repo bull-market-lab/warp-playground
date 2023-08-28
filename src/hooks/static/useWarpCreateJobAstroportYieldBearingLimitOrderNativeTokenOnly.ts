@@ -11,12 +11,12 @@ import {
   NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER,
   Token,
 } from "@/utils/constants";
-import { constructHelperMsgs } from "@/utils/warpHelpers";
 import useMyWallet from "../useMyWallet";
+import { constructHelperMsgs } from "@/utils/warpHelpers";
+import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
   warpTotalJobFee: string;
-  warpAccountAddress: string;
   poolAddress: string;
   offerTokenAmount: string;
   minimumReturnTokenAmount: string;
@@ -27,7 +27,6 @@ type UseWarpCreateJobAstroportLimitOrderProps = {
 
 const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
   warpTotalJobFee,
-  warpAccountAddress,
   poolAddress,
   offerTokenAmount,
   minimumReturnTokenAmount,
@@ -35,7 +34,10 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
   returnToken,
   expiredAfterDays,
 }: UseWarpCreateJobAstroportLimitOrderProps) => {
-  const { currentChainConfig, myAddress: senderAddress } = useMyWallet();
+  const { currentChainConfig, myAddress } = useMyWallet();
+  const getWarpFirstFreeSubAccountResult =
+    useWarpGetFirstFreeSubAccount().accountResult.data;
+
   const marsRedBankAddress = currentChainConfig.mars.redBankAddress;
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
   const warpFeeTokenAddress = currentChainConfig.warp.feeToken.address;
@@ -47,14 +49,14 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
   const msgs = useMemo(() => {
     if (
       !warpTotalJobFee ||
-      !warpAccountAddress ||
+      !getWarpFirstFreeSubAccountResult ||
       !poolAddress ||
       !offerTokenAmount ||
       !minimumReturnTokenAmount ||
       !offerToken ||
       !returnToken ||
       !expiredAfterDays ||
-      !senderAddress
+      !myAddress
     ) {
       return [];
     }
@@ -102,7 +104,7 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
 
     const queryMarsBalanceMsg = {
       user_collateral: {
-        user: warpAccountAddress,
+        user: getWarpFirstFreeSubAccountResult.account,
         denom: offerToken.address,
       },
     };
@@ -148,7 +150,7 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
         // max_spread: '0.005',
         max_spread: maxSpread,
         // to: '...', // default to sender, need to set explicitly cause default is sub account
-        to: senderAddress,
+        to: myAddress,
       },
     };
     const jobVarNameAstroportSwapMsg = "astroport_swap_msg";
@@ -216,7 +218,8 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
     /// =========== cosmos msgs ===========
 
     const helperMsgs = constructHelperMsgs({
-      senderAddress,
+      myAddress,
+      warpAccountAddress: getWarpFirstFreeSubAccountResult.account,
       warpControllerAddress,
       warpFeeTokenAddress,
       warpTotalJobFee,
@@ -224,41 +227,74 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
       offerTokenAmount,
     });
 
-    const createJob = new MsgExecuteContract(
-      senderAddress,
-      warpControllerAddress,
+    const depositToMarsMsg = {
+      deposit: {},
+    };
+    const subAccountDepositToMars = new MsgExecuteContract(
+      myAddress,
+      getWarpFirstFreeSubAccountResult.account,
       {
-        create_job: {
-          name: NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER,
-          description: constructJobDescriptionForAstroportLimitOrder(
-            offerTokenAmount,
-            offerToken,
-            returnToken,
-            minimumReturnTokenAmount
-          ),
-          labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_LIMIT_ORDER],
-          recurring: false,
-          requeue_on_evict: expiredAfterDays > 1,
-          reward: convertTokenDecimals(
-            DEFAULT_JOB_REWARD_AMOUNT,
-            warpFeeTokenAddress
-          ),
-          vars: JSON.stringify([
-            jobVarPrice,
-            jobVarMarsBalance,
-            jobVarAstroportSwapMsg,
-          ]),
-          condition: JSON.stringify(condition),
-          msgs: JSON.stringify([withdrawFromMars, swap]),
+        generic: {
+          msgs: [
+            {
+              wasm: {
+                execute: {
+                  contract_addr: marsRedBankAddress,
+                  msg: toBase64(depositToMarsMsg),
+                  funds: [
+                    {
+                      denom: offerToken.address,
+                      amount: convertTokenDecimals(
+                        offerTokenAmount,
+                        offerTokenAmount
+                      ),
+                    },
+                  ],
+                },
+              },
+            },
+          ],
         },
       }
     );
 
-    return [...helperMsgs, createJob];
+    const createJob = new MsgExecuteContract(myAddress, warpControllerAddress, {
+      create_job: {
+        name: NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER,
+        description: constructJobDescriptionForAstroportLimitOrder(
+          offerTokenAmount,
+          offerToken,
+          returnToken,
+          minimumReturnTokenAmount
+        ),
+        labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_LIMIT_ORDER],
+        recurring: false,
+        requeue_on_evict: expiredAfterDays > 1,
+        reward: convertTokenDecimals(
+          DEFAULT_JOB_REWARD_AMOUNT,
+          warpFeeTokenAddress
+        ),
+        assets_to_withdraw: [
+          { native: offerToken },
+          { native: returnToken },
+          { native: warpFeeTokenAddress },
+        ],
+        vars: JSON.stringify([
+          jobVarPrice,
+          jobVarMarsBalance,
+          jobVarAstroportSwapMsg,
+        ]),
+        condition: JSON.stringify(condition),
+        msgs: JSON.stringify([withdrawFromMars, swap]),
+      },
+    });
+
+    return [...helperMsgs, subAccountDepositToMars, createJob];
   }, [
-    senderAddress,
+    myAddress,
     warpFeeTokenAddress,
     warpControllerAddress,
+    getWarpFirstFreeSubAccountResult,
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,

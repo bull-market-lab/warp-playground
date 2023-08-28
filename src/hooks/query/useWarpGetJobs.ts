@@ -13,13 +13,13 @@ type UseWarpGetJobsProps = {
 };
 
 const useWarpGetJobs = ({ status }: UseWarpGetJobsProps) => {
-  const { lcd, myAddress: ownerAddress, currentChainConfig } = useMyWallet();
+  const { lcd, myAddress, currentChainConfig } = useMyWallet();
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const jobsResult = useQuery(
-    [`get-jobs`, status, ownerAddress, warpControllerAddress],
+    [`get-jobs`, status, myAddress, warpControllerAddress],
     async () => {
-      if (!lcd || !ownerAddress || !warpControllerAddress || !status) {
+      if (!lcd || !myAddress || !warpControllerAddress || !status) {
         return null;
       }
 
@@ -27,7 +27,7 @@ const useWarpGetJobs = ({ status }: UseWarpGetJobsProps) => {
         warpControllerAddress,
         {
           query_jobs: {
-            owner: ownerAddress,
+            owner: myAddress,
             job_status: status,
             // TODO: support pagination, default limit is 50 now
             //   start_after: { _0: "", _1: "" },
@@ -40,7 +40,7 @@ const useWarpGetJobs = ({ status }: UseWarpGetJobsProps) => {
       };
     },
     {
-      enabled: !!warpControllerAddress && !!ownerAddress && !!status && !!lcd,
+      enabled: !!warpControllerAddress && !!myAddress && !!status && !!lcd,
     }
   );
   return useMemo(() => {

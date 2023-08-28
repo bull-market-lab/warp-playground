@@ -20,6 +20,8 @@ const CreateAndBroadcastTxModal = ({
   const onCreateAndBroadcastTx = () => {
     setIsProcessing(true);
 
+    console.log("CreateAndBroadcastTxModal", JSON.stringify(msgs, null, 2));
+
     post({
       chainID: currentChainId,
       msgs,

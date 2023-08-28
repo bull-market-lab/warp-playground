@@ -12,8 +12,9 @@ import {
   NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
   Token,
 } from "@/utils/constants";
-import { constructHelperMsgs } from "@/utils/warpHelpers";
 import useMyWallet from "../useMyWallet";
+import { constructHelperMsgs } from "@/utils/warpHelpers";
+import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
 type UseWarpCreateJobAstroportDcaOrderProps = {
   warpTotalJobFee: string;
@@ -43,7 +44,10 @@ const useWarpCreateJobAstroportDcaOrder = ({
   dcaStartTimestamp,
   maxSpread,
 }: UseWarpCreateJobAstroportDcaOrderProps) => {
-  const { currentChainConfig, myAddress: senderAddress } = useMyWallet();
+  const { currentChainConfig, myAddress } = useMyWallet();
+  const getWarpFirstFreeSubAccountResult =
+    useWarpGetFirstFreeSubAccount().accountResult.data;
+
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
   const warpFeeTokenAddress = currentChainConfig.warp.feeToken.address;
 
@@ -53,8 +57,9 @@ const useWarpCreateJobAstroportDcaOrder = ({
 
   const msgs = useMemo(() => {
     if (
-      !senderAddress ||
+      !myAddress ||
       !warpTotalJobFee ||
+      !getWarpFirstFreeSubAccountResult ||
       !poolAddress ||
       !offerTokenAmount ||
       !offerToken ||
@@ -180,7 +185,7 @@ const useWarpCreateJobAstroportDcaOrder = ({
               ),
             },
             max_spread: maxSpread,
-            to: senderAddress,
+            to: myAddress,
           },
         }
       : {
@@ -197,7 +202,7 @@ const useWarpCreateJobAstroportDcaOrder = ({
                 // offer_asset
                 // "belief_price": beliefPrice,
                 max_spread: maxSpread,
-                to: senderAddress,
+                to: myAddress,
               },
             }),
           },
@@ -227,7 +232,8 @@ const useWarpCreateJobAstroportDcaOrder = ({
     /// =========== cosmos msgs ===========
 
     const helperMsgs = constructHelperMsgs({
-      senderAddress,
+      myAddress,
+      warpAccountAddress: getWarpFirstFreeSubAccountResult.account,
       warpControllerAddress,
       warpFeeTokenAddress,
       warpTotalJobFee,
@@ -235,38 +241,45 @@ const useWarpCreateJobAstroportDcaOrder = ({
       offerTokenAmount: BigNumber(offerTokenAmount).times(dcaCount).toString(),
     });
 
-    const createJob = new MsgExecuteContract(
-      senderAddress,
-      warpControllerAddress,
-      {
-        create_job: {
-          name: NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
-          description: constructJobDescriptionForAstroportDcaOrder(
-            offerTokenAmount,
-            offerToken,
-            returnToken,
-            dcaCount,
-            dcaInterval
-          ),
-          labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_DCA_ORDER],
-          recurring: true,
-          requeue_on_evict: false,
-          reward: convertTokenDecimals(
-            DEFAULT_JOB_REWARD_AMOUNT,
-            warpFeeTokenAddress
-          ),
-          vars: JSON.stringify([jobVarAlreadyRunCounter, jobVarNextExecution]),
-          condition: JSON.stringify(condition),
-          msgs: JSON.stringify([swap]),
-        },
-      }
-    );
+    const createJob = new MsgExecuteContract(myAddress, warpControllerAddress, {
+      create_job: {
+        name: NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
+        description: constructJobDescriptionForAstroportDcaOrder(
+          offerTokenAmount,
+          offerToken,
+          returnToken,
+          dcaCount,
+          dcaInterval
+        ),
+        labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_DCA_ORDER],
+        recurring: true,
+        requeue_on_evict: false,
+        reward: convertTokenDecimals(
+          DEFAULT_JOB_REWARD_AMOUNT,
+          warpFeeTokenAddress
+        ),
+        assets_to_withdraw: [
+          {
+            [isNativeAsset(offerToken.address) ? "native" : "cw20"]: offerToken,
+          },
+          {
+            [isNativeAsset(offerToken.address) ? "native" : "cw20"]:
+              returnToken,
+          },
+          { native: warpFeeTokenAddress },
+        ],
+        vars: JSON.stringify([jobVarAlreadyRunCounter, jobVarNextExecution]),
+        condition: JSON.stringify(condition),
+        msgs: JSON.stringify([swap]),
+      },
+    });
 
     return [...helperMsgs, createJob];
   }, [
-    senderAddress,
+    myAddress,
     warpFeeTokenAddress,
     warpControllerAddress,
+    getWarpFirstFreeSubAccountResult,
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,

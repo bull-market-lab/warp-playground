@@ -1,8 +1,6 @@
-import { Flex } from "@chakra-ui/react";
-
 import useWarpCreateJobAstroportDcaOrder from "@/hooks/static/useWarpCreateJobAstroportDcaOrder";
 import { Token } from "@/utils/constants";
-import CreateAndBroadcastTxModal from "./CreateAndBroadcastTxModal";
+import CreateAndBroadcastTxModal from "../tx/CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportDcaOrderProps = {
   warpTotalJobFee: string;
@@ -33,7 +31,7 @@ const WarpCreateJobAstroportDcaOrder = ({
   dcaStartTimestamp,
   maxSpread,
 }: WarpCreateJobAstroportDcaOrderProps) => {
-  const createWarpJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
+  const createJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,
@@ -46,16 +44,14 @@ const WarpCreateJobAstroportDcaOrder = ({
   });
 
   return (
-    <Flex>
-      <CreateAndBroadcastTxModal
-        msgs={createWarpJobAstroportDcaOrder.msgs}
-        buttonText={"create DCA order"}
-        disabled={
-          offerTokenAmount === "0" ||
-          parseInt(offerTokenAmount) > offerTokenBalance
-        }
-      />
-    </Flex>
+    <CreateAndBroadcastTxModal
+      msgs={createJobAstroportDcaOrder.msgs}
+      buttonText={"create DCA order"}
+      disabled={
+        offerTokenAmount === "0" ||
+        parseInt(offerTokenAmount) > offerTokenBalance
+      }
+    />
   );
 };
 
