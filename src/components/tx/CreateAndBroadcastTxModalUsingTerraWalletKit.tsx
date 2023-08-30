@@ -37,7 +37,7 @@ const CreateAndBroadcastTxModal = ({
       .catch((e) => {
         toast({
           title: "Error broadcasting TX",
-          description: `${e.message}`,
+          description: `${JSON.stringify(e)}`,
           status: "error",
           duration: 6000,
           isClosable: true,

@@ -59,12 +59,19 @@ const WarpCreateJobAstroportLimitOrder = ({
   };
 
   useEffect(() => {
-    if (enableYieldBearing) {
+    if (enableYieldBearing && currentChain === CHAIN_NEUTRON) {
+      setEnableYieldBearing(true);
       setMsgs(yieldBearingLimitOrderMsgs);
     } else {
+      setEnableYieldBearing(false);
       setMsgs(limitOrderMsgs);
     }
-  }, [enableYieldBearing, yieldBearingLimitOrderMsgs, limitOrderMsgs]);
+  }, [
+    enableYieldBearing,
+    yieldBearingLimitOrderMsgs,
+    limitOrderMsgs,
+    currentChain,
+  ]);
 
   return (
     <Flex>
@@ -73,12 +80,12 @@ const WarpCreateJobAstroportLimitOrder = ({
           defaultChecked={enableYieldBearing}
           onChange={onChangeCheckBox}
         >
-          enable yield bearing limit order (only support native token)
+          enable yield bearing (only support native token now)
         </Checkbox>
       )}
       <CreateAndBroadcastTxModal
-        // msgs={msgs}
-        msgs={limitOrderMsgs}
+        msgs={msgs}
+        // msgs={limitOrderMsgs}
         buttonText={"create limit order"}
         disabled={
           offerTokenAmount === "0" ||
