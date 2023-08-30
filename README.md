@@ -1,6 +1,6 @@
 # Warp Playground
 
-UI to showcase the power of [Warp Protocol](https://warp.money/).
+UI to demonstrate the power of [Warp Protocol](https://warp.money/).
 
 ## Credit
 

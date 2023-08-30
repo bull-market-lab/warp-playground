@@ -27,8 +27,8 @@ const Home: FC = () => {
       <Header text="About" />
       <Box bg="white" p="6" mb="4" borderRadius="2xl">
         <Text mb="3">
-          <b>Warp Playground</b> is a UI that provides a set of functionalities
-          powered by Warp Protocol.
+          <b>Warp Playground</b> is a UI that demonstrate the powered of Warp
+          Protocol. It is for demo purpose only, and only deployed to testnet.
         </Text>
         <Text mb="3">
           By combining Warp with different protocols, users can many things that
@@ -36,13 +36,18 @@ const Home: FC = () => {
         </Text>
         <Text>Combining with dex like Astroport:</Text>
         <UnorderedList mb="6">
-          <ListItem>(feature is LIVE ✅) Users can place limit order.</ListItem>
           <ListItem>
-            (feature is LIVE ✅) Users can create dollar cost averaging
-            strategy.
+            (feature is LIVE ✅) Users can create limit order.
           </ListItem>
+          <ListItem>
+            (feature is LIVE ✅) If there is a money market supporting the
+            offered token, we can make the limit order a yield bearing one, like
+            lend the offered token to money market and withdraw before
+            execution, this feature is live on Neutron.
+          </ListItem>
+          <ListItem>(feature is LIVE ✅) Users can create DCA order.</ListItem>
         </UnorderedList>
-        <Text>Combining with Authz:</Text>
+        {/* <Text>Combining with Authz:</Text>
         <UnorderedList mb="6">
           <ListItem>
             (feature is under development 🚧) Users can auto claim and compound
@@ -53,7 +58,7 @@ const Home: FC = () => {
             spend their vested token, e.g. automatically sell vested token on
             Astroport on a daily basic.
           </ListItem>
-        </UnorderedList>
+        </UnorderedList> */}
         <hr />
         <Box mt="6" mb="1">
           <b>Useful links</b>
