@@ -1,5 +1,5 @@
 // this is in LUNA instead of uluna
-export const DEFAULT_JOB_REWARD_AMOUNT = "1";
+export const DEFAULT_JOB_REWARD_AMOUNT = "0.01";
 
 // currently eviction fee is 0,05
 // i.e. job creator needs to pay 0.05 LUNA everyday to keep the pending job live

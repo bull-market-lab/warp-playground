@@ -54,12 +54,6 @@ export const LimitOrderPage = () => {
     currentChainConfig.pools[0].token2
   );
 
-  useEffect(() => {
-    setPoolAddress(currentChainConfig.pools[0].address);
-    setOfferToken(currentChainConfig.pools[0].token1);
-    setReturnToken(currentChainConfig.pools[0].token2);
-  }, [currentChainConfig]);
-
   const [offerTokenAmount, setOfferTokenAmount] = useState("1");
   const [returnTokenAmount, setReturnTokenAmount] = useState("1");
 
@@ -67,6 +61,17 @@ export const LimitOrderPage = () => {
   const [desiredExchangeRate, setDesiredExchangeRate] = useState("1");
 
   const [expiredAfterDays, setExpiredAfterDays] = useState(1);
+
+  useEffect(() => {
+    setOfferTokenAmount("1");
+    setReturnTokenAmount("1");
+    setMarketExchangeRate("1");
+    setDesiredExchangeRate("1");
+    setExpiredAfterDays(1);
+    setPoolAddress(currentChainConfig.pools[0].address);
+    setOfferToken(currentChainConfig.pools[0].token1);
+    setReturnToken(currentChainConfig.pools[0].token2);
+  }, [currentChainConfig]);
 
   const offerTokenBalance = useBalance({
     tokenAddress: offerToken.address,
