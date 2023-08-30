@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@chakra-ui/react";
+import { Button, useToast } from "@chakra-ui/react";
 import { Msg } from "@terra-money/feather.js";
 import useMyWallet from "@/hooks/useMyWallet";
 
@@ -14,6 +14,7 @@ const CreateAndBroadcastTxModal = ({
   buttonText,
   disabled,
 }: CreateAndBroadcastTxModalProps) => {
+  const toast = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   const { currentChainId, connectionStatus, post } = useMyWallet();
 
@@ -23,13 +24,25 @@ const CreateAndBroadcastTxModal = ({
     post({
       chainID: currentChainId,
       msgs,
-      gas: "500000",
-      // gasAdjustment: 1.5,
     })
       .then((postResponse) => {
-        console.log(JSON.stringify(postResponse, null, 2));
+        toast({
+          title: "Successfully broadcasted TX",
+          description: `TX hash: ${postResponse.txhash}`,
+          status: "success",
+          duration: 6000,
+          isClosable: true,
+        });
       })
-      .catch((e) => {})
+      .catch((e) => {
+        toast({
+          title: "Error broadcasting TX",
+          description: `${e.message}`,
+          status: "error",
+          duration: 6000,
+          isClosable: true,
+        });
+      })
       .finally(() => {
         setIsProcessing(false);
       });
