@@ -1,30 +1,22 @@
-import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
 
+import useWarpGetJobs from "@/hooks/query/useWarpGetJobs";
 import { Job } from "@/utils/warpHelpers";
-import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
-import { WarpJobLink } from "@/components/warp/WarpJobLink";
-import { LABEL_WARP_WORLD } from "@/utils/constants";
+import WarpJobDetail from "@/components/warp/WarpJobDetail";
+import WarpJobLink from "@/components/warp/WarpJobLink";
+import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpClosedJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-export const WarpClosedJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpClosedJobsProps) => {
+const WarpClosedJobs = ({ warpJobLabel }: WarpClosedJobsProps) => {
   const [warpCancelledJobs, setWarpCancelledJobs] = useState<Job[]>([]);
   const [warpCancelledJobCount, setWarpCancelledJobCount] = useState(0);
 
   // TODO: cover all 3 status: Failed, Evicted, Cancelled
   const getWarpCancelledJobsResult = useWarpGetJobs({
-    ownerAddress,
-    warpControllerAddress,
     status: "Cancelled",
   }).jobsResult.data;
 
@@ -34,7 +26,7 @@ export const WarpClosedJobs = ({
     }
     const jobs = getWarpCancelledJobsResult.jobs.filter(
       (job) =>
-        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(LABEL_WARP_PLAYGROUND) &&
         job.labels.includes(warpJobLabel)
     );
     setWarpCancelledJobCount(jobs.length);
@@ -114,3 +106,5 @@ export const WarpClosedJobs = ({
     </>
   );
 };
+
+export default WarpClosedJobs;

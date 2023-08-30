@@ -1,4 +1,4 @@
-# (WIP) Risks of using warp world
+# (WIP) Risks of using warp playground
 
 ## General risks
 

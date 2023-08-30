@@ -5,7 +5,7 @@ type WarpJobLinkProps = {
   jobId: string;
 };
 
-export const WarpJobLink = ({ jobId }: WarpJobLinkProps) => {
+const WarpJobLink = ({ jobId }: WarpJobLinkProps) => {
   return (
     <Link
       href={constructJobUrl(jobId)}
@@ -18,3 +18,5 @@ export const WarpJobLink = ({ jobId }: WarpJobLinkProps) => {
     </Link>
   );
 };
+
+export default WarpJobLink;

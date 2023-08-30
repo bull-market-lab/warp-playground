@@ -1,15 +1,14 @@
-import { useContext } from "react";
-import { Flex, Select } from "@chakra-ui/react";
+import { Select } from "@chakra-ui/react";
 import { usePathname, useRouter } from "next/navigation";
 
-import ChainContext from "@/contexts/ChainContext";
 import { CHAIN_NEUTRON, CHAIN_TERRA } from "@/utils/constants";
+import useMyWallet from "@/hooks/useMyWallet";
 
-export const ChainSelector = () => {
+const ChainSelector = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { currentChain } = useContext(ChainContext);
+  const { currentChain } = useMyWallet();
 
   const handleSelectChange = (event: any) => {
     const selectedOption = event.target.value;
@@ -17,12 +16,12 @@ export const ChainSelector = () => {
   };
 
   return (
-    <Flex direction="row" align="center" justify="center">
-      Current chain
-      <Select defaultValue={currentChain} onChange={handleSelectChange}>
-        <option value={CHAIN_TERRA}>Terra</option>
-        <option value={CHAIN_NEUTRON}>Neutron</option>
-      </Select>
-    </Flex>
+    <Select defaultValue={currentChain} onChange={handleSelectChange}>
+      <option value={CHAIN_TERRA}>Terra Testnet</option>
+      <option value={CHAIN_NEUTRON}>Neutron Testnet</option>
+      {/* <option value={CHAIN_OSMOSIS}>Osmosis</option> */}
+    </Select>
   );
 };
+
+export default ChainSelector;

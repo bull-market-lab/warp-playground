@@ -20,7 +20,7 @@ type SwapProps = {
   ) => void;
 };
 
-export const Swap = ({
+const Swap = ({
   offerToken,
   returnToken,
   returnTokenAmount,
@@ -53,3 +53,5 @@ export const Swap = ({
     </Flex>
   );
 };
+
+export default Swap;

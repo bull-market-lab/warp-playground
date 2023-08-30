@@ -7,21 +7,15 @@ import {
   TabPanel,
 } from "@chakra-ui/react";
 
-import { WarpClosedJobs } from "@/components/warp/WarpClosedJobs";
-import { WarpExecutedJobs } from "@/components/warp/WarpExecutedJobs";
-import { WarpPendingJobs } from "@/components/warp/WarpPendingJobs";
+import WarpClosedJobs from "@/components/warp/WarpClosedJobs";
+import WarpExecutedJobs from "@/components/warp/WarpExecutedJobs";
+import WarpPendingJobs from "@/components/warp/WarpPendingJobs";
 
 type WarpJobsProps = {
-  myAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-export const WarpJobs = ({
-  myAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpJobsProps) => {
+const WarpJobs = ({ warpJobLabel }: WarpJobsProps) => {
   return (
     <Flex
       align="center"
@@ -43,28 +37,18 @@ export const WarpJobs = ({
         </TabList>
         <TabPanels>
           <TabPanel>
-            <WarpPendingJobs
-              ownerAddress={myAddress}
-              warpControllerAddress={warpControllerAddress}
-              warpJobLabel={warpJobLabel}
-            />
+            <WarpPendingJobs warpJobLabel={warpJobLabel} />
           </TabPanel>
           <TabPanel>
-            <WarpExecutedJobs
-              ownerAddress={myAddress}
-              warpControllerAddress={warpControllerAddress}
-              warpJobLabel={warpJobLabel}
-            />
+            <WarpExecutedJobs warpJobLabel={warpJobLabel} />
           </TabPanel>
           <TabPanel>
-            <WarpClosedJobs
-              ownerAddress={myAddress}
-              warpControllerAddress={warpControllerAddress}
-              warpJobLabel={warpJobLabel}
-            />
+            <WarpClosedJobs warpJobLabel={warpJobLabel} />
           </TabPanel>
         </TabPanels>
       </Tabs>
     </Flex>
   );
 };
+
+export default WarpJobs;

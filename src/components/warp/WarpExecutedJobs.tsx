@@ -1,29 +1,21 @@
-import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
+import useWarpGetJobs from "@/hooks/query/useWarpGetJobs";
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
 
 import { Job } from "@/utils/warpHelpers";
-import { WarpJobLink } from "@/components/warp/WarpJobLink";
-import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
-import { LABEL_WARP_WORLD } from "@/utils/constants";
+import WarpJobLink from "@/components/warp/WarpJobLink";
+import WarpJobDetail from "@/components/warp/WarpJobDetail";
+import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpExecutedJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-export const WarpExecutedJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpExecutedJobsProps) => {
+const WarpExecutedJobs = ({ warpJobLabel }: WarpExecutedJobsProps) => {
   const [warpExecutedJobs, setWarpExecutedJobs] = useState<Job[]>([]);
   const [warpExecutedJobCount, setWarpExecutedJobCount] = useState(0);
 
   const getWarpExecutedJobsResult = useWarpGetJobs({
-    ownerAddress,
-    warpControllerAddress,
     status: "Executed",
   }).jobsResult.data;
 
@@ -33,7 +25,7 @@ export const WarpExecutedJobs = ({
     }
     const jobs = getWarpExecutedJobsResult.jobs.filter(
       (job) =>
-        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(LABEL_WARP_PLAYGROUND) &&
         job.labels.includes(warpJobLabel)
     );
     setWarpExecutedJobCount(jobs.length);
@@ -113,3 +105,5 @@ export const WarpExecutedJobs = ({
     </>
   );
 };
+
+export default WarpExecutedJobs;

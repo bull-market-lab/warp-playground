@@ -5,6 +5,8 @@ type WarpJobDetailProps = {
   job: Job;
 };
 
-export const WarpJobDetail = ({ job }: WarpJobDetailProps) => {
+const WarpJobDetail = ({ job }: WarpJobDetailProps) => {
   return <Box>{job.description}</Box>;
 };
+
+export default WarpJobDetail;

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Button } from "@chakra-ui/react";
-import { useWallet, useConnectedWallet } from "@terra-money/wallet-kit";
 import { Msg } from "@terra-money/feather.js";
-import { getChainIDByNetwork } from "@/utils/network";
+import useMyWallet from "@/hooks/useMyWallet";
 
 type CreateAndBroadcastTxModalProps = {
   msgs: Msg[];
@@ -10,25 +9,23 @@ type CreateAndBroadcastTxModalProps = {
   disabled: boolean;
 };
 
-export const CreateAndBroadcastTxModal = ({
+const CreateAndBroadcastTxModal = ({
   msgs,
   buttonText,
   disabled,
 }: CreateAndBroadcastTxModalProps) => {
-  const wallet = useWallet();
-  const connectedWallet = useConnectedWallet();
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const chainID = getChainIDByNetwork(connectedWallet?.network);
+  const { currentChainId, connectionStatus, post } = useMyWallet();
 
   const onCreateAndBroadcastTx = () => {
     setIsProcessing(true);
 
-    wallet
-      .post({
-        chainID,
-        msgs: msgs,
-      })
+    post({
+      chainID: currentChainId,
+      msgs,
+      gas: "500000",
+      // gasAdjustment: 1.5,
+    })
       .then((postResponse) => {
         console.log(JSON.stringify(postResponse, null, 2));
       })
@@ -83,9 +80,11 @@ export const CreateAndBroadcastTxModal = ({
     <Button
       colorScheme="blue"
       onClick={onCreateAndBroadcastTx}
-      isDisabled={disabled || isProcessing || wallet.status !== "CONNECTED"}
+      isDisabled={disabled || isProcessing || connectionStatus !== "CONNECTED"}
     >
       {isProcessing ? "broadcasting tx..." : buttonText}
     </Button>
   );
 };
+
+export default CreateAndBroadcastTxModal;

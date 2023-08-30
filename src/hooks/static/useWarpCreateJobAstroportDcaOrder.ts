@@ -8,17 +8,15 @@ import { constructJobDescriptionForAstroportDcaOrder } from "@/utils/naming";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
   LABEL_ASTROPORT_DCA_ORDER,
-  LABEL_WARP_WORLD,
-  NAME_WARP_WORLD_ASTROPORT_DCA_ORDER,
+  LABEL_WARP_PLAYGROUND,
+  NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
   Token,
 } from "@/utils/constants";
+import useMyWallet from "../useMyWallet";
 import { constructHelperMsgs } from "@/utils/warpHelpers";
+import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
 type UseWarpCreateJobAstroportDcaOrderProps = {
-  senderAddress?: string;
-  // token denom used to pay for warp fee, now is always uluna
-  warpFeeTokenAddress: string;
-  warpControllerAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
   // total offer amount, each order will be offerTokenAmount / dcaCount
@@ -35,10 +33,7 @@ type UseWarpCreateJobAstroportDcaOrderProps = {
   maxSpread: string;
 };
 
-export const useWarpCreateJobAstroportDcaOrder = ({
-  senderAddress,
-  warpFeeTokenAddress,
-  warpControllerAddress,
+const useWarpCreateJobAstroportDcaOrder = ({
   warpTotalJobFee,
   poolAddress,
   offerTokenAmount,
@@ -49,16 +44,22 @@ export const useWarpCreateJobAstroportDcaOrder = ({
   dcaStartTimestamp,
   maxSpread,
 }: UseWarpCreateJobAstroportDcaOrderProps) => {
+  const { currentChainConfig, myAddress } = useMyWallet();
+  const getWarpFirstFreeSubAccountResult =
+    useWarpGetFirstFreeSubAccount().accountResult.data;
+
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
+  const warpFeeTokenAddress = currentChainConfig.warp.feeToken.address;
+
   // we need to set max spread carefully as this is a market order
   // use default spread 1% for now
   // const maxSpread = "0.01";
 
   const msgs = useMemo(() => {
     if (
-      !senderAddress ||
-      !warpFeeTokenAddress ||
-      !warpControllerAddress ||
+      !myAddress ||
       !warpTotalJobFee ||
+      !getWarpFirstFreeSubAccountResult ||
       !poolAddress ||
       !offerTokenAmount ||
       !offerToken ||
@@ -71,80 +72,14 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       return [];
     }
 
-    const helperMsgs = constructHelperMsgs({
-      senderAddress,
-      warpControllerAddress,
-      warpFeeTokenAddress,
-      warpTotalJobFee,
-      offerTokenAddress: offerToken.address,
-      offerTokenAmount: BigNumber(offerTokenAmount).times(dcaCount).toString(),
-    });
-
-    const astroportSwapMsg = isNativeAsset(offerToken.address)
-      ? {
-          swap: {
-            offer_asset: {
-              info: {
-                native_token: {
-                  denom: offerToken.address,
-                },
-              },
-              amount: convertTokenDecimals(
-                offerTokenAmount,
-                offerToken.address
-              ),
-            },
-            max_spread: maxSpread,
-            to: senderAddress,
-          },
-        }
-      : {
-          send: {
-            contract: poolAddress,
-            amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
-            msg: toBase64({
-              swap: {
-                ask_asset_info: {
-                  native_token: {
-                    denom: returnToken.address,
-                  },
-                },
-                // offer_asset
-                // "belief_price": beliefPrice,
-                max_spread: maxSpread,
-                to: senderAddress,
-              },
-            }),
-          },
-        };
-    const swap = {
-      wasm: {
-        execute: {
-          contract_addr: isNativeAsset(offerToken.address)
-            ? poolAddress
-            : offerToken.address,
-          msg: toBase64(astroportSwapMsg),
-          funds: isNativeAsset(offerToken.address)
-            ? [
-                {
-                  denom: offerToken.address,
-                  amount: convertTokenDecimals(
-                    offerTokenAmount,
-                    offerToken.address
-                  ),
-                },
-              ]
-            : [],
-        },
-      },
-    };
-    const swapJsonString = JSON.stringify(swap);
+    /// =========== vars ===========
 
     const jobVarNameNextExecution = "dca-execution";
     const jobVarNextExecution = {
       static: {
         kind: "uint", // NOTE: it's better to use uint instead of timestamp to keep it consistent with condition
         name: jobVarNameNextExecution,
+        encode: false,
         value: dcaStartTimestamp.toString(),
         update_fn: {
           // update value to current timestamp + dcaInterval, i.e. make next execution 1 day later
@@ -174,6 +109,7 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       static: {
         kind: "int",
         name: jobVarNameAlreadyRunCounter,
+        encode: false,
         value: (0).toString(), // initial counter value is 0
         update_fn: {
           // increment counter
@@ -196,6 +132,8 @@ export const useWarpCreateJobAstroportDcaOrder = ({
         },
       },
     };
+
+    /// =========== condition ===========
 
     const condition = {
       and: [
@@ -230,38 +168,118 @@ export const useWarpCreateJobAstroportDcaOrder = ({
       ],
     };
 
-    const createJob = new MsgExecuteContract(
-      senderAddress,
-      warpControllerAddress,
-      {
-        create_job: {
-          name: NAME_WARP_WORLD_ASTROPORT_DCA_ORDER,
-          description: constructJobDescriptionForAstroportDcaOrder(
-            offerTokenAmount,
-            offerToken,
-            returnToken,
-            dcaCount,
-            dcaInterval
-          ),
-          labels: [LABEL_WARP_WORLD, LABEL_ASTROPORT_DCA_ORDER],
-          recurring: true,
-          requeue_on_evict: false,
-          reward: convertTokenDecimals(
-            DEFAULT_JOB_REWARD_AMOUNT,
-            warpFeeTokenAddress
-          ),
-          condition: condition,
-          msgs: [swapJsonString],
-          vars: [jobVarAlreadyRunCounter, jobVarNextExecution],
+    /// =========== job msgs ===========
+
+    const astroportSwapMsg = isNativeAsset(offerToken.address)
+      ? {
+          swap: {
+            offer_asset: {
+              info: {
+                native_token: {
+                  denom: offerToken.address,
+                },
+              },
+              amount: convertTokenDecimals(
+                offerTokenAmount,
+                offerToken.address
+              ),
+            },
+            max_spread: maxSpread,
+            to: myAddress,
+          },
+        }
+      : {
+          send: {
+            contract: poolAddress,
+            amount: convertTokenDecimals(offerTokenAmount, offerToken.address),
+            msg: toBase64({
+              swap: {
+                ask_asset_info: {
+                  native_token: {
+                    denom: returnToken.address,
+                  },
+                },
+                // offer_asset
+                // "belief_price": beliefPrice,
+                max_spread: maxSpread,
+                to: myAddress,
+              },
+            }),
+          },
+        };
+    const swap = {
+      wasm: {
+        execute: {
+          contract_addr: isNativeAsset(offerToken.address)
+            ? poolAddress
+            : offerToken.address,
+          msg: toBase64(astroportSwapMsg),
+          funds: isNativeAsset(offerToken.address)
+            ? [
+                {
+                  denom: offerToken.address,
+                  amount: convertTokenDecimals(
+                    offerTokenAmount,
+                    offerToken.address
+                  ),
+                },
+              ]
+            : [],
         },
-      }
-    );
+      },
+    };
+
+    /// =========== cosmos msgs ===========
+
+    const helperMsgs = constructHelperMsgs({
+      myAddress,
+      warpAccountAddress: getWarpFirstFreeSubAccountResult.account,
+      warpControllerAddress,
+      warpFeeTokenAddress,
+      warpTotalJobFee,
+      offerTokenAddress: offerToken.address,
+      offerTokenAmount: BigNumber(offerTokenAmount).times(dcaCount).toString(),
+    });
+
+    const createJob = new MsgExecuteContract(myAddress, warpControllerAddress, {
+      create_job: {
+        name: NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
+        description: constructJobDescriptionForAstroportDcaOrder(
+          offerTokenAmount,
+          offerToken,
+          returnToken,
+          dcaCount,
+          dcaInterval
+        ),
+        labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_DCA_ORDER],
+        recurring: true,
+        requeue_on_evict: false,
+        reward: convertTokenDecimals(
+          DEFAULT_JOB_REWARD_AMOUNT,
+          warpFeeTokenAddress
+        ),
+        assets_to_withdraw: [
+          {
+            [isNativeAsset(offerToken.address) ? "native" : "cw20"]: offerToken,
+          },
+          {
+            [isNativeAsset(offerToken.address) ? "native" : "cw20"]:
+              returnToken,
+          },
+          { native: warpFeeTokenAddress },
+        ],
+        vars: JSON.stringify([jobVarAlreadyRunCounter, jobVarNextExecution]),
+        condition: JSON.stringify(condition),
+        msgs: JSON.stringify([swap]),
+      },
+    });
 
     return [...helperMsgs, createJob];
   }, [
-    senderAddress,
+    myAddress,
     warpFeeTokenAddress,
     warpControllerAddress,
+    getWarpFirstFreeSubAccountResult,
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,
@@ -277,3 +295,5 @@ export const useWarpCreateJobAstroportDcaOrder = ({
     return { msgs };
   }, [msgs]);
 };
+
+export default useWarpCreateJobAstroportDcaOrder;

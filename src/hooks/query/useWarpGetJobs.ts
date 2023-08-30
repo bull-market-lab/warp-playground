@@ -1,7 +1,7 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/utils/warpHelpers";
-import ChainContext from "@/contexts/ChainContext";
+import useMyWallet from "../useMyWallet";
 
 type GetWarpJobsResponse = {
   jobs: Job[];
@@ -9,22 +9,17 @@ type GetWarpJobsResponse = {
 };
 
 type UseWarpGetJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   status: string;
 };
 
-export const useWarpGetJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  status,
-}: UseWarpGetJobsProps) => {
-  const { lcd } = useContext(ChainContext);
+const useWarpGetJobs = ({ status }: UseWarpGetJobsProps) => {
+  const { lcd, myAddress, currentChainConfig } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const jobsResult = useQuery(
-    [`get-jobs`, status, ownerAddress, warpControllerAddress],
+    [`get-jobs`, status, myAddress, warpControllerAddress],
     async () => {
-      if (!lcd || !ownerAddress || !warpControllerAddress || !status) {
+      if (!lcd || !myAddress || !warpControllerAddress || !status) {
         return null;
       }
 
@@ -32,7 +27,7 @@ export const useWarpGetJobs = ({
         warpControllerAddress,
         {
           query_jobs: {
-            owner: ownerAddress,
+            owner: myAddress,
             job_status: status,
             // TODO: support pagination, default limit is 50 now
             //   start_after: { _0: "", _1: "" },
@@ -45,10 +40,12 @@ export const useWarpGetJobs = ({
       };
     },
     {
-      enabled: !!warpControllerAddress && !!ownerAddress && !!status && !!lcd,
+      enabled: !!warpControllerAddress && !!myAddress && !!status && !!lcd,
     }
   );
   return useMemo(() => {
     return { jobsResult };
   }, [jobsResult]);
 };
+
+export default useWarpGetJobs;

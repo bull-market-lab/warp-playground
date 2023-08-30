@@ -27,7 +27,7 @@ const Home: FC = () => {
       <Header text="About" />
       <Box bg="white" p="6" mb="4" borderRadius="2xl">
         <Text mb="3">
-          <b>Warp World</b> is a UI that provides a set of functionalities
+          <b>Warp Playground</b> is a UI that provides a set of functionalities
           powered by Warp Protocol.
         </Text>
         <Text mb="3">
@@ -74,9 +74,9 @@ const Home: FC = () => {
           <Link
             variant="docs"
             isExternal={true}
-            href="https://github.com/llllllluc/warp-world"
+            href="https://github.com/llllllluc/warp-playground"
           >
-            Warp World UI Github <ExternalLinkIconWrapper />
+            Warp Playground UI Github <ExternalLinkIconWrapper />
           </Link>
         </Flex>
       </Box>
@@ -86,8 +86,8 @@ const Home: FC = () => {
           <CardBody>
             <Stack divider={<StackDivider />} spacing="4">
               <Text>
-                Warp world is still in active development and there are many
-                things that are not user friendly, at this moment only
+                Warp playground is still in active development and there are
+                many things that are not user friendly, at this moment only
                 developers or people who knows how to check data on chain (know
                 how to use explorer) are recommended to use this app.
               </Text>

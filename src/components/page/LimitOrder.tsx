@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
   NumberInput,
@@ -13,13 +13,13 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 
-import useBalance from "@/hooks/useBalance";
-import { useWarpGetConfig } from "@/hooks/useWarpGetConfig";
-import SelectPool from "@/components/warp/SelectPool";
-import { WarpJobs } from "@/components/warp/WarpJobs";
-import { useSimulateSwap } from "@/hooks/useAstroportSimulateSwapFromPool";
-import { WarpCreateJobAstroportLimitOrder } from "@/components/warp/WarpCreateJobAstroportLimitOrder";
-import { Swap } from "@/components/warp/Swap";
+import useBalance from "@/hooks/query/useBalance";
+import useWarpGetConfig from "@/hooks/query/useWarpGetConfig";
+import SelectPool from "@/components/swap/SelectPool";
+import WarpJobs from "@/components/warp/WarpJobs";
+import useSimulateSwap from "@/hooks/query/useAstroportSimulateSwapFromPool";
+import WarpCreateJobAstroportLimitOrder from "@/components/warp/WarpCreateJobAstroportLimitOrder";
+import Swap from "@/components/swap/Swap";
 import { getTokenDecimals } from "@/utils/token";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
@@ -28,13 +28,11 @@ import {
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
-import ChainContext from "@/contexts/ChainContext";
+import useMyWallet from "@/hooks/useMyWallet";
+import WarpAccount from "../warp/WarpAccount";
 
 export const LimitOrderPage = () => {
-  const { chainConfig, myAddress } = useContext(ChainContext);
-
-  const warpControllerAddress = chainConfig.warp.controllerAddress;
-  const warpFeeToken = chainConfig.warp.feeToken;
+  const { currentChainConfig } = useMyWallet();
 
   const [warpJobCreationFeePercentage, setWarpJobCreationFeePercentage] =
     useState("5");
@@ -46,18 +44,15 @@ export const LimitOrderPage = () => {
   );
   const [warpTotalJobFee, setWarpTotalJobFee] = useState("0");
 
-  const [poolAddress, setPoolAddress] = useState(chainConfig.pools[0].address);
+  const [poolAddress, setPoolAddress] = useState(
+    currentChainConfig.pools[0].address
+  );
   const [offerToken, setOfferToken] = useState<Token>(
-    chainConfig.pools[0].token1
+    currentChainConfig.pools[0].token1
   );
   const [returnToken, setReturnToken] = useState<Token>(
-    chainConfig.pools[0].token2
+    currentChainConfig.pools[0].token2
   );
-
-  useEffect(() => {
-    setOfferToken(chainConfig.pools[0].token1);
-    setReturnToken(chainConfig.pools[0].token2);
-  }, [chainConfig]);
 
   const [offerTokenAmount, setOfferTokenAmount] = useState("1");
   const [returnTokenAmount, setReturnTokenAmount] = useState("1");
@@ -67,18 +62,25 @@ export const LimitOrderPage = () => {
 
   const [expiredAfterDays, setExpiredAfterDays] = useState(1);
 
+  useEffect(() => {
+    setOfferTokenAmount("1");
+    setReturnTokenAmount("1");
+    setMarketExchangeRate("1");
+    setDesiredExchangeRate("1");
+    setExpiredAfterDays(1);
+    setPoolAddress(currentChainConfig.pools[0].address);
+    setOfferToken(currentChainConfig.pools[0].token1);
+    setReturnToken(currentChainConfig.pools[0].token2);
+  }, [currentChainConfig]);
+
   const offerTokenBalance = useBalance({
-    ownerAddress: myAddress,
     tokenAddress: offerToken.address,
   });
   const returnTokenBalance = useBalance({
-    ownerAddress: myAddress,
     tokenAddress: returnToken.address,
   });
 
-  const getWarpConfigResult = useWarpGetConfig({
-    warpControllerAddress,
-  }).configResult.data;
+  const getWarpConfigResult = useWarpGetConfig().configResult.data;
 
   useEffect(() => {
     if (!getWarpConfigResult) {
@@ -170,6 +172,7 @@ export const LimitOrderPage = () => {
 
   return (
     <Flex align="center" justify="center" direction="column">
+      <WarpAccount />
       <Flex
         align="center"
         justify="center"
@@ -246,32 +249,24 @@ export const LimitOrderPage = () => {
           </NumberInputStepper>
         </NumberInput>
         <Box>{expiredAfterDays > 1 ? "days " : "day "}</Box>
-        <WarpCreateJobAstroportLimitOrder
-          senderAddress={myAddress}
-          warpFeeTokenAddress={warpFeeToken.address}
-          warpControllerAddress={warpControllerAddress}
-          warpTotalJobFee={warpTotalJobFee}
-          poolAddress={poolAddress}
-          offerToken={offerToken}
-          offerTokenAmount={offerTokenAmount}
-          returnToken={returnToken}
-          minimumReturnTokenAmount={returnTokenAmount}
-          offerTokenBalance={offerTokenBalance.data}
-          expiredAfterDays={expiredAfterDays}
-        />
       </Flex>
+      <WarpCreateJobAstroportLimitOrder
+        warpTotalJobFee={warpTotalJobFee}
+        poolAddress={poolAddress}
+        offerToken={offerToken}
+        offerTokenAmount={offerTokenAmount}
+        returnToken={returnToken}
+        minimumReturnTokenAmount={returnTokenAmount}
+        offerTokenBalance={offerTokenBalance.data}
+        expiredAfterDays={expiredAfterDays}
+      />
       <WarpProtocolFeeBreakdown
         warpJobCreationFee={warpJobCreationFee}
         warpJobEvictionFee={warpJobEvictionFee}
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
-        warpFeeToken={warpFeeToken}
       />
-      <WarpJobs
-        myAddress={myAddress}
-        warpControllerAddress={warpControllerAddress}
-        warpJobLabel={LABEL_ASTROPORT_LIMIT_ORDER}
-      />
+      <WarpJobs warpJobLabel={LABEL_ASTROPORT_LIMIT_ORDER} />
     </Flex>
   );
 };

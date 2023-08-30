@@ -1,30 +1,22 @@
 import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
 
-import { useWarpGetJobs } from "@/hooks/useWarpGetJobs";
+import useWarpGetJobs from "@/hooks/query/useWarpGetJobs";
 import { Job } from "@/utils/warpHelpers";
-import { WarpJobLink } from "@/components/warp/WarpJobLink";
-import { WarpJobDetail } from "@/components/warp/WarpJobDetail";
-import { WarpCancelJob } from "@/components/warp/WarpCancelJob";
-import { LABEL_WARP_WORLD } from "@/utils/constants";
+import WarpJobLink from "@/components/warp/WarpJobLink";
+import WarpJobDetail from "@/components/warp/WarpJobDetail";
+import WarpCancelJob from "@/components/warp/WarpCancelJob";
+import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpPendingJobsProps = {
-  ownerAddress?: string;
-  warpControllerAddress?: string;
   warpJobLabel: string;
 };
 
-export const WarpPendingJobs = ({
-  ownerAddress,
-  warpControllerAddress,
-  warpJobLabel,
-}: WarpPendingJobsProps) => {
+const WarpPendingJobs = ({ warpJobLabel }: WarpPendingJobsProps) => {
   const [warpPendingJobs, setWarpPendingJobs] = useState<Job[]>([]);
   const [warpPendingJobCount, setWarpPendingJobCount] = useState(0);
 
   const getWarpPendingJobsResult = useWarpGetJobs({
-    ownerAddress,
-    warpControllerAddress,
     status: "Pending",
   }).jobsResult.data;
 
@@ -34,7 +26,7 @@ export const WarpPendingJobs = ({
     }
     const jobs = getWarpPendingJobsResult.jobs.filter(
       (job) =>
-        job.labels.includes(LABEL_WARP_WORLD) &&
+        job.labels.includes(LABEL_WARP_PLAYGROUND) &&
         job.labels.includes(warpJobLabel)
     );
     setWarpPendingJobCount(jobs.length);
@@ -58,11 +50,7 @@ export const WarpPendingJobs = ({
             <WarpJobDetail job={job} />
           </Td>
           <Td borderBottom="none" py="6" minW="200px" borderRightRadius="2xl">
-            <WarpCancelJob
-              senderAddress={ownerAddress}
-              jobId={job.id}
-              warpControllerAddress={warpControllerAddress}
-            />
+            <WarpCancelJob jobId={job.id} />
           </Td>
         </Tr>
       ))
@@ -124,3 +112,5 @@ export const WarpPendingJobs = ({
     </>
   );
 };
+
+export default WarpPendingJobs;

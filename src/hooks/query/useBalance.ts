@@ -1,32 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokenDecimals, isNativeAsset } from "@/utils/token";
-import ChainContext from "@/contexts/ChainContext";
-import { useContext } from "react";
-import { Alert } from "@chakra-ui/react";
+import useMyWallet from "../useMyWallet";
 
 type Cw20BalanceResponse = {
   balance: string;
 };
 
 type UseBalanceProps = {
-  ownerAddress?: string;
   tokenAddress?: string;
 };
 
-export default function useBalance({
-  ownerAddress,
-  tokenAddress,
-}: UseBalanceProps) {
-  const { lcd } = useContext(ChainContext);
+const useBalance = ({ tokenAddress }: UseBalanceProps) => {
+  const { lcd, myAddress } = useMyWallet();
+
   return useQuery(
-    ["balance", ownerAddress, tokenAddress],
+    ["balance", myAddress, tokenAddress],
     async () => {
-      if (!lcd || !ownerAddress || !tokenAddress) {
+      if (!lcd || !myAddress || !tokenAddress) {
         return 0;
       }
 
       if (isNativeAsset(tokenAddress)) {
-        const [coins, pagination] = await lcd.bank.balance(ownerAddress);
+        const [coins, pagination] = await lcd.bank.balance(myAddress);
         // console.log("coins", coins, pagination);
         // TODO: handle pagination
         const coin = coins
@@ -42,7 +37,7 @@ export default function useBalance({
           tokenAddress,
           {
             balance: {
-              address: ownerAddress,
+              address: myAddress,
             },
           }
         );
@@ -50,9 +45,11 @@ export default function useBalance({
       }
     },
     {
-      enabled: !!ownerAddress && !!tokenAddress && !!lcd,
+      enabled: !!myAddress && !!tokenAddress && !!lcd,
       initialData: 0,
       placeholderData: 0,
     }
   );
-}
+};
+
+export default useBalance;

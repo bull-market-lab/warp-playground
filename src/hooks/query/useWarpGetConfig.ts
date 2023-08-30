@@ -1,6 +1,6 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import ChainContext from "@/contexts/ChainContext";
+import useMyWallet from "../useMyWallet";
 
 type GetWarpConfigResponse = {
   config: {
@@ -19,14 +19,9 @@ type GetWarpConfigResponse = {
   };
 };
 
-type UseWarpGetConfigProps = {
-  warpControllerAddress?: string;
-};
-
-export const useWarpGetConfig = ({
-  warpControllerAddress,
-}: UseWarpGetConfigProps) => {
-  const { lcd } = useContext(ChainContext);
+const useWarpGetConfig = () => {
+  const { lcd, currentChainConfig } = useMyWallet();
+  const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const configResult = useQuery(
     ["get-config", warpControllerAddress],
@@ -53,3 +48,5 @@ export const useWarpGetConfig = ({
     return { configResult };
   }, [configResult]);
 };
+
+export default useWarpGetConfig;

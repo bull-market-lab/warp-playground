@@ -1,8 +1,8 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
-import ChainContext from "@/contexts/ChainContext";
+import useMyWallet from "../useMyWallet";
 
 type AssetInfo =
   | {
@@ -29,13 +29,13 @@ type UseSimulateSwapProps = {
   poolAddress: string;
 };
 
-export const useSimulateSwap = ({
+const useSimulateSwap = ({
   amount,
   offerTokenAddress,
   returnTokenAddress,
   poolAddress,
 }: UseSimulateSwapProps) => {
-  const { lcd } = useContext(ChainContext);
+  const { lcd } = useMyWallet();
 
   const simulateResult = useQuery(
     [
@@ -106,3 +106,5 @@ export const useSimulateSwap = ({
     return { simulateResult };
   }, [simulateResult]);
 };
+
+export default useSimulateSwap;

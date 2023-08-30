@@ -8,27 +8,23 @@ import {
   VStack,
   Text,
 } from "@chakra-ui/react";
-import { useWallet } from "@terra-money/wallet-kit";
 import copy from "copy-to-clipboard";
-import { useContext } from "react";
+import BigNumber from "bignumber.js";
 
 import PopoverWrapper from "@/components/common/PopoverWrapper";
-import WalletNetwork from "@/components/terra-wallet-kit/WalletNetwork";
-import WalletIcon from "@/components/terra-wallet-kit/WalletIcon";
+import WalletNetwork from "@/components/wallet/WalletNetwork";
 import CopyIcon from "@/components/common/CopyIcon";
 import ExternalLinkIcon from "@/components/common/ExternalLinkIcon";
 import { truncateString } from "@/utils/formatHelpers";
-import useBalance from "@/hooks/useBalance";
-import ChainContext from "@/contexts/ChainContext";
+import useBalance from "@/hooks/query/useBalance";
 import { CHAIN_TERRA } from "@/utils/constants";
-import BigNumber from "bignumber.js";
+import useMyWallet from "@/hooks/useMyWallet";
+import WalletIcon from "./WalletIcon";
 
 const WalletInfo = () => {
-  const { disconnect } = useWallet();
-  const { currentChainId, myAddress, currentChain } = useContext(ChainContext);
+  const { currentChainId, currentChain, myAddress, disconnect } = useMyWallet();
 
   const balance = useBalance({
-    ownerAddress: myAddress,
     tokenAddress: currentChain === CHAIN_TERRA ? "uluna" : "untrn",
   });
 
@@ -37,7 +33,7 @@ const WalletInfo = () => {
       title="My wallet"
       triggerElement={() => (
         <Button type="button" bg="none" p="0" _hover={{ bg: "none" }}>
-          <WalletNetwork chainID={currentChainId} />
+          {/* <WalletNetwork chainID={currentChainId} /> */}
           <Flex color="white" justify="center">
             <Box
               color="white"

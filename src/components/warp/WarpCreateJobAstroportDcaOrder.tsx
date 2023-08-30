@@ -1,12 +1,8 @@
-import { Flex } from "@chakra-ui/react";
-import { useWarpCreateJobAstroportDcaOrder } from "@/hooks/useWarpCreateJobAstroportDcaOrder";
-import { CreateAndBroadcastTxModal } from "@/components/warp/CreateAndBroadcastTxModal";
+import useWarpCreateJobAstroportDcaOrder from "@/hooks/static/useWarpCreateJobAstroportDcaOrder";
 import { Token } from "@/utils/constants";
+import CreateAndBroadcastTxModal from "../tx/CreateAndBroadcastTxModal";
 
 type WarpCreateJobAstroportDcaOrderProps = {
-  senderAddress?: string;
-  warpFeeTokenAddress: string;
-  warpControllerAddress: string;
   warpTotalJobFee: string;
   poolAddress: string;
   offerToken: Token;
@@ -23,10 +19,7 @@ type WarpCreateJobAstroportDcaOrderProps = {
   maxSpread: string;
 };
 
-export const WarpCreateJobAstroportDcaOrder = ({
-  senderAddress,
-  warpFeeTokenAddress,
-  warpControllerAddress,
+const WarpCreateJobAstroportDcaOrder = ({
   warpTotalJobFee,
   poolAddress,
   offerToken,
@@ -38,10 +31,7 @@ export const WarpCreateJobAstroportDcaOrder = ({
   dcaStartTimestamp,
   maxSpread,
 }: WarpCreateJobAstroportDcaOrderProps) => {
-  const createWarpJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
-    senderAddress,
-    warpFeeTokenAddress,
-    warpControllerAddress,
+  const createJobAstroportDcaOrder = useWarpCreateJobAstroportDcaOrder({
     warpTotalJobFee,
     poolAddress,
     offerTokenAmount,
@@ -54,15 +44,15 @@ export const WarpCreateJobAstroportDcaOrder = ({
   });
 
   return (
-    <Flex>
-      <CreateAndBroadcastTxModal
-        msgs={createWarpJobAstroportDcaOrder.msgs}
-        buttonText={"create DCA order"}
-        disabled={
-          offerTokenAmount === "0" ||
-          parseInt(offerTokenAmount) > offerTokenBalance
-        }
-      />
-    </Flex>
+    <CreateAndBroadcastTxModal
+      msgs={createJobAstroportDcaOrder.msgs}
+      buttonText={"create DCA order"}
+      disabled={
+        offerTokenAmount === "0" ||
+        parseInt(offerTokenAmount) > offerTokenBalance
+      }
+    />
   );
 };
+
+export default WarpCreateJobAstroportDcaOrder;

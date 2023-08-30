@@ -2,15 +2,6 @@ import BigNumber from "bignumber.js";
 
 import { Token } from "./constants";
 
-export const constructJobVarNameForAstroportLimitOrder = (
-  offerTokenAmount: string,
-  offerToken: Token,
-  returnToken: Token
-) =>
-  `swap-${BigNumber(offerTokenAmount).toFixed(3)}-${
-    offerToken.name
-  }-to-how-many-${returnToken.name}`;
-
 export const constructJobDescriptionForAstroportLimitOrder = (
   offerTokenAmount: string,
   offerToken: Token,
