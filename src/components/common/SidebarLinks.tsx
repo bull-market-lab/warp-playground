@@ -21,13 +21,6 @@ const SidebarLinks = ({
       {isBack ? null : (
         <NavbarLink text="DCA Order" href="/dca_order" onClick={onClick} />
       )}
-      {isBack ? null : (
-        <NavbarLink
-          text="Stream Order"
-          href="/stream_order"
-          onClick={onClick}
-        />
-      )}
       {/* {isBack ? null : (
         <NavbarLink
           text="Vesting"

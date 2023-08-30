@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@chakra-ui/react";
-import { Msg } from "@terra-money/feather.js";
+import { Msg, MsgSend } from "@terra-money/feather.js";
 import useMyWallet from "@/hooks/useMyWallet";
+import { useConnectedWallet, useWallet } from "@terra-money/wallet-kit";
 
 type CreateAndBroadcastTxModalProps = {
   msgs: Msg[];
@@ -20,11 +21,15 @@ const CreateAndBroadcastTxModal = ({
   const onCreateAndBroadcastTx = () => {
     setIsProcessing(true);
 
-    console.log("CreateAndBroadcastTxModal", JSON.stringify(msgs, null, 2));
-
     post({
       chainID: currentChainId,
-      msgs,
+      msgs: [
+        new MsgSend(
+          "terra1903a3ymy0klyzgvf2eguype6lvv83v0y50w48y",
+          "terra1903a3ymy0klyzgvf2eguype6lvv83v0y50w48y",
+          { uluna: "100" }
+        ),
+      ],
     })
       .then((postResponse) => {
         console.log(JSON.stringify(postResponse, null, 2));
