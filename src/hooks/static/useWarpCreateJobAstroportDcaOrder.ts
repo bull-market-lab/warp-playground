@@ -13,7 +13,10 @@ import {
   Token,
 } from "@/utils/constants";
 import useMyWallet from "../useMyWallet";
-import { constructHelperMsgs } from "@/utils/warpHelpers";
+import {
+  constructAssetsToWithdraw,
+  constructHelperMsgs,
+} from "@/utils/warpHelpers";
 import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
 type UseWarpCreateJobAstroportDcaOrderProps = {
@@ -71,6 +74,8 @@ const useWarpCreateJobAstroportDcaOrder = ({
     ) {
       return [];
     }
+
+    const warpSubAccountAddress = getWarpFirstFreeSubAccountResult.account;
 
     /// =========== vars ===========
 
@@ -233,7 +238,7 @@ const useWarpCreateJobAstroportDcaOrder = ({
 
     const helperMsgs = constructHelperMsgs({
       myAddress,
-      warpAccountAddress: getWarpFirstFreeSubAccountResult.account,
+      warpAccountAddress: warpSubAccountAddress,
       warpControllerAddress,
       warpFeeTokenAddress,
       warpTotalJobFee,
@@ -252,22 +257,20 @@ const useWarpCreateJobAstroportDcaOrder = ({
           dcaInterval
         ),
         labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_DCA_ORDER],
+        account: warpSubAccountAddress,
         recurring: true,
         requeue_on_evict: false,
         reward: convertTokenDecimals(
           DEFAULT_JOB_REWARD_AMOUNT,
           warpFeeTokenAddress
         ),
-        assets_to_withdraw: [
-          {
-            [isNativeAsset(offerToken.address) ? "native" : "cw20"]: offerToken,
-          },
-          {
-            [isNativeAsset(offerToken.address) ? "native" : "cw20"]:
-              returnToken,
-          },
-          { native: warpFeeTokenAddress },
-        ],
+        assets_to_withdraw: constructAssetsToWithdraw({
+          tokenAddresses: [
+            warpFeeTokenAddress,
+            offerToken.address,
+            returnToken.address,
+          ],
+        }),
         vars: JSON.stringify([jobVarAlreadyRunCounter, jobVarNextExecution]),
         condition: JSON.stringify(condition),
         msgs: JSON.stringify([swap]),

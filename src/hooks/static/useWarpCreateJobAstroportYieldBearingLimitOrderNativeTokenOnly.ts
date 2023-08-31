@@ -12,7 +12,10 @@ import {
   Token,
 } from "@/utils/constants";
 import useMyWallet from "../useMyWallet";
-import { constructHelperMsgs } from "@/utils/warpHelpers";
+import {
+  constructAssetsToWithdraw,
+  constructHelperMsgs,
+} from "@/utils/warpHelpers";
 import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
@@ -61,6 +64,8 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
       return [];
     }
 
+    const warpSubAccountAddress = getWarpFirstFreeSubAccountResult.account;
+
     /// =========== vars ===========
 
     const astroportSimulateSwapMsg = {
@@ -104,7 +109,7 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
 
     const queryMarsBalanceMsg = {
       user_collateral: {
-        user: getWarpFirstFreeSubAccountResult.account,
+        user: warpSubAccountAddress,
         denom: offerToken.address,
       },
     };
@@ -219,7 +224,7 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
 
     const helperMsgs = constructHelperMsgs({
       myAddress,
-      warpAccountAddress: getWarpFirstFreeSubAccountResult.account,
+      warpAccountAddress: warpSubAccountAddress,
       warpControllerAddress,
       warpFeeTokenAddress,
       warpTotalJobFee,
@@ -232,7 +237,7 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
     };
     const subAccountDepositToMars = new MsgExecuteContract(
       myAddress,
-      getWarpFirstFreeSubAccountResult.account,
+      warpSubAccountAddress,
       {
         generic: {
           msgs: [
@@ -268,17 +273,20 @@ const useWarpCreateJobAstroportYieldBearingLimitOrderNativeTokenOnly = ({
           minimumReturnTokenAmount
         ),
         labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_LIMIT_ORDER],
+        account: warpSubAccountAddress,
         recurring: false,
         requeue_on_evict: expiredAfterDays > 1,
         reward: convertTokenDecimals(
           DEFAULT_JOB_REWARD_AMOUNT,
           warpFeeTokenAddress
         ),
-        assets_to_withdraw: [
-          { native: offerToken },
-          { native: returnToken },
-          { native: warpFeeTokenAddress },
-        ],
+        assets_to_withdraw: constructAssetsToWithdraw({
+          tokenAddresses: [
+            warpFeeTokenAddress,
+            offerToken.address,
+            returnToken.address,
+          ],
+        }),
         vars: JSON.stringify([
           jobVarPrice,
           jobVarMarsBalance,

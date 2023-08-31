@@ -247,3 +247,31 @@ export const constructHelperMsgs = ({
   );
   return msgs;
 };
+
+type ConstructAssetsToWithdrawProps = {
+  tokenAddresses: string[];
+};
+
+export const constructAssetsToWithdraw = ({
+  tokenAddresses,
+}: ConstructAssetsToWithdrawProps) => {
+  const assetsToWithdraw = [];
+  const nativeTokenSet = new Set<string>([]);
+  const cw20TokenSet = new Set<string>([]);
+  for (const tokenAddress of tokenAddresses) {
+    if (isNativeAsset(tokenAddress)) {
+      nativeTokenSet.add(tokenAddress);
+    } else {
+      cw20TokenSet.add(tokenAddress);
+    }
+  }
+  const nativeTokens = Array.from(nativeTokenSet);
+  const cw20Tokens = Array.from(cw20TokenSet);
+  assetsToWithdraw.push(
+    ...nativeTokens.map((nativeToken) => ({ native: nativeToken }))
+  );
+  assetsToWithdraw.push(
+    ...cw20Tokens.map((cw20Token) => ({ cw20: cw20Token }))
+  );
+  return assetsToWithdraw;
+};

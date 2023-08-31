@@ -12,7 +12,10 @@ import {
   Token,
 } from "@/utils/constants";
 import useMyWallet from "../useMyWallet";
-import { constructHelperMsgs } from "@/utils/warpHelpers";
+import {
+  constructAssetsToWithdraw,
+  constructHelperMsgs,
+} from "@/utils/warpHelpers";
 import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
 type UseWarpCreateJobAstroportLimitOrderProps = {
@@ -59,6 +62,8 @@ const useWarpCreateJobAstroportLimitOrder = ({
     ) {
       return [];
     }
+
+    const warpSubAccountAddress = getWarpFirstFreeSubAccountResult.account;
 
     /// =========== vars ===========
 
@@ -185,7 +190,7 @@ const useWarpCreateJobAstroportLimitOrder = ({
 
     const helperMsgs = constructHelperMsgs({
       myAddress,
-      warpAccountAddress: getWarpFirstFreeSubAccountResult.account,
+      warpAccountAddress: warpSubAccountAddress,
       warpControllerAddress,
       warpFeeTokenAddress,
       warpTotalJobFee,
@@ -203,22 +208,20 @@ const useWarpCreateJobAstroportLimitOrder = ({
           minimumReturnTokenAmount
         ),
         labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_LIMIT_ORDER],
+        account: warpSubAccountAddress,
         recurring: false,
         requeue_on_evict: expiredAfterDays > 1,
         reward: convertTokenDecimals(
           DEFAULT_JOB_REWARD_AMOUNT,
           warpFeeTokenAddress
         ),
-        assets_to_withdraw: [
-          {
-            [isNativeAsset(offerToken.address) ? "native" : "cw20"]: offerToken,
-          },
-          {
-            [isNativeAsset(offerToken.address) ? "native" : "cw20"]:
-              returnToken,
-          },
-          { native: warpFeeTokenAddress },
-        ],
+        assets_to_withdraw: constructAssetsToWithdraw({
+          tokenAddresses: [
+            warpFeeTokenAddress,
+            offerToken.address,
+            returnToken.address,
+          ],
+        }),
         vars: JSON.stringify([jobVarPrice]),
         condition: JSON.stringify(condition),
         msgs: JSON.stringify([swap]),
