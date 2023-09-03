@@ -6,7 +6,8 @@ import { toBase64 } from "@/utils/encoding";
 import { constructJobDescriptionForAstroportLimitOrder } from "@/utils/naming";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
-  LABEL_ASTROPORT_LIMIT_ORDER,
+  LABEL_ASTROPORT,
+  LABEL_LIMIT_ORDER,
   LABEL_WARP_PLAYGROUND,
   NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER,
   Token,
@@ -15,6 +16,8 @@ import useMyWallet from "../useMyWallet";
 import {
   constructAssetsToWithdraw,
   constructHelperMsgs,
+  constructOfferTokenLabel,
+  constructReturnTokenLabel,
 } from "@/utils/warpHelpers";
 import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
@@ -205,9 +208,19 @@ const useWarpCreateJobAstroportLimitOrder = ({
           offerTokenAmount,
           offerToken,
           returnToken,
-          minimumReturnTokenAmount
+          minimumReturnTokenAmount,
+          false
         ),
-        labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_LIMIT_ORDER],
+        labels: [
+          LABEL_WARP_PLAYGROUND,
+          LABEL_LIMIT_ORDER,
+          LABEL_ASTROPORT,
+          constructOfferTokenLabel(offerToken.address, offerTokenAmount),
+          constructReturnTokenLabel(
+            returnToken.address,
+            minimumReturnTokenAmount
+          ),
+        ],
         account: warpSubAccountAddress,
         recurring: false,
         requeue_on_evict: expiredAfterDays > 1,

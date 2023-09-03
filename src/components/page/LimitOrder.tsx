@@ -24,7 +24,7 @@ import { getTokenDecimals } from "@/utils/token";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
   EVICTION_FEE,
-  LABEL_ASTROPORT_LIMIT_ORDER,
+  LABEL_LIMIT_ORDER,
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
@@ -266,7 +266,7 @@ export const LimitOrderPage = () => {
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
       />
-      <WarpJobs warpJobLabel={LABEL_ASTROPORT_LIMIT_ORDER} />
+      <WarpJobs warpJobLabel={LABEL_LIMIT_ORDER} />
     </Flex>
   );
 };

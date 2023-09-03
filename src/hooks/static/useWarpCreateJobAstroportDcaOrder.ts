@@ -7,7 +7,8 @@ import { toBase64 } from "@/utils/encoding";
 import { constructJobDescriptionForAstroportDcaOrder } from "@/utils/naming";
 import {
   DEFAULT_JOB_REWARD_AMOUNT,
-  LABEL_ASTROPORT_DCA_ORDER,
+  LABEL_ASTROPORT,
+  LABEL_DCA_ORDER,
   LABEL_WARP_PLAYGROUND,
   NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER,
   Token,
@@ -16,6 +17,8 @@ import useMyWallet from "../useMyWallet";
 import {
   constructAssetsToWithdraw,
   constructHelperMsgs,
+  constructOfferTokenLabel,
+  constructReturnTokenLabel,
 } from "@/utils/warpHelpers";
 import useWarpGetFirstFreeSubAccount from "../query/useWarpGetFirstFreeSubAccount";
 
@@ -254,9 +257,16 @@ const useWarpCreateJobAstroportDcaOrder = ({
           offerToken,
           returnToken,
           dcaCount,
-          dcaInterval
+          dcaInterval,
+          false
         ),
-        labels: [LABEL_WARP_PLAYGROUND, LABEL_ASTROPORT_DCA_ORDER],
+        labels: [
+          LABEL_WARP_PLAYGROUND,
+          LABEL_DCA_ORDER,
+          LABEL_ASTROPORT,
+          constructOfferTokenLabel(offerToken.address, offerTokenAmount),
+          constructReturnTokenLabel(returnToken.address, ""),
+        ],
         account: warpSubAccountAddress,
         recurring: true,
         requeue_on_evict: false,

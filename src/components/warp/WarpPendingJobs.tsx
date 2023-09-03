@@ -50,7 +50,7 @@ const WarpPendingJobs = ({ warpJobLabel }: WarpPendingJobsProps) => {
             <WarpJobDetail job={job} />
           </Td>
           <Td borderBottom="none" py="6" minW="200px" borderRightRadius="2xl">
-            <WarpCancelJob jobId={job.id} />
+            <WarpCancelJob job={job} />
           </Td>
         </Tr>
       ))

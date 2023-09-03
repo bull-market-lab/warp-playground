@@ -1,12 +1,22 @@
 import BigNumber from "bignumber.js";
-import { MsgExecuteContract, MsgSend } from "@terra-money/feather.js";
+import {
+  LCDClient,
+  MsgExecuteContract,
+  MsgSend,
+} from "@terra-money/feather.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
+import {
+  LABEL_MARS,
+  LABEL_YIELD_BEARING_DCA_ORDER,
+  LABEL_YIELD_BEARING_LIMIT_ORDER,
+} from "./constants";
 
 export type Job = {
   id: string;
   name: string;
   description: string;
   labels: string[];
+  account: string;
   status: string;
 };
 
@@ -274,4 +284,96 @@ export const constructAssetsToWithdraw = ({
     ...cw20Tokens.map((cw20Token) => ({ cw20: cw20Token }))
   );
   return assetsToWithdraw;
+};
+
+export const constructOfferTokenLabel = (
+  offerTokenAddress: string,
+  offerTokenAmount: string
+) => {
+  return `offerToken:${offerTokenAddress}:${offerTokenAmount}`;
+};
+
+export const constructReturnTokenLabel = (
+  returnTokenAddress: string,
+  returnTokenAmount: string
+) => {
+  return `returnToken:${returnTokenAddress}:${returnTokenAmount}`;
+};
+
+export const extractOfferTokenAddress = (labels: string[]) => {
+  const offerTokenLabel = labels.find((label) =>
+    label.startsWith("offerToken:")
+  );
+  if (offerTokenLabel) {
+    return offerTokenLabel.split(":")[1];
+  }
+  return "";
+};
+
+export const extractReturnTokenAddress = (labels: string[]) => {
+  const returnTokenLabel = labels.find((label) =>
+    label.startsWith("returnToken:")
+  );
+  if (returnTokenLabel) {
+    return returnTokenLabel.split(":")[1];
+  }
+  return "";
+};
+
+export const extractOfferTokenAmount = (labels: string[]) => {
+  const offerTokenLabel = labels.find((label) =>
+    label.startsWith("offerToken:")
+  );
+  if (offerTokenLabel) {
+    return offerTokenLabel.split(":")[2];
+  }
+  return "";
+};
+
+export const extractReturnTokenAmount = (labels: string[]) => {
+  const returnTokenLabel = labels.find((label) =>
+    label.startsWith("returnToken:")
+  );
+  if (returnTokenLabel) {
+    return returnTokenLabel.split(":")[2];
+  }
+  return "";
+};
+
+export const isYieldBearingOrder = (labels: string[]) => {
+  return (
+    labels.includes(LABEL_YIELD_BEARING_DCA_ORDER) ||
+    labels.includes(LABEL_YIELD_BEARING_LIMIT_ORDER)
+  );
+};
+
+export const isMarsYieldBearingOrder = (labels: string[]) => {
+  return isYieldBearingOrder(labels) && labels.includes(LABEL_MARS);
+};
+
+type getMarsYieldProps = {
+  lcd?: LCDClient;
+  redBankAddress: string;
+  job: Job;
+};
+
+export const getMarsYield = ({
+  lcd,
+  redBankAddress,
+  job,
+}: getMarsYieldProps) => {
+  if (!lcd) {
+    return "0";
+  }
+  const initialDepositAmount = extractOfferTokenAmount(job.labels);
+  const currentCollateralAmount = lcd.wasm.contractQuery(redBankAddress, {
+    user_collateral: {
+      user: job.account,
+      denom: extractOfferTokenAddress(job.labels),
+    },
+    // @ts-ignore
+  }).amount;
+  return new BigNumber(currentCollateralAmount)
+    .minus(new BigNumber(initialDepositAmount))
+    .toString();
 };

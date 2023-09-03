@@ -1,5 +1,5 @@
 import { constructJobUrl } from "@/utils/warpHelpers";
-import { Link } from "@chakra-ui/react";
+import { Box, Flex, Link } from "@chakra-ui/react";
 
 type WarpJobLinkProps = {
   jobId: string;
@@ -7,15 +7,18 @@ type WarpJobLinkProps = {
 
 const WarpJobLink = ({ jobId }: WarpJobLinkProps) => {
   return (
-    <Link
-      href={constructJobUrl(jobId)}
-      color="blue.500"
-      fontWeight="bold"
-      _hover={{ textDecoration: "underline" }}
-      isExternal
-    >
-      {jobId}
-    </Link>
+    <Flex direction="column">
+      <Link
+        href={constructJobUrl(jobId)}
+        color="blue.500"
+        fontWeight="bold"
+        _hover={{ textDecoration: "underline" }}
+        isExternal
+      >
+        {jobId}
+      </Link>
+      <Box>link is wrong please ignore</Box>
+    </Flex>
   );
 };
 

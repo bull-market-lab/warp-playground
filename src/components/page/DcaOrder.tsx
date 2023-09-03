@@ -23,7 +23,7 @@ import {
   DAY_IN_SECONDS,
   DEFAULT_JOB_REWARD_AMOUNT,
   EVICTION_FEE,
-  LABEL_ASTROPORT_DCA_ORDER,
+  LABEL_DCA_ORDER,
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
@@ -321,7 +321,7 @@ export const DcaOrderPage = () => {
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
       />
-      <WarpJobs warpJobLabel={LABEL_ASTROPORT_DCA_ORDER} />
+      <WarpJobs warpJobLabel={LABEL_DCA_ORDER} />
     </Flex>
   );
 };

@@ -13,10 +13,23 @@ export const NAME_WARP_PLAYGROUND_ASTROPORT_LIMIT_ORDER =
 export const NAME_WARP_PLAYGROUND_ASTROPORT_DCA_ORDER =
   "Warp Playground Astroport DCA Order";
 
+// ========== warp job labels ==========
+
 export const LABEL_WARP_PLAYGROUND = "Warp Playground";
 
-export const LABEL_ASTROPORT_LIMIT_ORDER = "Limit Order";
-export const LABEL_ASTROPORT_DCA_ORDER = "DCA Order";
+export const LABEL_ASTROPORT = "Astroport";
+export const LABEL_OSMOSIS = "Osmosis";
+
+export const LABEL_MARS = "Mars";
+export const LABEL_CAVERN = "Cavern";
+
+export const LABEL_LIMIT_ORDER = "Limit Order";
+export const LABEL_YIELD_BEARING_LIMIT_ORDER = "Yield Bearing Limit Order";
+
+export const LABEL_DCA_ORDER = "DCA Order";
+export const LABEL_YIELD_BEARING_DCA_ORDER = "Yield Bearing DCA Order";
+
+// ========== Chain ==========
 
 export const CHAIN_TERRA = "terra";
 export const CHAIN_NEUTRON = "neutron";
