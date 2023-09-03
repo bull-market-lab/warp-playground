@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useMyWallet from "../useMyWallet";
+import { queryWasmContractWithCatch } from "@/utils/lcdHelper";
 
 type GetWarpConfigResponse = {
   config: {
@@ -24,13 +25,14 @@ const useWarpGetConfig = () => {
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const configResult = useQuery(
-    ["get-config", warpControllerAddress],
+    ["get_warp_config", warpControllerAddress],
     async () => {
       if (!lcd || !warpControllerAddress) {
         return null;
       }
 
-      const response: GetWarpConfigResponse = await lcd.wasm.contractQuery(
+      const response: GetWarpConfigResponse = await queryWasmContractWithCatch(
+        lcd,
         warpControllerAddress,
         {
           query_config: {},

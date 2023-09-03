@@ -1,9 +1,5 @@
 import BigNumber from "bignumber.js";
-import {
-  LCDClient,
-  MsgExecuteContract,
-  MsgSend,
-} from "@terra-money/feather.js";
+import { MsgExecuteContract, MsgSend } from "@terra-money/feather.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import {
   LABEL_MARS,
@@ -290,14 +286,20 @@ export const constructOfferTokenLabel = (
   offerTokenAddress: string,
   offerTokenAmount: string
 ) => {
-  return `offerToken:${offerTokenAddress}:${offerTokenAmount}`;
+  return `offerToken:${offerTokenAddress}:${convertTokenDecimals(
+    offerTokenAmount,
+    offerTokenAddress
+  )}`;
 };
 
 export const constructReturnTokenLabel = (
   returnTokenAddress: string,
   returnTokenAmount: string
 ) => {
-  return `returnToken:${returnTokenAddress}:${returnTokenAmount}`;
+  return `returnToken:${returnTokenAddress}:${convertTokenDecimals(
+    returnTokenAmount,
+    returnTokenAddress
+  )}`;
 };
 
 export const extractOfferTokenAddress = (labels: string[]) => {
@@ -351,28 +353,13 @@ export const isMarsYieldBearingOrder = (labels: string[]) => {
   return isYieldBearingOrder(labels) && labels.includes(LABEL_MARS);
 };
 
-type getMarsYieldProps = {
-  lcd?: LCDClient;
-  redBankAddress: string;
-  job: Job;
-};
-
-export const getMarsYield = ({
-  lcd,
-  redBankAddress,
-  job,
-}: getMarsYieldProps) => {
-  if (!lcd) {
-    return "0";
-  }
+export const calculateMarsYield = (
+  job: Job,
+  currentCollateralAmount: string
+) => {
   const initialDepositAmount = extractOfferTokenAmount(job.labels);
-  const currentCollateralAmount = lcd.wasm.contractQuery(redBankAddress, {
-    user_collateral: {
-      user: job.account,
-      denom: extractOfferTokenAddress(job.labels),
-    },
-    // @ts-ignore
-  }).amount;
+  console.log("initialDepositAmount", initialDepositAmount);
+  console.log("currentCollateralAmount", currentCollateralAmount);
   return new BigNumber(currentCollateralAmount)
     .minus(new BigNumber(initialDepositAmount))
     .toString();

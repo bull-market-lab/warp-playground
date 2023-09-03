@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button, useToast } from "@chakra-ui/react";
 import { Msg } from "@terra-money/feather.js";
 import useMyWallet from "@/hooks/useMyWallet";
+import { getErrorDescription } from "@/utils/lcdHelper";
 
 type CreateAndBroadcastTxModalProps = {
   msgs: Msg[];
@@ -23,15 +24,6 @@ const CreateAndBroadcastTxModal = ({
   const onCreateAndBroadcastTx = async () => {
     setIsProcessing(true);
 
-    // console.log(
-    //   "msgs",
-    //   JSON.stringify(
-    //     msgs.map((msg) => msg.toJSON()),
-    //     null,
-    //     2
-    //   )
-    // );
-
     const estimatedFee = await lcd!.auth
       .accountInfo(myAddress!)
       .then((accountInfo) => {
@@ -49,26 +41,9 @@ const CreateAndBroadcastTxModal = ({
         );
       })
       .catch((e) => {
-        let errorDescription = `${JSON.stringify(e.response?.data)}`;
-        if (axios.isAxiosError(e)) {
-          if (e.response) {
-            console.log(e.response.status);
-            console.log(e.response.headers);
-            if (
-              typeof e.response.data === "object" &&
-              e.response.data !== null &&
-              "code" in e.response.data &&
-              "message" in e.response.data
-            ) {
-              errorDescription = `Code=${e.response?.data["code"]} Message=${e.response?.data["message"]} \n`;
-            } else {
-              errorDescription = JSON.stringify(e.response.data);
-            }
-          }
-        }
         toast({
           title: "Error estimating fee",
-          description: errorDescription,
+          description: getErrorDescription(e),
           status: "error",
           duration: 6000,
           isClosable: true,
@@ -78,8 +53,6 @@ const CreateAndBroadcastTxModal = ({
       .finally(() => {
         setIsProcessing(false);
       });
-
-    // console.log("fee", JSON.stringify(estimatedFee, null, 2));
 
     post({
       chainID: currentChainId,
@@ -98,7 +71,7 @@ const CreateAndBroadcastTxModal = ({
       .catch((e) => {
         toast({
           title: "Error broadcasting TX",
-          description: `${JSON.stringify(e)}`,
+          description: getErrorDescription(e),
           status: "error",
           duration: 6000,
           isClosable: true,

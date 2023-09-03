@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { convertTokenDecimals, isNativeAsset } from "@/utils/token";
 import useMyWallet from "../useMyWallet";
+import { queryWasmContractWithCatch } from "@/utils/lcdHelper";
 
 type AssetInfo =
   | {
@@ -39,7 +40,7 @@ const useSimulateSwap = ({
 
   const simulateResult = useQuery(
     [
-      "swap-simulate",
+      "simulate_swap",
       amount,
       offerTokenAddress,
       returnTokenAddress,
@@ -67,7 +68,8 @@ const useSimulateSwap = ({
         assetInfo = { native_token: { denom: offerTokenAddress } };
       }
 
-      const response: SimulateSwapResponse = await lcd.wasm.contractQuery(
+      const response: SimulateSwapResponse = await queryWasmContractWithCatch(
+        lcd,
         poolAddress,
         {
           simulation: {

@@ -1,26 +1,19 @@
-import useMyWallet from "@/hooks/useMyWallet";
-import {
-  Job,
-  getMarsYield,
-  isMarsYieldBearingOrder,
-} from "@/utils/warpHelpers";
+import { Job, isMarsYieldBearingOrder } from "@/utils/warpHelpers";
 import { Box, Flex } from "@chakra-ui/react";
+import MarsYield from "./MarsYield";
 
 type WarpJobDetailProps = {
   job: Job;
+  isPending: boolean;
 };
 
-const WarpJobDetail = ({ job }: WarpJobDetailProps) => {
-  const { lcd, currentChainConfig } = useMyWallet();
+const WarpJobDetail = ({ job, isPending }: WarpJobDetailProps) => {
   return (
-    <Flex>
+    <Flex direction="column">
       <Box>{job.description}</Box>
-      {isMarsYieldBearingOrder(job.labels) &&
-        `offer token yield generated from mars: ${getMarsYield({
-          lcd,
-          redBankAddress: currentChainConfig.mars.redBankAddress,
-          job,
-        })}`}
+      {isPending && isMarsYieldBearingOrder(job.labels) && (
+        <MarsYield job={job} />
+      )}
     </Flex>
   );
 };

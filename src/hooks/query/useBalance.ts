@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokenDecimals, isNativeAsset } from "@/utils/token";
 import useMyWallet from "../useMyWallet";
+import { queryWasmContractWithCatch } from "@/utils/lcdHelper";
 
 type Cw20BalanceResponse = {
   balance: string;
@@ -33,7 +34,8 @@ const useBalance = ({ tokenAddress }: UseBalanceProps) => {
           return Number(coin[0].amount) / getTokenDecimals(tokenAddress);
         }
       } else {
-        const response: Cw20BalanceResponse = await lcd.wasm.contractQuery(
+        const response: Cw20BalanceResponse = await queryWasmContractWithCatch(
+          lcd,
           tokenAddress,
           {
             balance: {

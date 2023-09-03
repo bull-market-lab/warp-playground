@@ -25,6 +25,7 @@ import {
   DEFAULT_JOB_REWARD_AMOUNT,
   EVICTION_FEE,
   LABEL_LIMIT_ORDER,
+  LABEL_YIELD_BEARING_LIMIT_ORDER,
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
@@ -266,7 +267,9 @@ export const LimitOrderPage = () => {
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
       />
-      <WarpJobs warpJobLabel={LABEL_LIMIT_ORDER} />
+      <WarpJobs
+        warpJobLabels={[LABEL_LIMIT_ORDER, LABEL_YIELD_BEARING_LIMIT_ORDER]}
+      />
     </Flex>
   );
 };

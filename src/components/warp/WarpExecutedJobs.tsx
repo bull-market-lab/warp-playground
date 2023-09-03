@@ -8,10 +8,10 @@ import WarpJobDetail from "@/components/warp/WarpJobDetail";
 import { LABEL_WARP_PLAYGROUND } from "@/utils/constants";
 
 type WarpExecutedJobsProps = {
-  warpJobLabel: string;
+  warpJobLabels: string[];
 };
 
-const WarpExecutedJobs = ({ warpJobLabel }: WarpExecutedJobsProps) => {
+const WarpExecutedJobs = ({ warpJobLabels }: WarpExecutedJobsProps) => {
   const [warpExecutedJobs, setWarpExecutedJobs] = useState<Job[]>([]);
   const [warpExecutedJobCount, setWarpExecutedJobCount] = useState(0);
 
@@ -26,7 +26,7 @@ const WarpExecutedJobs = ({ warpJobLabel }: WarpExecutedJobsProps) => {
     const jobs = getWarpExecutedJobsResult.jobs.filter(
       (job) =>
         job.labels.includes(LABEL_WARP_PLAYGROUND) &&
-        job.labels.includes(warpJobLabel)
+        warpJobLabels.some((label) => job.labels.includes(label))
     );
     setWarpExecutedJobCount(jobs.length);
     setWarpExecutedJobs(jobs);
@@ -46,7 +46,7 @@ const WarpExecutedJobs = ({ warpJobLabel }: WarpExecutedJobsProps) => {
             <WarpJobLink jobId={job.id} />
           </Td>
           <Td borderBottom="none" py="6" minW="230px" borderRightRadius="2xl">
-            <WarpJobDetail job={job} />
+            <WarpJobDetail job={job} isPending={false} />
           </Td>
         </Tr>
       ))

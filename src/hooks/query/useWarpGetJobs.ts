@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Job } from "@/utils/warpHelpers";
 import useMyWallet from "../useMyWallet";
+import { queryWasmContractWithCatch } from "@/utils/lcdHelper";
 
 type GetWarpJobsResponse = {
   jobs: Job[];
@@ -17,13 +18,14 @@ const useWarpGetJobs = ({ status }: UseWarpGetJobsProps) => {
   const warpControllerAddress = currentChainConfig.warp.controllerAddress;
 
   const jobsResult = useQuery(
-    [`get-jobs`, status, myAddress, warpControllerAddress],
+    [`get_jobs`, status, myAddress, warpControllerAddress],
     async () => {
       if (!lcd || !myAddress || !warpControllerAddress || !status) {
         return null;
       }
 
-      const response: GetWarpJobsResponse = await lcd.wasm.contractQuery(
+      const response: GetWarpJobsResponse = await queryWasmContractWithCatch(
+        lcd,
         warpControllerAddress,
         {
           query_jobs: {

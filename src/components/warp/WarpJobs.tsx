@@ -12,10 +12,10 @@ import WarpExecutedJobs from "@/components/warp/WarpExecutedJobs";
 import WarpPendingJobs from "@/components/warp/WarpPendingJobs";
 
 type WarpJobsProps = {
-  warpJobLabel: string;
+  warpJobLabels: string[];
 };
 
-const WarpJobs = ({ warpJobLabel }: WarpJobsProps) => {
+const WarpJobs = ({ warpJobLabels }: WarpJobsProps) => {
   return (
     <Flex
       align="center"
@@ -37,13 +37,13 @@ const WarpJobs = ({ warpJobLabel }: WarpJobsProps) => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <WarpPendingJobs warpJobLabel={warpJobLabel} />
+            <WarpPendingJobs warpJobLabels={warpJobLabels} />
           </TabPanel>
           <TabPanel>
-            <WarpExecutedJobs warpJobLabel={warpJobLabel} />
+            <WarpExecutedJobs warpJobLabels={warpJobLabels} />
           </TabPanel>
           <TabPanel>
-            <WarpClosedJobs warpJobLabel={warpJobLabel} />
+            <WarpClosedJobs warpJobLabels={warpJobLabels} />
           </TabPanel>
         </TabPanels>
       </Tabs>

@@ -24,6 +24,7 @@ import {
   DEFAULT_JOB_REWARD_AMOUNT,
   EVICTION_FEE,
   LABEL_DCA_ORDER,
+  LABEL_YIELD_BEARING_DCA_ORDER,
   Token,
 } from "@/utils/constants";
 import { WarpProtocolFeeBreakdown } from "../warp/WarpProtocolFeeBreakdown";
@@ -321,7 +322,9 @@ export const DcaOrderPage = () => {
         warpJobRewardFee={warpJobRewardFee}
         warpTotalJobFee={warpTotalJobFee}
       />
-      <WarpJobs warpJobLabel={LABEL_DCA_ORDER} />
+      <WarpJobs
+        warpJobLabels={[LABEL_DCA_ORDER, LABEL_YIELD_BEARING_DCA_ORDER]}
+      />
     </Flex>
   );
 };

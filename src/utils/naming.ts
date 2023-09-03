@@ -9,7 +9,7 @@ export const constructJobDescriptionForAstroportLimitOrder = (
   minimumReturnTokenAmount: string,
   isYieldBearing: boolean
 ) =>
-  `${isYieldBearing && "yield bearing "}limit order: swap ${BigNumber(
+  `${isYieldBearing ? "yield bearing " : ""}limit order: swap ${BigNumber(
     offerTokenAmount
   ).toFixed(3)} ${offerToken.name} to ${BigNumber(
     minimumReturnTokenAmount
@@ -23,8 +23,10 @@ export const constructJobDescriptionForAstroportDcaOrder = (
   dcaInterval: number,
   isYieldBearing: boolean
 ) =>
-  `${isYieldBearing && "yield bearing "}DCA order: each time swap ${BigNumber(
-    offerTokenAmount
-  ).toFixed(3)} ${offerToken.name} to ${
+  `${
+    isYieldBearing ? "yield bearing " : ""
+  }DCA order: each time swap ${BigNumber(offerTokenAmount).toFixed(3)} ${
+    offerToken.name
+  } to ${
     returnToken.name
   } for ${dcaCount} times, interval is ${dcaInterval} days`;
